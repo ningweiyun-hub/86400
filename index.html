@@ -413,6 +413,15 @@ const DEFAULTS = {
   coinLog:{},           // 'YYYY-MM-DD' -> { anchor?:bool, blocks:{id:true} }
   petSettled:{}         // 已結算過寵物存亡的日期
 };
+const p2 = n => String(n).padStart(2,'0');
+const comma = n => Math.max(0, Math.round(n)).toLocaleString('en-US');
+const catOf = k => CATS.find(c => c.k === k) || CATS[0];
+const catName = k => { const c = catOf(k); return EN() ? c.en : c.zh; };
+
+function dayKey(d){ d = d || new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+function dayStart(d){ d = d ? new Date(d) : new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function dayEnd(d){ return dayStart(d) + 86400000; }
+
 let S = load();
 let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
            anchorDraft:null, anchorEdit:false, anchorCancelling:false,
@@ -435,14 +444,6 @@ const EN = () => S.lang === 'en';
 const t  = k => (T[k] ? T[k][EN()?1:0] : k);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const p2 = n => String(n).padStart(2,'0');
-const comma = n => Math.max(0, Math.round(n)).toLocaleString('en-US');
-const catOf = k => CATS.find(c => c.k === k) || CATS[0];
-const catName = k => { const c = catOf(k); return EN() ? c.en : c.zh; };
-
-function dayKey(d){ d = d || new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
-function dayStart(d){ d = d ? new Date(d) : new Date(); d.setHours(0,0,0,0); return d.getTime(); }
-function dayEnd(d){ return dayStart(d) + 86400000; }
 function today(){
   const k = dayKey();
   if(!S.days[k]) S.days[k] = { anchor:{text:'',state:'doing'}, blocks:[], tomorrow:[] };
