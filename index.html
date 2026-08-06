@@ -95,7 +95,7 @@ input{border-radius:0}
   padding:calc(env(safe-area-inset-top,0px) + 14px) 20px 8px;
 }
 .brand{font:600 15px/1 var(--fh);letter-spacing:.2em;color:var(--accent);text-shadow:var(--glow-sm)}
-.date{font:400 10.5px/1 var(--fb);letter-spacing:.06em;color:rgba(233,237,244,.45)}
+.date{font:400 10.5px/1 var(--fb);letter-spacing:.06em;color:var(--ink-42)}
 .langsw{display:flex;border:1px solid var(--hair-2)}
 .langsw button{border:none;padding:4px 9px;font:600 10px/1.4 var(--fh);letter-spacing:.1em;background:transparent}
 .langsw button.on{background:var(--accent);color:var(--on-accent)}
@@ -106,7 +106,7 @@ input{border-radius:0}
 }
 .tabs button{
   flex:1;border:none;background:transparent;display:flex;flex-direction:column;
-  align-items:center;gap:5px;padding:2px 0;min-height:44px;color:rgba(233,237,244,.42);
+  align-items:center;gap:5px;padding:2px 0;min-height:44px;color:var(--ink-42);
 }
 .tabs button.on{color:var(--accent);text-shadow:var(--glow-sm)}
 .tabs .lbl{font:500 9.5px/1 var(--fb);letter-spacing:.06em}
@@ -330,13 +330,20 @@ const T = {
   auto:            ['自動','auto'],
   install_hint:    ['提示：用手機瀏覽器開啟後，選「加入主畫面」就會變成全螢幕 App。','Tip: open this in your phone browser and choose "Add to Home Screen" for a full-screen app.'],
   coins:           ['金幣','Coins'],
-  coins_sub:       ['完成今日 Anchor 與命名時段可獲得，用來在商店換寵物。','Earn by finishing today’s Anchor and named stretches. Spend them in the shop.'],
+  coins_sub:       ['完成今日 Anchor 與命名時段可獲得，用來在商店換寵物或套裝皮膚。','Earn by finishing today’s Anchor and named stretches. Spend them on pets or skin packs.'],
   coin_earn_anchor:['Anchor 完成，+{n} 金幣','Anchor finished, +{n} coins'],
   coin_earn_block: ['時段完成，+{n} 金幣','Stretch finished, +{n} coins'],
   pet_cabinet:     ['寵物櫃','Pet cabinet'],
   pet_cabinet_sub: ['更換引線上的角色。炸掉的寵物不會消失，會留下陪伴紀錄。','Change the character on the fuse. Fallen pets stay here with their companionship record.'],
   pet_shop:        ['商店','Shop'],
-  pet_shop_sub:    ['免費角色可直接帶走；付費角色用金幣購買。','Free characters are yours to take. Paid ones cost coins.'],
+  pet_shop_sub:    ['寵物與套裝皮膚都在這裡。用金幣購買，隨時更換。','Pets and skin packs live here. Buy with coins, switch anytime.'],
+  shop_tab_pets:   ['寵物','Pets'],
+  shop_tab_skins:  ['套裝皮膚','Skin packs'],
+  skin_equip:      ['套用','Apply'],
+  skin_equipped:   ['使用中','In use'],
+  skin_bought:     ['皮膚已解鎖','Skin unlocked'],
+  skin_row:        ['目前皮膚','Current skin'],
+  skin_row_sub:    ['套裝會改變色票與首頁提示詞。','Packs change the palette and the home prompts.'],
   pet_equip:       ['放上引線','Put on the fuse'],
   pet_equipped:    ['使用中','On the fuse'],
   pet_owned:       ['已擁有','Owned'],
@@ -355,7 +362,38 @@ const T = {
   pet_memo:        ['查看紀錄','View record'],
   pet_close:       ['關閉','Close'],
   pet_default:     ['預設','Default'],
-  pet_price:       ['{n} 金幣','{n} coins']
+  pet_price:       ['{n} 金幣','{n} coins'],
+  // 新手引導／帳戶（本機；無雲端）
+  guide_fuse_t:    ['引線與倒數','The fuse and the countdown'],
+  guide_fuse_b:    ['每天 86,400 秒從右往左燒完。引線左端的角色可以換成寵物。','86,400 seconds burn right to left each day. The character on the fuse can become a pet.'],
+  guide_task_t:    ['任務、金幣與寵物','Tasks, coins, and pets'],
+  guide_task_b:    ['完成 Today Anchor 與自己新增的時段會得到金幣。金幣可在商店換寵物；任務沒完成，寵物可能被炸掉，但紀錄會留在寵物櫃。','Finish the Anchor and your named stretches to earn coins. Spend them on pets. If tasks go unfinished, a pet may be blown up — the record stays in your cabinet.'],
+  guide_skin_t:    ['套裝皮膚','Skin packs'],
+  guide_skin_b:    ['預設是焦慮霓虹。商店還有文青簡約、科技、迷彩——每一套都有自己的色票與提示詞。','Default is Anxiety Neon. The shop also has Quiet Literati, Tech, and Camouflage — each with its own palette and prompts.'],
+  guide_acct_t:    ['保存這份資料','Keep this save'],
+  guide_acct_b:    ['建議建立本機帳戶並登入，讓資料綁在這個身分上。也可以用遊客身份直接開始——資料都只存在這台裝置，可隨時匯出備份。','We suggest a local account so this save is tied to you. Or continue as a guest. Either way, data stays on this device — export a backup anytime.'],
+  guide_acct_note: ['目前沒有雲端同步。帳戶密碼只用來保護這台裝置上的存檔。','There is no cloud sync yet. A password only protects the save on this device.'],
+  acct_register:   ['建立帳戶','Create account'],
+  acct_login:      ['登入','Log in'],
+  acct_guest:      ['以遊客繼續','Continue as guest'],
+  acct_name:       ['顯示名稱','Display name'],
+  acct_pass:       ['密碼','Password'],
+  acct_pass2:      ['再輸入一次密碼','Confirm password'],
+  acct_name_ph:    ['怎麼稱呼你','What should we call you'],
+  acct_need_name:  ['請先填顯示名稱','Please enter a display name'],
+  acct_need_pass:  ['密碼至少 4 個字','Password needs at least 4 characters'],
+  acct_pass_mismatch:['兩次密碼不一致','Passwords do not match'],
+  acct_bad_login:  ['名稱或密碼不對','Name or password is wrong'],
+  acct_exists:     ['這台裝置已有帳戶，請改登入','An account already exists on this device — log in instead'],
+  acct_no_account: ['還沒有帳戶，請先建立','No account yet — create one first'],
+  acct_guest_ok:   ['已用遊客身份開始','Continuing as guest'],
+  acct_welcome:    ['歡迎回來，{name}','Welcome back, {name}'],
+  acct_logout:     ['登出本機帳戶','Log out'],
+  acct_logout_sub: ['登出後需再輸入密碼才能看資料。遊客不受影響。','After logout you will need the password again. Guests are unaffected.'],
+  acct_local:      ['本機帳戶','Local account'],
+  acct_guest_lbl:  ['遊客','Guest'],
+  home_tip:        ['先設 Today Anchor，再留一段命名時間。完成會得到金幣；商店裡還有寵物與皮膚。','Set today’s Anchor, then name a stretch of time. Finishing earns coins — pets and skins wait in the shop.'],
+  home_tip_ok:     ['知道了','Got it']
 };
 
 /* 引線角色／寵物目錄。bomb 走原本的 CSS 炸彈；其餘先用 emoji 佔位。 */
@@ -372,6 +410,77 @@ const PETS = [
 const COIN_ANCHOR = 15;
 const COIN_BLOCK  = 8;
 const FREE_PET_IDS = PETS.filter(p => p.free).map(p => p.id);
+
+/* 套裝皮膚：色票（OKLCH stops）+ 首頁提示詞。預設焦慮霓虹＝現行 After Hours。 */
+const SKINS = [
+  {
+    id:'neon', price:0, free:true, zh:'焦慮霓虹', en:'Anxiety Neon',
+    light:false, glow:1, scan:1,
+    stops:[
+      { at:0,    bg:[0.16,0.028,158], neon:[0.86,0.20,148] },
+      { at:0.55, bg:[0.15,0.050, 55], neon:[0.84,0.17, 72] },
+      { at:1,    bg:[0.12,0.100, 15], neon:[0.70,0.26, 20] }
+    ],
+    mood:{
+      fuse:  ['引線快燒完了。剩下的就是全部了。','The fuse is almost gone. Whatever is left is all there is.'],
+      early: ['今天還很寬。現在什麼都還來得及。','The day is still wide. Nothing is urgent yet.'],
+      mid:   ['一半以上已經過去了。剩下的要給誰？','More than half is spent. What gets the rest?'],
+      late:  ['天色在走了。下一段，刻意選一次。','The light is going. Choose the next stretch on purpose.'],
+      end:   ['今天不會結轉。剩下的就是全部了。','Today does not roll over. Whatever is left is all there is.']
+    }
+  },
+  {
+    id:'literati', price:45, free:false, zh:'文青簡約', en:'Quiet Literati',
+    light:true, glow:0.25, scan:0,
+    stops:[
+      { at:0,    bg:[0.96,0.012, 85], neon:[0.42,0.045,145] },
+      { at:0.55, bg:[0.94,0.018, 70], neon:[0.38,0.055, 55] },
+      { at:1,    bg:[0.91,0.028, 40], neon:[0.34,0.070, 30] }
+    ],
+    mood:{
+      fuse:  ['紙頁快寫滿了。留下的句子，就是今天。','The page is nearly full. What remains is the day.'],
+      early: ['日子還很開闊，不必急著下筆。','The day is open. No need to rush the next line.'],
+      mid:   ['過午了。把心安靜下來，選一件想寫完的事。','Afternoon. Quiet the noise, and finish one true thing.'],
+      late:  ['光薄了。今晚只留一件事就好。','The light thins. Keep only one thing for tonight.'],
+      end:   ['這一頁要合上了。未寫完的，明天另開一篇。','This page is closing. Unfinished lines begin tomorrow.']
+    }
+  },
+  {
+    id:'tech', price:55, free:false, zh:'科技', en:'Tech Grid',
+    light:false, glow:0.85, scan:0.7,
+    stops:[
+      { at:0,    bg:[0.14,0.040,260], neon:[0.82,0.16,210] },
+      { at:0.55, bg:[0.13,0.055,280], neon:[0.78,0.18,195] },
+      { at:1,    bg:[0.11,0.080,300], neon:[0.72,0.22,330] }
+    ],
+    mood:{
+      fuse:  ['緩衝區見底。剩餘週期，就是全部可用時間。','Buffer nearly empty. Remaining cycles are all you have.'],
+      early: ['系統時間充裕。可以安心配置下一進程。','System time is ample. Schedule the next process calmly.'],
+      mid:   ['已消耗過半。重新排程剩餘區塊。','Past midpoint. Reschedule the remaining blocks.'],
+      late:  ['延遲升高。請明確指定下一個優先任務。','Latency rising. Assign the next priority explicitly.'],
+      end:   ['今日行程不會自動結轉。寫入，或放棄。','Today’s jobs do not roll over. Commit, or drop.']
+    }
+  },
+  {
+    id:'camo', price:50, free:false, zh:'迷彩', en:'Camouflage',
+    light:false, glow:0.4, scan:0.15,
+    stops:[
+      { at:0,    bg:[0.18,0.035,135], neon:[0.78,0.12,125] },
+      { at:0.55, bg:[0.16,0.045,110], neon:[0.72,0.13, 95] },
+      { at:1,    bg:[0.14,0.055, 80], neon:[0.68,0.14, 70] }
+    ],
+    mood:{
+      fuse:  ['天黑前最後一哩。帶得走的，只有現在。','Last mile before dark. What you can carry is now.'],
+      early: ['地圖還很寬。先偵察，再決定今晚的路線。','The map is still wide. Scout first, then choose tonight’s route.'],
+      mid:   ['過了半程。收斂目標，不要岔出去。','Halfway. Tighten the objective — don’t drift.'],
+      late:  ['能見度下降。只帶一件最重要的任務前進。','Visibility dropping. Advance with only the essential task.'],
+      end:   ['今日行動結束。沒帶上的，不進明日背包。','Today’s op ends. What you didn’t pack stays behind.']
+    }
+  }
+];
+const FREE_SKIN_IDS = SKINS.filter(s => s.free).map(s => s.id);
+const OB_LAST = 7; // 新手引導最後一步（含功能介紹＋帳戶＋原設定）
+
 const CATS = [
   {k:'work',  zh:'工作', en:'Work'},
   {k:'side',  zh:'副業', en:'Side project'},
@@ -411,7 +520,12 @@ const DEFAULTS = {
   companion:{ petId:'bomb', startedOn:null, days:1, tasks:[] },
   fallen:[],            // {id,petId,startedOn,endedOn,days,tasks[]}
   coinLog:{},           // 'YYYY-MM-DD' -> { anchor?:bool, blocks:{id:true} }
-  petSettled:{}         // 已結算過寵物存亡的日期
+  petSettled:{},        // 已結算過寵物存亡的日期
+  ownedSkins: FREE_SKIN_IDS.slice(),
+  equippedSkin:'neon',
+  // 本機帳戶（無雲端）。guest＝遊客；local＋session 控制是否需登入閘門
+  account:{ mode:'guest', name:'', passHash:'', salt:'', session:true },
+  homeTip:true          // 進首頁後的一次功能提示
 };
 const p2 = n => String(n).padStart(2,'0');
 const comma = n => Math.max(0, Math.round(n)).toLocaleString('en-US');
@@ -428,7 +542,8 @@ let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
            spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
                   when:'now',at:'',warn:false},
            worth:{blockId:null,pick:null,note:'',again:false},
-           petToast:null, petMemoId:null };
+           petToast:null, petMemoId:null, shopTab:'pets',
+           auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 
 function load(){
   try{
@@ -458,18 +573,16 @@ function secLeft(now){
 }
 function secPassed(now){ return 86400 - secLeft(now); }
 
-/* ── After Hours：壓力模型 ────────────────────────────────────────────────
-   整個介面的顏色、光暈、字級與動態都是 p 的函數。p 從「今天過掉幾小時」
-   算出來：09:00 之前是 0，約 20:00 到 0.5，午夜 1.0。設定裡的「夜間強度」
-   關掉時 p 恆為 0，整個升溫機制就完全停用。
+/* ── 壓力模型 × 套裝皮膚 ────────────────────────────────────────────────
+   顏色、光暈、動態都是 p 的函數；色票來自目前裝備的皮膚 stops。
+   夜間強度關掉 → p 恆為 0（顏色／閃爍／抖動／文案全部回平靜）。
    ─────────────────────────────────────────────────────────────────────── */
-const STOPS = [
-  { at:0,    bg:[0.16,0.028,158], neon:[0.86,0.20,148] },   // 霓虹綠
-  { at:0.55, bg:[0.15,0.050, 55], neon:[0.84,0.17, 72] },   // 琥珀
-  { at:1,    bg:[0.12,0.100, 15], neon:[0.70,0.26, 20] }    // 熱紅
-];
 const lerp = (a,b,k) => a + (b-a)*k;
+function skinOf(id){ return SKINS.find(x => x.id === (id || S.equippedSkin)) || SKINS[0]; }
+function skinName(id){ const x = skinOf(id); return EN() ? x.en : x.zh; }
+function activeStops(){ return skinOf().stops; }
 function ramp(p){
+  const STOPS = activeStops();
   let i = 0;
   while(i < STOPS.length-2 && p > STOPS[i+1].at) i++;
   const a = STOPS[i], b = STOPS[i+1];
@@ -505,25 +618,49 @@ function fuseOut(){ return S.night && pctToday() >= 95; }
 // 每一拍把整組色票寫進 :root，其餘 CSS 直接吃這些變數
 let lastSkin = '';
 function applyPressure(){
+  const sk = skinOf();
   const p = pressure(), r = ramp(p);
-  const key = p.toFixed(3) + (S.night ? '1' : '0');
+  const key = (S.equippedSkin||'neon') + '|' + p.toFixed(3) + (S.night ? '1' : '0');
   if(key === lastSkin) return;
   lastSkin = key;
   const s = document.documentElement.style;
+  const g = sk.glow == null ? 1 : sk.glow;
+  const sc = sk.scan == null ? 1 : sk.scan;
   s.setProperty('--bg', ok(r.bg));
-  s.setProperty('--hero-bg', ok([r.bg[0] + 0.02 + p*0.02, r.bg[1]*(1+p), r.bg[2]]));
-  s.setProperty('--bar-bg', ok([Math.max(0.08, r.bg[0]-0.03), r.bg[1], r.bg[2]]));
-  s.setProperty('--sheet-bg', ok([r.bg[0]+0.015, r.bg[1], r.bg[2]]));
+  s.setProperty('--hero-bg', ok([r.bg[0] + (sk.light ? -0.01 : 0.02) + p*0.02, r.bg[1]*(1+p*0.8), r.bg[2]]));
+  s.setProperty('--bar-bg', ok([sk.light ? Math.min(0.99, r.bg[0]+0.01) : Math.max(0.08, r.bg[0]-0.03), r.bg[1], r.bg[2]]));
+  s.setProperty('--sheet-bg', ok([r.bg[0] + (sk.light ? -0.02 : 0.015), r.bg[1], r.bg[2]]));
   s.setProperty('--accent', ok(r.neon));
   s.setProperty('--accent-deep', ok(r.neon));
   s.setProperty('--accent-tint', ok(r.neon, (0.08 + p*0.12).toFixed(2)));
-  s.setProperty('--hair', 'rgba(233,237,244,' + (0.10 + p*0.06).toFixed(2) + ')');
-  s.setProperty('--hair-2', p > 0.6 ? ok(r.neon, (0.18 + p*0.30).toFixed(2)) : 'rgba(233,237,244,.18)');
-  s.setProperty('--glow-sm',  '0 0 ' + (4 + p*14).toFixed(0) + 'px ' + ok(r.neon, (0.25 + p*0.55).toFixed(2)));
-  s.setProperty('--glow-big', '0 0 ' + (8 + p*46).toFixed(0) + 'px ' + ok(r.neon, (0.20 + p*0.70).toFixed(2)));
-  s.setProperty('--glow-box', '0 0 ' + (6 + p*26).toFixed(0) + 'px ' + ok(r.neon, (0.12 + p*0.40).toFixed(2)));
-  s.setProperty('--scan-op', (p*0.16).toFixed(3));
-  s.setProperty('--vignette', 'radial-gradient(120% 80% at 50% 0%, transparent 40%, ' + ok(r.bg, (p*0.55).toFixed(2)) + ' 100%)');
+  if(sk.light){
+    s.setProperty('--ink', '#1c1a17');
+    s.setProperty('--ink-55', 'rgba(28,26,23,.55)');
+    s.setProperty('--ink-48', 'rgba(28,26,23,.48)');
+    s.setProperty('--ink-42', 'rgba(28,26,23,.42)');
+    s.setProperty('--hair', 'rgba(28,26,23,' + (0.10 + p*0.06).toFixed(2) + ')');
+    s.setProperty('--hair-2', p > 0.6 ? ok(r.neon, (0.22 + p*0.25).toFixed(2)) : 'rgba(28,26,23,.16)');
+    s.setProperty('--hair-3', 'rgba(28,26,23,.08)');
+    s.setProperty('--fill', 'rgba(28,26,23,.06)');
+    s.setProperty('--on-dark', '#1c1a17');
+    s.setProperty('--field', ok([Math.max(0.88, r.bg[0]-0.06), r.bg[1], r.bg[2]]));
+  }else{
+    s.setProperty('--ink', '#e9edf4');
+    s.setProperty('--ink-55', 'rgba(233,237,244,.55)');
+    s.setProperty('--ink-48', 'rgba(233,237,244,.48)');
+    s.setProperty('--ink-42', 'rgba(233,237,244,.42)');
+    s.setProperty('--hair', 'rgba(233,237,244,' + (0.10 + p*0.06).toFixed(2) + ')');
+    s.setProperty('--hair-2', p > 0.6 ? ok(r.neon, (0.18 + p*0.30).toFixed(2)) : 'rgba(233,237,244,.18)');
+    s.setProperty('--hair-3', 'rgba(233,237,244,.08)');
+    s.setProperty('--fill', 'rgba(233,237,244,.07)');
+    s.setProperty('--on-dark', '#e9edf4');
+    s.setProperty('--field', ok([r.bg[0] + 0.02 + p*0.02, r.bg[1]*(1+p), r.bg[2]]));
+  }
+  s.setProperty('--glow-sm',  g <= 0 ? 'none' : '0 0 ' + (4 + p*14*g).toFixed(0) + 'px ' + ok(r.neon, ((0.25 + p*0.55)*g).toFixed(2)));
+  s.setProperty('--glow-big', g <= 0 ? 'none' : '0 0 ' + (8 + p*46*g).toFixed(0) + 'px ' + ok(r.neon, ((0.20 + p*0.70)*g).toFixed(2)));
+  s.setProperty('--glow-box', g <= 0 ? 'none' : '0 0 ' + (6 + p*26*g).toFixed(0) + 'px ' + ok(r.neon, ((0.12 + p*0.40)*g).toFixed(2)));
+  s.setProperty('--scan-op', (p*0.16*sc).toFixed(3));
+  s.setProperty('--vignette', 'radial-gradient(120% 80% at 50% 0%, transparent 40%, ' + ok(r.bg, (p*0.55*(sk.light?0.35:1)).toFixed(2)) + ' 100%)');
   const tc = document.querySelector('meta[name=theme-color]');
   if(tc) tc.setAttribute('content', ok(r.bg));
 }
@@ -768,6 +905,20 @@ function migrateState(raw){
   if(!Array.isArray(s.fallen)) s.fallen = [];
   if(!s.coinLog || typeof s.coinLog !== 'object') s.coinLog = {};
   if(!s.petSettled || typeof s.petSettled !== 'object') s.petSettled = {};
+  if(!Array.isArray(s.ownedSkins)) s.ownedSkins = FREE_SKIN_IDS.slice();
+  FREE_SKIN_IDS.forEach(id => { if(s.ownedSkins.indexOf(id) < 0) s.ownedSkins.push(id); });
+  if(!SKINS.some(x => x.id === s.equippedSkin)) s.equippedSkin = 'neon';
+  if(s.ownedSkins.indexOf(s.equippedSkin) < 0) s.equippedSkin = 'neon';
+  if(!s.account || typeof s.account !== 'object'){
+    s.account = { mode:'guest', name:'', passHash:'', salt:'', session:true };
+  }else{
+    if(s.account.mode !== 'local' && s.account.mode !== 'guest') s.account.mode = 'guest';
+    if(typeof s.account.session !== 'boolean') s.account.session = true;
+    if(typeof s.account.name !== 'string') s.account.name = '';
+    if(typeof s.account.passHash !== 'string') s.account.passHash = '';
+    if(typeof s.account.salt !== 'string') s.account.salt = '';
+  }
+  if(typeof s.homeTip !== 'boolean') s.homeTip = false; // 舊使用者不重噴首頁提示
   return s;
 }
 function importBackup(file){
@@ -781,12 +932,7 @@ function importBackup(file){
       if(data.days !== undefined && (typeof data.days !== 'object' || Array.isArray(data.days)))
         throw new Error('days');
       S = migrateState(data);
-      ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
-             anchorDraft:null, anchorEdit:false, anchorCancelling:false,
-             spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
-                    when:'now',at:'',warn:false},
-             worth:{blockId:null,pick:null,note:'',again:false},
-             petToast:null, petMemoId:null };
+      resetUiState();
       lastSkin = ''; lastStage = null;
       save(); applyPressure(); render();
       alert(t('import_ok'));
@@ -930,6 +1076,85 @@ function equipPet(id){
     ui.sheet = null;
   });
 }
+function buySkin(id){
+  const sk = skinOf(id);
+  if(!sk) return;
+  if(S.ownedSkins.indexOf(id) >= 0){ showPetToast(t('pet_owned')); render(); return; }
+  if(!sk.free && (S.coins|0) < sk.price){ showPetToast(t('pet_need_coins')); render(); return; }
+  setState(()=>{
+    if(!sk.free) S.coins -= sk.price;
+    S.ownedSkins.push(id);
+    showPetToast(t('skin_bought'));
+  });
+}
+function equipSkin(id){
+  if(S.ownedSkins.indexOf(id) < 0) return;
+  setState(()=>{
+    S.equippedSkin = id;
+    lastSkin = '';
+    applyPressure();
+    ui.sheet = null;
+  });
+}
+
+/* ── 本機帳戶（無後端；密碼只保護這台裝置上的存檔） ─────────────────── */
+function hashPass(pass, salt){
+  let h = 2166136261;
+  const s = String(salt) + '|' + String(pass);
+  for(let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0).toString(16);
+}
+function needsLogin(){
+  return !!(S.account && S.account.mode === 'local' && S.account.passHash && !S.account.session);
+}
+function beginGuest(){
+  S.account = { mode:'guest', name:'', passHash:'', salt:'', session:true };
+  ui.auth.err = '';
+  showPetToast(t('acct_guest_ok'));
+}
+function registerLocalAccount(){
+  const name = (ui.auth.name || '').trim();
+  const pass = ui.auth.pass || '';
+  const pass2 = ui.auth.pass2 || '';
+  if(S.account && S.account.mode === 'local' && S.account.passHash){
+    ui.auth.err = t('acct_exists'); return false;
+  }
+  if(!name){ ui.auth.err = t('acct_need_name'); return false; }
+  if(pass.length < 4){ ui.auth.err = t('acct_need_pass'); return false; }
+  if(pass !== pass2){ ui.auth.err = t('acct_pass_mismatch'); return false; }
+  const salt = 's' + Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36);
+  S.account = { mode:'local', name, passHash:hashPass(pass, salt), salt, session:true };
+  ui.auth = { name:'', pass:'', pass2:'', mode:'register', err:'' };
+  showPetToast(tFill('acct_welcome', {name}));
+  return true;
+}
+function loginLocalAccount(){
+  const name = (ui.auth.name || '').trim();
+  const pass = ui.auth.pass || '';
+  if(!(S.account && S.account.mode === 'local' && S.account.passHash)){
+    ui.auth.err = t('acct_no_account'); return false;
+  }
+  if(name !== S.account.name || hashPass(pass, S.account.salt) !== S.account.passHash){
+    ui.auth.err = t('acct_bad_login'); return false;
+  }
+  S.account.session = true;
+  ui.auth = { name:'', pass:'', pass2:'', mode:'login', err:'' };
+  showPetToast(tFill('acct_welcome', {name:S.account.name}));
+  return true;
+}
+function logoutLocalAccount(){
+  if(!(S.account && S.account.mode === 'local')) return;
+  setState(()=>{ S.account.session = false; ui.sheet = null; });
+}
+function resetUiState(){
+  ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
+         anchorDraft:null, anchorEdit:false, anchorCancelling:false,
+         spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
+                when:'now',at:'',warn:false},
+         worth:{blockId:null,pick:null,note:'',again:false},
+         petToast:null, petMemoId:null, shopTab:'pets',
+         auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
+}
 
 /* ── 5. 畫面 ─────────────────────────────────────────────────────────── */
 function corners(color){
@@ -950,17 +1175,14 @@ function clockHtml(){
     + 'color:var(--ink-55)">'+nowClock()+'</div>';
 }
 function moodLine(){
+  const m = skinOf().mood;
+  const pick = row => row[EN()?1:0];
   const p = pressure();
-  if(fuseOut()) return EN() ? 'The fuse is almost gone. Whatever is left is all there is.'
-                            : '引線快燒完了。剩下的就是全部了。';
-  if(p < 0.25) return EN() ? 'The day is still wide. Nothing is urgent yet.'
-                           : '今天還很寬。現在什麼都還來得及。';
-  if(p < 0.60) return EN() ? 'More than half is spent. What gets the rest?'
-                           : '一半以上已經過去了。剩下的要給誰？';
-  if(p < 0.85) return EN() ? 'The light is going. Choose the next stretch on purpose.'
-                           : '天色在走了。下一段，刻意選一次。';
-  return EN() ? 'Today does not roll over. Whatever is left is all there is.'
-              : '今天不會結轉。剩下的就是全部了。';
+  if(fuseOut()) return pick(m.fuse);
+  if(p < 0.25) return pick(m.early);
+  if(p < 0.60) return pick(m.mid);
+  if(p < 0.85) return pick(m.late);
+  return pick(m.end);
 }
 // 倒數的四個階段：靜止 → 閃爍 → 呼吸 → 抖動
 function heroAnim(){
@@ -1004,6 +1226,7 @@ function fuseHtml(){
   const sparkCore = ok([0.98, 0.02, r.neon[2]]);
   const animFlare = calm ? 'none' : 'n-flare .9s ease-in-out infinite';
   const animSpark = calm ? 'none' : 'n-spark .32s ease-in-out infinite';
+  const ink = skinOf().light ? '28,26,23' : '233,237,244';
   const dot = (size, bg, delay, dur) =>
     '<div style="position:absolute;top:50%;left:'+rem+';width:'+size+'px;height:'+size+'px;border-radius:50%;'
     + 'background:'+bg+';opacity:'+ember+';animation:'
@@ -1013,10 +1236,10 @@ function fuseHtml(){
     // 引線
     + '<div id="fuseTrack" style="flex:1;height:9px;position:relative">'
     + '<div id="fuseRope" style="position:absolute;top:2px;left:0;height:5px;width:'+rem+';'
-    +   'background:repeating-linear-gradient(115deg, rgba(233,237,244,'+(0.16+p*0.1).toFixed(2)+') 0 3px, '
-    +   'rgba(233,237,244,'+(0.34+p*0.2).toFixed(2)+') 3px 6px)"></div>'
+    +   'background:repeating-linear-gradient(115deg, rgba('+ink+','+(0.16+p*0.1).toFixed(2)+') 0 3px, '
+    +   'rgba('+ink+','+(0.34+p*0.2).toFixed(2)+') 3px 6px)"></div>'
     + '<div id="fuseAsh" style="position:absolute;top:3px;right:0;height:3px;width:'+pctToday().toFixed(2)+'%;'
-    +   'background:linear-gradient(to left, rgba(233,237,244,.04), rgba(233,237,244,.13))"></div>'
+    +   'background:linear-gradient(to left, rgba('+ink+',.04), rgba('+ink+',.13))"></div>'
     + '<div id="fuseFlare" style="position:absolute;top:50%;left:'+rem+';width:'+(22+p*26+(out?16:0)).toFixed(0)+'px;'
     +   'height:'+(22+p*26+(out?16:0)).toFixed(0)+'px;border-radius:50%;'
     +   'background:radial-gradient(circle, '+ok(r.neon, calm ? '0.2' : '0.5')+' 0 30%, '+ok(r.neon,'0')+' 70%);'
@@ -1247,8 +1470,16 @@ function upcomingHtml(){
     + rows
     + '<div class="foot" style="margin-top:9px">'+esc(t('upcoming_foot'))+'</div></div>';
 }
+function homeTipHtml(){
+  if(!S.homeTip) return '';
+  return '<div class="blueprint" style="margin-top:18px;padding:14px 15px 13px">' + corners()
+    + '<div class="kicker">GUIDE</div>'
+    + '<div style="font:400 13.5px/1.65 var(--fb);margin-top:10px">'+esc(t('home_tip'))+'</div>'
+    + '<button class="btn btn-fill" data-act="home-tip-ok" style="margin-top:12px;padding:10px 14px;font-size:12px">'+esc(t('home_tip_ok'))+'</button>'
+    + '</div>';
+}
 function screenToday(){
-  return heroHtml() + anchorHtml()
+  return heroHtml() + homeTipHtml() + anchorHtml()
        + (activeBlock() ? activeHtml() : '')
        + launcherHtml() + upcomingHtml() + namedListHtml();
 }
@@ -1437,12 +1668,27 @@ function screenSettings(){
     '<button class="chip'+(S.cats.indexOf(c.k)>=0?' on':'')+'" data-act="cat-toggle" data-cat="'+c.k+'">'+esc(EN()?c.en:c.zh)+'</button>').join('');
   ensureCompanion();
   const pet = petOf(S.equippedPet);
+  const sk = skinOf();
+  const acctLine = S.account.mode === 'local'
+    ? (S.account.name || t('acct_local'))
+    : t('acct_guest_lbl');
 
   return '<div style="padding:16px 0 10px" class="h-screen">'+esc(t('settings'))+'</div>'
 
     + '<div class="row"><span class="k">'+esc(t('tz'))+'</span><span class="v">'+esc(tz)+' · '+esc(t('auto'))+'</span></div>'
 
-    + '<div style="padding:14px 0;border-top:1px solid rgba(233,237,244,.14)">'
+    + '<div class="row"><div><div class="k">'
+    + esc(S.account.mode==='local' ? t('acct_local') : t('acct_guest_lbl'))
+    + '</div><div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'
+    + esc(t('guide_acct_note'))+'</div></div>'
+    + '<span class="v">'+esc(acctLine)+'</span></div>'
+    + (S.account.mode==='local'
+        ? '<div class="row"><div><div class="k">'+esc(t('acct_logout'))+'</div>'
+          + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42)">'+esc(t('acct_logout_sub'))+'</div></div>'
+          + '<button class="btn" data-act="acct-logout" style="padding:8px 12px;font-size:12px;flex:none">'+esc(t('acct_logout'))+'</button></div>'
+        : '')
+
+    + '<div style="padding:14px 0;border-top:1px solid var(--hair)">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">'
     + '<div><div class="k">'+esc(t('coins'))+'</div>'
     + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('coins_sub'))+'</div></div>'
@@ -1457,7 +1703,9 @@ function screenSettings(){
 
     + '<div class="row" style="cursor:pointer;align-items:flex-start" data-act="open-shop">'
     + '<div style="min-width:0"><div class="k">'+esc(t('pet_shop'))+'</div>'
-    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('pet_shop_sub'))+'</div></div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('pet_shop_sub'))+'</div>'
+    + '<div style="font:400 11.5px/1.5 var(--fb);color:var(--accent-deep);margin-top:6px">'
+    +   esc(t('skin_row'))+' · '+esc(skinName(sk.id))+'</div></div>'
     + '<span class="v">›</span></div>'
 
     + '<div style="padding:14px 0;border-top:1px solid rgba(233,237,244,.14)">'
@@ -1626,18 +1874,29 @@ function petToastHtml(){
     + 'background:var(--sheet-bg);border:1px solid var(--hair-2);box-shadow:var(--glow-box);padding:12px 16px;'
     + 'font:400 12.5px/1.55 var(--fb);color:var(--ink);pointer-events:none">'+esc(ui.petToast)+'</div>';
 }
+function shopTabBtn(id, label){
+  const on = ui.shopTab === id;
+  return '<button data-act="shop-tab" data-v="'+id+'" style="flex:1;padding:10px 0;font:600 12px var(--fh);letter-spacing:.04em;'
+    + 'border:1px solid '+(on?'var(--accent)':'var(--hair-2)')+';background:'+(on?'var(--accent-tint)':'transparent')+';'
+    + 'color:'+(on?'var(--accent-deep)':'var(--ink)')+'">'+esc(label)+'</button>';
+}
+function skinSwatch(sk){
+  const a = sk.stops[0].neon, b = sk.stops[2].bg;
+  return '<div style="width:42px;height:42px;flex:none;border:1px solid var(--hair);'
+    + 'background:linear-gradient(135deg,'+ok(a)+','+ok(b)+')"></div>';
+}
 function sheetShop(){
-  const rows = PETS.map(p => {
+  const petRows = PETS.map(p => {
     const owned = S.ownedPets.indexOf(p.id) >= 0;
     const price = p.free ? t('pet_free') : tFill('pet_price',{n:p.price});
     let action;
     if(owned){
-      action = '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('pet_owned'))+'</span>';
-    }else if(p.free){
-      action = '<button class="btn btn-fill" data-act="buy-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('pet_free'))+'</button>';
+      action = S.equippedPet === p.id
+        ? '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('pet_equipped'))+'</span>'
+        : '<button class="btn" data-act="equip-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('pet_equip'))+'</button>';
     }else{
-      action = '<button class="btn'+(S.coins>=p.price?' btn-fill':'')+'" data-act="buy-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'
-        + esc(t('pet_buy'))+'</button>';
+      action = '<button class="btn'+(p.free||S.coins>=p.price?' btn-fill':'')+'" data-act="buy-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'
+        + esc(p.free ? t('pet_free') : t('pet_buy'))+'</button>';
     }
     return '<div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--hair-3)">'
       + '<div style="width:42px;height:42px;flex:none;display:flex;align-items:center;justify-content:center;font-size:28px;'
@@ -1647,15 +1906,43 @@ function sheetShop(){
       + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'+esc(price)+'</div></div>'
       + action + '</div>';
   }).join('');
+
+  const skinRows = SKINS.map(sk => {
+    const owned = S.ownedSkins.indexOf(sk.id) >= 0;
+    const on = S.equippedSkin === sk.id;
+    const price = sk.free ? t('pet_free') : tFill('pet_price',{n:sk.price});
+    const sample = sk.mood.early[EN()?1:0];
+    let action;
+    if(owned){
+      action = on
+        ? '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('skin_equipped'))+'</span>'
+        : '<button class="btn btn-fill" data-act="equip-skin" data-id="'+sk.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('skin_equip'))+'</button>';
+    }else{
+      action = '<button class="btn'+(S.coins>=sk.price?' btn-fill':'')+'" data-act="buy-skin" data-id="'+sk.id+'" style="padding:8px 12px;font-size:12px">'
+        + esc(t('pet_buy'))+'</button>';
+    }
+    return '<div style="padding:14px 0;border-bottom:1px solid var(--hair-3)">'
+      + '<div style="display:flex;align-items:center;gap:12px">'
+      + skinSwatch(sk)
+      + '<div style="flex:1;min-width:0"><div style="font:500 14px/1.4 var(--fb)">'+esc(skinName(sk.id))
+      + (sk.id==='neon'?' · '+esc(t('pet_default')):'')
+      + (on?' · <span style="color:var(--accent-deep)">'+esc(t('skin_equipped'))+'</span>':'')+'</div>'
+      + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'+esc(price)+'</div></div>'
+      + action + '</div>'
+      + '<div style="font:400 11.5px/1.55 var(--fb);color:var(--ink-55);margin-top:10px;padding-left:54px">「'+esc(sample)+'」</div>'
+      + '</div>';
+  }).join('');
+
   return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">SHOP</div>'
-    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('pet_close'))+'</button></div>'
+    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:var(--ink-42)">'+esc(t('pet_close'))+'</button></div>'
     + '<div style="font:400 18px/1.45 var(--fb);margin-top:10px">'+esc(t('pet_shop'))+'</div>'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px">'
     + '<div class="foot">'+esc(t('pet_shop_sub'))+'</div>'
     + '<div class="num" style="font:600 16px/1 var(--fh);color:var(--accent-deep);flex:none;margin-left:12px">'+comma(S.coins|0)+'</div></div>'
-    + '<div style="margin-top:8px">'+rows+'</div></div></div>';
+    + '<div style="display:flex;gap:8px;margin-top:14px">'+shopTabBtn('pets',t('shop_tab_pets'))+shopTabBtn('skins',t('shop_tab_skins'))+'</div>'
+    + '<div style="margin-top:8px">'+(ui.shopTab==='skins' ? skinRows : petRows)+'</div></div></div>';
 }
 function sheetCabinet(){
   ensureCompanion();
@@ -1743,36 +2030,104 @@ function sheetPetMemo(){
     + '<div class="kicker" style="margin-top:22px">'+esc(t('pet_tasks'))+'</div>'
     + '<div style="margin-top:4px">'+taskRows+'</div></div></div>';
 }
+function authFieldsHtml(mode){
+  const a = ui.auth;
+  return '<div style="margin-top:18px">'
+    + '<div class="kicker">'+esc(t('acct_name'))+'</div>'
+    + '<input class="line" data-inp="auth-name" style="margin-top:8px;font-size:16px" placeholder="'+esc(t('acct_name_ph'))+'" value="'+esc(a.name)+'">'
+    + '<div class="kicker" style="margin-top:16px">'+esc(t('acct_pass'))+'</div>'
+    + '<input class="line" type="password" data-inp="auth-pass" style="margin-top:8px;font-size:16px" value="'+esc(a.pass)+'">'
+    + (mode === 'register'
+        ? '<div class="kicker" style="margin-top:16px">'+esc(t('acct_pass2'))+'</div>'
+          + '<input class="line" type="password" data-inp="auth-pass2" style="margin-top:8px;font-size:16px" value="'+esc(a.pass2)+'">'
+        : '')
+    + (a.err ? '<div class="foot" style="margin-top:10px;color:var(--accent-deep)">'+esc(a.err)+'</div>' : '')
+    + '</div>';
+}
+function sheetLogin(){
+  ui.auth.mode = 'login';
+  return '<div class="full">'
+    + '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;overflow-y:auto">'
+    + '<div class="num" style="font:600 42px/.9 var(--fh)">86,400</div>'
+    + '<div style="font:600 26px/1.2 var(--fh);margin-top:18px">'+esc(t('acct_login'))+'</div>'
+    + '<div class="foot" style="margin-top:10px;line-height:1.7">'+esc(t('guide_acct_note'))+'</div>'
+    + authFieldsHtml('login')
+    + '</div>'
+    + '<button class="btn btn-fill btn-wide" data-act="acct-login" style="padding:15px 0;font-size:15px">'+esc(t('acct_login'))+'</button>'
+    + '</div>';
+}
 function sheetOnboarding(){
   const step = ui.ob;
-  const dots = [0,1,2,3].map(i =>
+  const total = OB_LAST + 1;
+  const dots = Array.from({length:total}, (_,i) =>
     '<span style="flex:1;height:2px;background:'+(i<=step?'var(--ink)':'var(--hair-2)')+'"></span>').join('');
-  let body = '';
+  let body = '', hideNext = false;
+
   if(step === 0){
     body = '<div><div class="num" style="font:600 clamp(56px,20vw,76px)/.86 var(--fh);letter-spacing:-.02em">86,400</div>'
       + '<div style="font:400 19px/1.6 var(--fb);margin-top:20px">'+esc(t('ob_1'))+'</div>'
       + '<div style="font:400 14px/1.8 var(--fb);color:var(--ink-55);margin-top:12px">'+esc(t('ob_1b'))+'</div>'
-      + '<div style="font:400 13px/1.8 var(--fb);color:rgba(233,237,244,.5);margin-top:20px;border-top:1px solid rgba(233,237,244,.14);padding-top:16px">'
+      + '<div style="font:400 13px/1.8 var(--fb);color:var(--ink-42);margin-top:20px;border-top:1px solid var(--hair);padding-top:16px">'
       +   esc(t('ob_1c'))+'</div></div>';
   }else if(step === 1){
+    body = '<div><div style="font:600 28px/1.2 var(--fh)">'+esc(t('guide_fuse_t'))+'</div>'
+      + '<div style="font:400 15px/1.75 var(--fb);color:var(--ink-55);margin-top:14px">'+esc(t('guide_fuse_b'))+'</div>'
+      + '<div style="margin-top:22px;padding:16px;border:1px solid var(--hair)">'
+      + '<div class="kicker">DEMO</div><div class="num" style="font:700 40px/.9 var(--fh);margin-top:8px;color:var(--accent)">86,400</div>'
+      + '<div style="font:400 12px/1.6 var(--fb);color:var(--ink-55);margin-top:8px">💣 ———— ◆</div></div></div>';
+  }else if(step === 2){
+    body = '<div><div style="font:600 28px/1.2 var(--fh)">'+esc(t('guide_task_t'))+'</div>'
+      + '<div style="font:400 15px/1.75 var(--fb);color:var(--ink-55);margin-top:14px">'+esc(t('guide_task_b'))+'</div>'
+      + '<div style="display:flex;gap:8px;margin-top:22px">'
+      + '<div style="flex:1;border:1px solid var(--hair);padding:12px"><div class="num" style="font:600 22px/1 var(--fh);color:var(--accent-deep)">+15</div>'
+      + '<div class="foot" style="margin-top:6px">Anchor</div></div>'
+      + '<div style="flex:1;border:1px solid var(--hair);padding:12px"><div class="num" style="font:600 22px/1 var(--fh);color:var(--accent-deep)">+8</div>'
+      + '<div class="foot" style="margin-top:6px">'+esc(t('named_time'))+'</div></div></div></div>';
+  }else if(step === 3){
+    body = '<div><div style="font:600 28px/1.2 var(--fh)">'+esc(t('guide_skin_t'))+'</div>'
+      + '<div style="font:400 15px/1.75 var(--fb);color:var(--ink-55);margin-top:14px">'+esc(t('guide_skin_b'))+'</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px">'
+      + SKINS.map(sk => '<div style="border:1px solid var(--hair);padding:10px">'
+        + skinSwatch(sk)
+        + '<div style="font:500 12px/1.4 var(--fb);margin-top:8px">'+esc(skinName(sk.id))+'</div></div>').join('')
+      + '</div></div>';
+  }else if(step === 4){
+    hideNext = true;
+    const mode = ui.auth.mode === 'login' ? 'login' : 'register';
+    body = '<div><div style="font:600 28px/1.2 var(--fh)">'+esc(t('guide_acct_t'))+'</div>'
+      + '<div style="font:400 14px/1.75 var(--fb);color:var(--ink-55);margin-top:12px">'+esc(t('guide_acct_b'))+'</div>'
+      + '<div class="foot" style="margin-top:10px;line-height:1.7">'+esc(t('guide_acct_note'))+'</div>'
+      + '<div style="display:flex;gap:8px;margin-top:16px">'
+      + '<button data-act="auth-mode" data-v="register" style="flex:1;padding:10px 0;font:600 12px var(--fh);'
+      +   'border:1px solid '+(mode==='register'?'var(--accent)':'var(--hair-2)')+';background:'+(mode==='register'?'var(--accent-tint)':'transparent')+';'
+      +   'color:'+(mode==='register'?'var(--accent-deep)':'var(--ink)')+'">'+esc(t('acct_register'))+'</button>'
+      + '<button data-act="auth-mode" data-v="login" style="flex:1;padding:10px 0;font:600 12px var(--fh);'
+      +   'border:1px solid '+(mode==='login'?'var(--accent)':'var(--hair-2)')+';background:'+(mode==='login'?'var(--accent-tint)':'transparent')+';'
+      +   'color:'+(mode==='login'?'var(--accent-deep)':'var(--ink)')+'">'+esc(t('acct_login'))+'</button></div>'
+      + authFieldsHtml(mode)
+      + '<button class="btn btn-fill btn-wide" data-act="'+(mode==='login'?'acct-login':'acct-register')+'" style="margin-top:18px;padding:14px 0">'
+      +   esc(mode==='login' ? t('acct_login') : t('acct_register'))+'</button>'
+      + '<button class="btn btn-wide" data-act="acct-guest" style="margin-top:8px;padding:14px 0">'+esc(t('acct_guest'))+'</button>'
+      + '</div>';
+  }else if(step === 5){
     const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone) || 'local';
-    body = '<div><div style="font:600 32px/1.15 var(--fh)">'+esc(t('ob_2'))+'</div>'
-      + '<div style="margin-top:24px;border-top:1px solid rgba(233,237,244,.14)">'
-      + '<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid rgba(233,237,244,.14)">'
+    body = '<div><div style="font:600 28px/1.15 var(--fh)">'+esc(t('ob_2'))+'</div>'
+      + '<div style="margin-top:24px;border-top:1px solid var(--hair)">'
+      + '<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--hair)">'
       + '<span style="font:400 14px var(--fb)">'+esc(t('tz'))+'</span><span style="font:400 14px var(--fb);color:var(--ink-55)">'+esc(tz)+'</span></div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(233,237,244,.14)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--hair)">'
       + '<span style="font:400 14px var(--fb)">'+esc(t('wake'))+'</span>'
       + '<input type="time" data-inp="wake" value="'+esc(S.wake)+'" style="border:none;background:transparent;font:400 14px var(--fb);color:var(--ink-55);text-align:right"></div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(233,237,244,.14)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--hair)">'
       + '<span style="font:400 14px var(--fb)">'+esc(t('sleep'))+'</span>'
       + '<input type="time" data-inp="sleep" value="'+esc(S.sleep)+'" style="border:none;background:transparent;font:400 14px var(--fb);color:var(--ink-55);text-align:right"></div></div>'
       + '<div class="foot" style="margin-top:14px;line-height:1.8">'+esc(t('ob_2foot'))+'</div></div>';
-  }else if(step === 2){
+  }else if(step === 6){
     const chips = CATS.map(c =>
       '<button class="chip'+(S.cats.indexOf(c.k)>=0?' on':'')+'" data-act="cat-toggle" data-cat="'+c.k+'" '
       + 'style="padding:11px 14px;font-size:14px">'+esc(EN()?c.en:c.zh)+'</button>').join('');
-    body = '<div><div style="font:600 32px/1.15 var(--fh)">'+esc(t('ob_3'))+'</div>'
-      + '<div style="font:400 12.5px/1.7 var(--fb);color:rgba(233,237,244,.5);margin-top:10px">'+esc(t('ob_3sub'))+'</div>'
+    body = '<div><div style="font:600 28px/1.15 var(--fh)">'+esc(t('ob_3'))+'</div>'
+      + '<div style="font:400 12.5px/1.7 var(--fb);color:var(--ink-42);margin-top:10px">'+esc(t('ob_3sub'))+'</div>'
       + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px">'+chips+'</div></div>';
   }else{
     const left = secLeft();
@@ -1780,19 +2135,21 @@ function sheetOnboarding(){
     const opt = m => '<button data-act="disp" data-v="'+m+'" style="text-align:left;padding:15px;'
       + 'border:1px solid '+(S.disp===m?'var(--accent)':'var(--hair-2)')+';background:'+(S.disp===m?'var(--accent-tint)':'transparent')+'">'
       + '<div class="num" style="font:600 26px/1 var(--fh)">'+sample(m)+'</div>'
-      + '<div style="font:400 11px/1.5 var(--fb);color:rgba(233,237,244,.5);margin-top:5px">'+esc(t('d_'+m))+'</div></button>';
-    body = '<div><div style="font:600 32px/1.15 var(--fh)">'+esc(t('ob_4'))+'</div>'
+      + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-42);margin-top:5px">'+esc(t('d_'+m))+'</div></button>';
+    body = '<div><div style="font:600 28px/1.15 var(--fh)">'+esc(t('ob_4'))+'</div>'
       + '<div style="display:flex;flex-direction:column;gap:9px;margin-top:20px">'+opt('sec')+opt('hms')+opt('hm')+'</div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(233,237,244,.14)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid var(--hair)">'
       + '<span style="font:400 13px var(--fb)">'+esc(t('ticking'))+'</span>' + swHtml(S.tick,'tick') + '</div></div>';
   }
+
   return '<div class="full">'
     + '<div style="display:flex;gap:5px;flex:none">'+dots+'</div>'
-    + '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;overflow-y:auto">'+body+'</div>'
-    + '<div style="display:flex;gap:9px;flex:none">'
-    + (step>0 ? '<button class="btn" data-act="ob-prev" style="padding:15px 18px;font-size:13px">'+esc(t('back'))+'</button>' : '')
-    + '<button class="btn btn-fill" data-act="ob-next" style="flex:1;padding:15px 0;font-size:15px">'
-    +   esc(step===3 ? t('finish_setup') : step===0 ? t('start') : t('next'))+'</button></div>'
+    + '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;overflow-y:auto;padding:8px 0">'+body+'</div>'
+    + (hideNext ? ''
+        : '<div style="display:flex;gap:9px;flex:none">'
+          + (step>0 ? '<button class="btn" data-act="ob-prev" style="padding:15px 18px;font-size:13px">'+esc(t('back'))+'</button>' : '')
+          + '<button class="btn btn-fill" data-act="ob-next" style="flex:1;padding:15px 0;font-size:15px">'
+          +   esc(step===OB_LAST ? t('finish_setup') : step===0 ? t('start') : t('next'))+'</button></div>')
     + '<div style="text-align:center;margin-top:12px;font:400 11px var(--fb);color:var(--ink-42);flex:none">'+esc(t('ob_foot'))+'</div>'
     + '</div>';
 }
@@ -1857,7 +2214,8 @@ function tabBtn(id, icon, label){
 }
 function render(){
   const app = document.getElementById('app');
-  if(!S.onboarded){ app.innerHTML = sheetOnboarding(); return; }
+  if(!S.onboarded){ app.innerHTML = sheetOnboarding() + petToastHtml(); return; }
+  if(needsLogin()){ app.innerHTML = sheetLogin() + petToastHtml(); return; }
 
   const screen = S.tab === 'today' ? screenToday()
                : S.tab === 'receipt' ? screenReceipt()
@@ -1968,20 +2326,45 @@ document.addEventListener('click', e => {
       break;
     }
     case 'demo':   toggleDemo(); break;
-    case 'redo-ob': ui.ob = 0; setState(()=>{ S.onboarded = false; }); break;
+    case 'redo-ob': ui.ob = 0; ui.auth = { name:'', pass:'', pass2:'', mode:'register', err:'' };
+                    setState(()=>{ S.onboarded = false; S.homeTip = true; }); break;
     case 'wipe':   if(confirm(t('confirm_delete'))){ localStorage.removeItem(KEY);
-                     S = migrateState({}); ui.ob = 0; ui.petToast = null; ui.petMemoId = null;
-                     ui.sheet = null; save(); render(); } break;
-    case 'open-shop': ui.sheet = 'shop'; render(); break;
+                     S = migrateState({}); resetUiState(); lastSkin = '';
+                     save(); applyPressure(); render(); } break;
+    case 'open-shop': ui.shopTab = 'pets'; ui.sheet = 'shop'; render(); break;
     case 'open-cabinet': ui.sheet = 'cabinet'; render(); break;
+    case 'shop-tab': ui.shopTab = el.dataset.v; render(); break;
     case 'buy-pet': buyPet(el.dataset.id); break;
     case 'equip-pet': equipPet(el.dataset.id); break;
+    case 'buy-skin': buySkin(el.dataset.id); break;
+    case 'equip-skin': equipSkin(el.dataset.id); break;
     case 'pet-memo': ui.petMemoId = el.dataset.id; ui.sheet = 'pet-memo'; render(); break;
     case 'close-memo': ui.petMemoId = null; ui.sheet = 'cabinet'; render(); break;
+    case 'home-tip-ok': setState(()=>{ S.homeTip = false; }); break;
+    case 'auth-mode': ui.auth.mode = el.dataset.v; ui.auth.err = ''; render(); break;
+    case 'acct-guest':
+      beginGuest();
+      if(!S.onboarded){ ui.ob = Math.max(ui.ob, 5); save(); render(); }
+      else { setState(()=>{}); }
+      break;
+    case 'acct-register':
+      if(registerLocalAccount()){
+        if(!S.onboarded){ ui.ob = 5; save(); render(); }
+        else setState(()=>{});
+      }else render();
+      break;
+    case 'acct-login':
+      if(loginLocalAccount()){
+        if(!S.onboarded){ ui.ob = 5; save(); render(); }
+        else setState(()=>{});
+      }else render();
+      break;
+    case 'acct-logout': logoutLocalAccount(); break;
     case 'ob-prev': ui.ob = Math.max(0, ui.ob-1); render(); break;
     case 'ob-next':
-      if(ui.ob < 3){ ui.ob++; render(); }
-      else { setState(()=>{ S.onboarded = true; S.tab = 'today'; }); }
+      if(ui.ob === 4){ render(); break; } // 帳戶步用專用按鈕
+      if(ui.ob < OB_LAST){ ui.ob++; render(); }
+      else { setState(()=>{ S.onboarded = true; S.tab = 'today'; S.homeTip = true; }); }
       break;
     default:
       if(act.indexOf('notif:') === 0){
@@ -2039,6 +2422,9 @@ document.addEventListener('input', e => {
   }
   if(el.dataset.inp === 'wake'){ S.wake = el.value; save(); return; }
   if(el.dataset.inp === 'sleep'){ S.sleep = el.value; save(); return; }
+  if(el.dataset.inp === 'auth-name'){ ui.auth.name = el.value; return; }
+  if(el.dataset.inp === 'auth-pass'){ ui.auth.pass = el.value; return; }
+  if(el.dataset.inp === 'auth-pass2'){ ui.auth.pass2 = el.value; return; }
 });
 
 // 點到別的地方＝編輯結束：存下去並鎖回唯讀，不會因為忘記按儲存而弄丟字
