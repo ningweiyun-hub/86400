@@ -328,8 +328,50 @@ const T = {
   ob_foot:         ['除了時區，其他都可以略過。','Everything but the time zone can be skipped.'],
   times_named:     ['命名次數','Times named'],
   auto:            ['自動','auto'],
-  install_hint:    ['提示：用手機瀏覽器開啟後，選「加入主畫面」就會變成全螢幕 App。','Tip: open this in your phone browser and choose "Add to Home Screen" for a full-screen app.']
+  install_hint:    ['提示：用手機瀏覽器開啟後，選「加入主畫面」就會變成全螢幕 App。','Tip: open this in your phone browser and choose "Add to Home Screen" for a full-screen app.'],
+  coins:           ['金幣','Coins'],
+  coins_sub:       ['完成今日 Anchor 與命名時段可獲得，用來在商店換寵物。','Earn by finishing today’s Anchor and named stretches. Spend them in the shop.'],
+  coin_earn_anchor:['Anchor 完成，+{n} 金幣','Anchor finished, +{n} coins'],
+  coin_earn_block: ['時段完成，+{n} 金幣','Stretch finished, +{n} coins'],
+  pet_cabinet:     ['寵物櫃','Pet cabinet'],
+  pet_cabinet_sub: ['更換引線上的角色。炸掉的寵物不會消失，會留下陪伴紀錄。','Change the character on the fuse. Fallen pets stay here with their companionship record.'],
+  pet_shop:        ['商店','Shop'],
+  pet_shop_sub:    ['免費角色可直接帶走；付費角色用金幣購買。','Free characters are yours to take. Paid ones cost coins.'],
+  pet_equip:       ['放上引線','Put on the fuse'],
+  pet_equipped:    ['使用中','On the fuse'],
+  pet_owned:       ['已擁有','Owned'],
+  pet_buy:         ['購買','Buy'],
+  pet_free:        ['免費','Free'],
+  pet_need_coins:  ['金幣不夠','Not enough coins'],
+  pet_bought:      ['已放入寵物櫃','Added to your cabinet'],
+  pet_days:        ['陪伴 {n} 天','With you {n} days'],
+  pet_days_short:  ['{n} 天','{n} d'],
+  pet_fallen:      ['炸掉紀錄','Fallen records'],
+  pet_fallen_none: ['還沒有炸掉的紀錄。','No fallen records yet.'],
+  pet_fallen_title:['陪伴結束','Companionship ended'],
+  pet_tasks:       ['陪伴期間完成的任務','Tasks finished while together'],
+  pet_tasks_none:  ['這段陪伴沒有留下任務。','No tasks were logged on this run.'],
+  pet_blown_note:  ['昨日任務未完成，{name} 被炸掉了。紀錄仍留在寵物櫃。','Yesterday’s tasks were unfinished — {name} was blown up. The record stays in your cabinet.'],
+  pet_memo:        ['查看紀錄','View record'],
+  pet_close:       ['關閉','Close'],
+  pet_default:     ['預設','Default'],
+  pet_price:       ['{n} 金幣','{n} coins']
 };
+
+/* 引線角色／寵物目錄。bomb 走原本的 CSS 炸彈；其餘先用 emoji 佔位。 */
+const PETS = [
+  {id:'bomb',     emoji:'💣', price:0, free:true,  zh:'炸彈',     en:'Bomb'},
+  {id:'tnt',      emoji:'🧨', price:0, free:true,  zh:'TNT',      en:'TNT'},
+  {id:'elephant', emoji:'🐘', price:0, free:true,  zh:'小人象',   en:'Little elephant'},
+  {id:'cat',      emoji:'🐱', price:30, free:false, zh:'夜貓',     en:'Night cat'},
+  {id:'dog',      emoji:'🐶', price:40, free:false, zh:'守夜犬',   en:'Night dog'},
+  {id:'fox',      emoji:'🦊', price:50, free:false, zh:'琥珀狐',   en:'Amber fox'},
+  {id:'owl',      emoji:'🦉', price:60, free:false, zh:'午夜貓頭鷹', en:'Midnight owl'},
+  {id:'dragon',   emoji:'🐉', price:80, free:false, zh:'餘燼龍',   en:'Ember dragon'}
+];
+const COIN_ANCHOR = 15;
+const COIN_BLOCK  = 8;
+const FREE_PET_IDS = PETS.filter(p => p.free).map(p => p.id);
 const CATS = [
   {k:'work',  zh:'工作', en:'Work'},
   {k:'side',  zh:'副業', en:'Side project'},
@@ -361,21 +403,30 @@ const DEFAULTS = {
   nextWeek:[],
   notif:{wake:true, three:true, sleep:false},
   demo:false,
-  fired:{}              // 今天已經送過的提醒
+  fired:{},             // 今天已經送過的提醒
+  coins:0,
+  ownedPets: FREE_PET_IDS.slice(),  // 免費角色預設擁有
+  equippedPet:'bomb',
+  // 目前引線上的陪伴：天數、期間完成的任務。炸掉後寫進 fallen，寵物仍留在櫃裡。
+  companion:{ petId:'bomb', startedOn:null, days:1, tasks:[] },
+  fallen:[],            // {id,petId,startedOn,endedOn,days,tasks[]}
+  coinLog:{},           // 'YYYY-MM-DD' -> { anchor?:bool, blocks:{id:true} }
+  petSettled:{}         // 已結算過寵物存亡的日期
 };
 let S = load();
 let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
            anchorDraft:null, anchorEdit:false, anchorCancelling:false,
            spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
                   when:'now',at:'',warn:false},
-           worth:{blockId:null,pick:null,note:'',again:false} };
+           worth:{blockId:null,pick:null,note:'',again:false},
+           petToast:null, petMemoId:null };
 
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
-    if(!raw) return JSON.parse(JSON.stringify(DEFAULTS));
+    if(!raw) return migrateState({});
     return migrateState(JSON.parse(raw));
-  }catch(e){ return JSON.parse(JSON.stringify(DEFAULTS)); }
+  }catch(e){ return migrateState({}); }
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
@@ -609,6 +660,7 @@ function extend15(){
 function saveWorth(skip){
   const b = findBlock(ui.worth.blockId);
   if(b && !skip){ b.worth = ui.worth.pick; b.note = ui.worth.note.trim(); b.again = ui.worth.again; }
+  if(b) rewardBlockDone(b);
   ui.sheet = null;
   setState(()=>{});
 }
@@ -675,6 +727,8 @@ function toggleDemo(){
                           worth:b.w, note:b.note, again:b.w==='w_v', link:false, day:k, demo:true });
       });
       S.days[k] = day;
+      // 示範日不參與寵物存亡結算，避免載入後把現役寵物炸掉
+      if(sd.ago > 0) S.petSettled[k] = true;
     });
     S.demo = true;
   }
@@ -697,6 +751,22 @@ function migrateState(raw){
   }));
   if(s.active){ s.activeId = s.active.id; delete s.active; }
   if(typeof s.night !== 'boolean') s.night = true;
+  if(typeof s.coins !== 'number' || s.coins < 0) s.coins = 0;
+  if(!Array.isArray(s.ownedPets)) s.ownedPets = FREE_PET_IDS.slice();
+  FREE_PET_IDS.forEach(id => { if(s.ownedPets.indexOf(id) < 0) s.ownedPets.push(id); });
+  if(!PETS.some(p => p.id === s.equippedPet)) s.equippedPet = 'bomb';
+  if(s.ownedPets.indexOf(s.equippedPet) < 0) s.equippedPet = 'bomb';
+  if(!s.companion || typeof s.companion !== 'object'){
+    s.companion = { petId:s.equippedPet, startedOn:dayKey(), days:1, tasks:[] };
+  }else{
+    if(!s.companion.petId) s.companion.petId = s.equippedPet;
+    if(!s.companion.startedOn) s.companion.startedOn = dayKey();
+    if(typeof s.companion.days !== 'number' || s.companion.days < 1) s.companion.days = 1;
+    if(!Array.isArray(s.companion.tasks)) s.companion.tasks = [];
+  }
+  if(!Array.isArray(s.fallen)) s.fallen = [];
+  if(!s.coinLog || typeof s.coinLog !== 'object') s.coinLog = {};
+  if(!s.petSettled || typeof s.petSettled !== 'object') s.petSettled = {};
   return s;
 }
 function importBackup(file){
@@ -714,7 +784,8 @@ function importBackup(file){
              anchorDraft:null, anchorEdit:false, anchorCancelling:false,
              spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
                     when:'now',at:'',warn:false},
-             worth:{blockId:null,pick:null,note:'',again:false} };
+             worth:{blockId:null,pick:null,note:'',again:false},
+             petToast:null, petMemoId:null };
       lastSkin = ''; lastStage = null;
       save(); applyPressure(); render();
       alert(t('import_ok'));
@@ -722,6 +793,141 @@ function importBackup(file){
   };
   reader.onerror = () => alert(t('import_bad'));
   reader.readAsText(file);
+}
+
+/* ── 4b. 金幣與寵物 ─────────────────────────────────────────────────── */
+function petOf(id){ return PETS.find(p => p.id === id) || PETS[0]; }
+function petName(id){ const p = petOf(id); return EN() ? p.en : p.zh; }
+function tFill(key, map){
+  let s = t(key);
+  Object.keys(map).forEach(k => { s = s.split('{'+k+'}').join(String(map[k])); });
+  return s;
+}
+function ensureCompanion(){
+  if(!S.companion) S.companion = { petId:S.equippedPet||'bomb', startedOn:dayKey(), days:1, tasks:[] };
+  if(!S.companion.startedOn) S.companion.startedOn = dayKey();
+  if(S.companion.petId !== S.equippedPet) S.companion.petId = S.equippedPet;
+}
+function coinDayLog(k){
+  k = k || dayKey();
+  if(!S.coinLog[k]) S.coinLog[k] = { anchor:false, blocks:{} };
+  if(!S.coinLog[k].blocks) S.coinLog[k].blocks = {};
+  return S.coinLog[k];
+}
+function showPetToast(msg){
+  ui.petToast = msg;
+  clearTimeout(showPetToast._t);
+  showPetToast._t = setTimeout(()=>{ if(ui.petToast === msg){ ui.petToast = null; render(); } }, 3200);
+}
+function awardCoins(n, msg){
+  if(!n) return;
+  S.coins = Math.max(0, (S.coins||0) + n);
+  if(msg) showPetToast(msg);
+}
+function clawCoins(n){
+  if(!n) return;
+  S.coins = Math.max(0, (S.coins||0) - n);
+}
+function logCompanionTask(kind, name, day){
+  ensureCompanion();
+  S.companion.tasks.push({ day: day || dayKey(), kind, name: name || '', at: Date.now() });
+}
+function rewardAnchorDone(){
+  const log = coinDayLog();
+  if(log.anchor) return;
+  log.anchor = true;
+  awardCoins(COIN_ANCHOR, tFill('coin_earn_anchor', {n:COIN_ANCHOR}));
+  logCompanionTask('anchor', today().anchor.text);
+}
+function undoAnchorReward(){
+  const log = coinDayLog();
+  if(!log.anchor) return;
+  log.anchor = false;
+  clawCoins(COIN_ANCHOR);
+  // 撤回今日這筆陪伴任務（不影響昨天以前）
+  const k = dayKey();
+  if(S.companion && Array.isArray(S.companion.tasks)){
+    for(let i = S.companion.tasks.length - 1; i >= 0; i--){
+      const x = S.companion.tasks[i];
+      if(x.kind === 'anchor' && x.day === k){ S.companion.tasks.splice(i,1); break; }
+    }
+  }
+}
+function rewardBlockDone(b){
+  if(!b || b.demo) return;
+  const log = coinDayLog(b.day || dayKey());
+  if(log.blocks[b.id]) return;
+  log.blocks[b.id] = true;
+  awardCoins(COIN_BLOCK, tFill('coin_earn_block', {n:COIN_BLOCK}));
+  logCompanionTask('block', b.name, b.day || dayKey());
+}
+function dayTasksFailed(k){
+  const day = dayOf(k);
+  if(!day) return false;
+  const a = day.anchor;
+  if(a && a.text && a.text.trim() && a.state === 'doing') return true;
+  return (day.blocks || []).some(b => !b.demo && !b.endedAt);
+}
+function dayHadTasks(k){
+  const day = dayOf(k);
+  if(!day) return false;
+  if(day.anchor && day.anchor.text && day.anchor.text.trim()) return true;
+  return (day.blocks || []).some(b => !b.demo);
+}
+function startCompanion(petId, onDay){
+  S.equippedPet = petId;
+  S.companion = { petId, startedOn: onDay || dayKey(), days:1, tasks:[] };
+}
+function explodeCompanion(endedOn){
+  ensureCompanion();
+  const c = S.companion;
+  const name = petName(c.petId);
+  S.fallen.unshift({
+    id:'f'+Date.now()+Math.floor(Math.random()*1000),
+    petId:c.petId, startedOn:c.startedOn, endedOn:endedOn || dayKey(),
+    days: Math.max(1, c.days|0), tasks:(c.tasks || []).slice()
+  });
+  // 寵物仍在 ownedPets；引線回到預設炸彈，開新的陪伴
+  startCompanion('bomb', dayKey());
+  showPetToast(tFill('pet_blown_note', {name}));
+}
+function settlePetDay(k){
+  if(!k || S.petSettled[k]) return;
+  S.petSettled[k] = true;
+  ensureCompanion();
+  // 當天完全沒有任務 → 不炸，也不強制加天（安靜的一天）
+  if(!dayHadTasks(k)) return;
+  if(dayTasksFailed(k)){
+    explodeCompanion(k);
+  }else{
+    S.companion.days = Math.max(1, (S.companion.days|0) + 1);
+  }
+}
+/* 關掉 App 跨過午夜時，下次開啟要把漏掉的日子結算完 */
+function catchUpPetSettlement(){
+  const todayK = dayKey();
+  Object.keys(S.days || {}).filter(k => k < todayK && !S.petSettled[k]).sort()
+    .forEach(settlePetDay);
+}
+function buyPet(id){
+  const p = petOf(id);
+  if(!p) return;
+  if(S.ownedPets.indexOf(id) >= 0){ showPetToast(t('pet_owned')); render(); return; }
+  if(!p.free && (S.coins|0) < p.price){ showPetToast(t('pet_need_coins')); render(); return; }
+  setState(()=>{
+    if(!p.free) S.coins -= p.price;
+    S.ownedPets.push(id);
+    showPetToast(t('pet_bought'));
+  });
+}
+function equipPet(id){
+  if(S.ownedPets.indexOf(id) < 0) return;
+  if(S.equippedPet === id){ ui.sheet = null; render(); return; }
+  setState(()=>{
+    // 換角＝這段陪伴告一段落但不炸掉，開新的陪伴計數
+    startCompanion(id, dayKey());
+    ui.sheet = null;
+  });
 }
 
 /* ── 5. 畫面 ─────────────────────────────────────────────────────────── */
@@ -763,8 +969,28 @@ function heroAnim(){
   if(p > 0.55)  return 'n-flick 7s linear infinite';
   return 'none';
 }
-/* 進度條是一條引線，不是進度條：炸彈在左端不動，火花沿著剩下的繩子
-   由右往左燒回來，燒完就是午夜。 */
+/* 進度條是一條引線，不是進度條：角色在左端不動，火花沿著剩下的繩子
+   由右往左燒回來，燒完就是午夜。預設是炸彈，可在寵物櫃換成其他角色。 */
+function fuseBombVisual(p, out, r, tip, shell){
+  ensureCompanion();
+  const pet = petOf(S.equippedPet || 'bomb');
+  const anim = out ? 'n-rattle .22s linear infinite' : p > 0.75 ? 'n-bombpulse 1.4s ease-in-out infinite' : 'none';
+  if(pet.id === 'bomb'){
+    return '<div id="fuseBomb" style="flex:none;width:22px;height:22px;position:relative;animation:'+anim+'">'
+      + '<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,'+(0.34+p*0.2).toFixed(2)+')"></div>'
+      + '<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;'
+      +   'background:radial-gradient(circle at 34% 32%, '+ok([r.bg[0]+0.1,r.bg[1],r.bg[2]])+', '+shell+' 75%);'
+      +   'border:1px solid '+tip+';'
+      +   'box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 '+(6+p*22+(out?18:0)).toFixed(0)+'px '+ok(r.neon,(0.15+p*0.6).toFixed(2))+'"></div>'
+      + '<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>'
+      + '</div>';
+  }
+  // 其他角色：emoji 佔位，仍接在引線左端
+  return '<div id="fuseBomb" title="'+esc(petName(pet.id))+'" style="flex:none;width:26px;height:26px;position:relative;'
+    + 'display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;'
+    + 'filter:drop-shadow(0 0 '+(4+p*14+(out?10:0)).toFixed(0)+'px '+ok(r.neon,(0.25+p*0.45).toFixed(2))+');'
+    + 'animation:'+anim+'">'+pet.emoji+'</div>';
+}
 function fuseHtml(){
   const p = pressure(), out = fuseOut(), r = ramp(p);
   // 夜間強度關掉 → p 為 0：火花／flare／ember 必須完全靜止（規則不可只關一半）
@@ -782,16 +1008,7 @@ function fuseHtml(){
     + 'background:'+bg+';opacity:'+ember+';animation:'
     + (calm ? 'none' : 'n-ember '+dur+'s ease-out '+delay+'s infinite')+'"></div>';
   return '<div style="display:flex;align-items:center;gap:6px;margin-top:22px">'
-    // 炸彈
-    + '<div id="fuseBomb" style="flex:none;width:22px;height:22px;position:relative;animation:'
-    +   (out ? 'n-rattle .22s linear infinite' : p > 0.75 ? 'n-bombpulse 1.4s ease-in-out infinite' : 'none')+'">'
-    + '<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,'+(0.34+p*0.2).toFixed(2)+')"></div>'
-    + '<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;'
-    +   'background:radial-gradient(circle at 34% 32%, '+ok([r.bg[0]+0.1,r.bg[1],r.bg[2]])+', '+shell+' 75%);'
-    +   'border:1px solid '+tip+';'
-    +   'box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 '+(6+p*22+(out?18:0)).toFixed(0)+'px '+ok(r.neon,(0.15+p*0.6).toFixed(2))+'"></div>'
-    + '<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>'
-    + '</div>'
+    + fuseBombVisual(p, out, r, tip, shell)
     // 引線
     + '<div id="fuseTrack" style="flex:1;height:9px;position:relative">'
     + '<div id="fuseRope" style="position:absolute;top:2px;left:0;height:5px;width:'+rem+';'
@@ -1217,10 +1434,30 @@ function screenSettings(){
   const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone) || 'local';
   const catChips = CATS.map(c =>
     '<button class="chip'+(S.cats.indexOf(c.k)>=0?' on':'')+'" data-act="cat-toggle" data-cat="'+c.k+'">'+esc(EN()?c.en:c.zh)+'</button>').join('');
+  ensureCompanion();
+  const pet = petOf(S.equippedPet);
 
   return '<div style="padding:16px 0 10px" class="h-screen">'+esc(t('settings'))+'</div>'
 
     + '<div class="row"><span class="k">'+esc(t('tz'))+'</span><span class="v">'+esc(tz)+' · '+esc(t('auto'))+'</span></div>'
+
+    + '<div style="padding:14px 0;border-top:1px solid rgba(233,237,244,.14)">'
+    + '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">'
+    + '<div><div class="k">'+esc(t('coins'))+'</div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('coins_sub'))+'</div></div>'
+    + '<div class="num" style="font:600 22px/1 var(--fh);color:var(--accent-deep)">'+comma(S.coins|0)+'</div></div></div>'
+
+    + '<div class="row" style="cursor:pointer;align-items:flex-start" data-act="open-cabinet">'
+    + '<div style="min-width:0"><div class="k">'+esc(t('pet_cabinet'))+'</div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('pet_cabinet_sub'))+'</div>'
+    + '<div style="font:400 11.5px/1.5 var(--fb);color:var(--accent-deep);margin-top:6px">'
+    +   pet.emoji+' '+esc(petName(pet.id))+' · '+esc(tFill('pet_days',{n:S.companion.days|0}))+'</div></div>'
+    + '<span class="v">›</span></div>'
+
+    + '<div class="row" style="cursor:pointer;align-items:flex-start" data-act="open-shop">'
+    + '<div style="min-width:0"><div class="k">'+esc(t('pet_shop'))+'</div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('pet_shop_sub'))+'</div></div>'
+    + '<span class="v">›</span></div>'
 
     + '<div style="padding:14px 0;border-top:1px solid rgba(233,237,244,.14)">'
     + '<div style="font:400 13.5px/1.5 var(--fb);margin-bottom:10px">'+esc(t('display'))+'</div>'
@@ -1382,6 +1619,129 @@ function sheetWorth(){
     + '<div class="foot" style="margin-top:10px">'+esc(t('worth_foot'))+'</div>'
     + '</div></div>';
 }
+function petToastHtml(){
+  if(!ui.petToast) return '';
+  return '<div style="position:fixed;left:50%;bottom:88px;transform:translateX(-50%);z-index:90;max-width:min(420px,calc(100% - 32px));'
+    + 'background:var(--sheet-bg);border:1px solid var(--hair-2);box-shadow:var(--glow-box);padding:12px 16px;'
+    + 'font:400 12.5px/1.55 var(--fb);color:var(--ink);pointer-events:none">'+esc(ui.petToast)+'</div>';
+}
+function sheetShop(){
+  const rows = PETS.map(p => {
+    const owned = S.ownedPets.indexOf(p.id) >= 0;
+    const price = p.free ? t('pet_free') : tFill('pet_price',{n:p.price});
+    let action;
+    if(owned){
+      action = '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('pet_owned'))+'</span>';
+    }else if(p.free){
+      action = '<button class="btn btn-fill" data-act="buy-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('pet_free'))+'</button>';
+    }else{
+      action = '<button class="btn'+(S.coins>=p.price?' btn-fill':'')+'" data-act="buy-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'
+        + esc(t('pet_buy'))+'</button>';
+    }
+    return '<div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--hair-3)">'
+      + '<div style="width:42px;height:42px;flex:none;display:flex;align-items:center;justify-content:center;font-size:28px;'
+      +   'border:1px solid var(--hair);background:var(--fill)">'+p.emoji+'</div>'
+      + '<div style="flex:1;min-width:0"><div style="font:500 14px/1.4 var(--fb)">'+esc(petName(p.id))
+      + (p.id==='bomb'?' · '+esc(t('pet_default')):'')+'</div>'
+      + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'+esc(price)+'</div></div>'
+      + action + '</div>';
+  }).join('');
+  return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
+    + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
+    + '<div class="kicker">SHOP</div>'
+    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('pet_close'))+'</button></div>'
+    + '<div style="font:400 18px/1.45 var(--fb);margin-top:10px">'+esc(t('pet_shop'))+'</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px">'
+    + '<div class="foot">'+esc(t('pet_shop_sub'))+'</div>'
+    + '<div class="num" style="font:600 16px/1 var(--fh);color:var(--accent-deep);flex:none;margin-left:12px">'+comma(S.coins|0)+'</div></div>'
+    + '<div style="margin-top:8px">'+rows+'</div></div></div>';
+}
+function sheetCabinet(){
+  ensureCompanion();
+  const owned = PETS.filter(p => S.ownedPets.indexOf(p.id) >= 0);
+  const rows = owned.map(p => {
+    const on = S.equippedPet === p.id;
+    const falls = (S.fallen||[]).filter(f => f.petId === p.id);
+    const days = on ? (S.companion.days|0) : null;
+    return '<div style="padding:14px 0;border-bottom:1px solid var(--hair-3)">'
+      + '<div style="display:flex;align-items:center;gap:12px">'
+      + '<div style="width:42px;height:42px;flex:none;display:flex;align-items:center;justify-content:center;font-size:28px;'
+      +   'border:1px solid '+(on?'var(--accent)':'var(--hair)')+';background:'+(on?'var(--accent-tint)':'var(--fill)')+'">'
+      +   (p.id==='bomb' && on ? '💣' : p.emoji)+'</div>'
+      + '<div style="flex:1;min-width:0"><div style="font:500 14px/1.4 var(--fb)">'+esc(petName(p.id))
+      + (on ? ' · <span style="color:var(--accent-deep)">'+esc(t('pet_equipped'))+'</span>' : '')+'</div>'
+      + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'
+      +   (on ? esc(tFill('pet_days',{n:days})) : esc(t('pet_owned')))
+      +   (falls.length ? ' · '+esc(t('pet_fallen'))+' '+falls.length : '')
+      + '</div></div>'
+      + (on
+          ? '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('pet_equipped'))+'</span>'
+          : '<button class="btn btn-fill" data-act="equip-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('pet_equip'))+'</button>')
+      + '</div>'
+      + (falls.length
+          ? '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">'
+            + falls.slice(0,3).map(f =>
+                '<button data-act="pet-memo" data-id="'+f.id+'" style="text-align:left;padding:10px 12px;border:1px solid var(--hair);'
+                + 'background:transparent;color:var(--ink);font:400 11.5px/1.5 var(--fb)">'
+                + esc(t('pet_fallen_title'))+' · '+esc(tFill('pet_days_short',{n:f.days}))
+                + ' · '+esc((f.startedOn||'')+' → '+(f.endedOn||''))+' ›</button>').join('')
+            + (falls.length > 3 ? '<div class="foot">+'+ (falls.length-3) +'</div>' : '')
+            + '</div>'
+          : '')
+      + '</div>';
+  }).join('');
+  const allFallen = (S.fallen||[]);
+  return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
+    + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
+    + '<div class="kicker">CABINET</div>'
+    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('pet_close'))+'</button></div>'
+    + '<div style="font:400 18px/1.45 var(--fb);margin-top:10px">'+esc(t('pet_cabinet'))+'</div>'
+    + '<div class="foot" style="margin-top:6px">'+esc(t('pet_cabinet_sub'))+'</div>'
+    + '<div style="margin-top:8px">'+rows+'</div>'
+    + '<div class="kicker" style="margin-top:22px">'+esc(t('pet_fallen'))+'</div>'
+    + (allFallen.length
+        ? '<div style="margin-top:8px">'+allFallen.map(f =>
+            '<button data-act="pet-memo" data-id="'+f.id+'" style="display:flex;width:100%;text-align:left;gap:10px;padding:12px 0;'
+            + 'border:none;border-bottom:1px solid var(--hair-3);background:transparent;color:var(--ink)">'
+            + '<span style="font-size:22px;flex:none">'+petOf(f.petId).emoji+'</span>'
+            + '<span style="flex:1;min-width:0;font:400 12.5px/1.5 var(--fb)">'
+            + esc(petName(f.petId))+' · '+esc(tFill('pet_days',{n:f.days}))
+            + '<br><span style="color:var(--ink-42);font-size:11px">'
+            + esc((f.startedOn||'')+' → '+(f.endedOn||''))+'</span></span><span style="color:var(--ink-42)">›</span></button>').join('')
+          + '</div>'
+        : '<div class="foot" style="margin-top:10px">'+esc(t('pet_fallen_none'))+'</div>')
+    + '</div></div>';
+}
+function sheetPetMemo(){
+  const f = (S.fallen||[]).find(x => x.id === ui.petMemoId);
+  if(!f){
+    return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1">'
+      + '<div class="foot">'+esc(t('pet_fallen_none'))+'</div>'
+      + '<button class="btn btn-wide" data-act="close-memo" style="margin-top:16px">'+esc(t('pet_close'))+'</button></div></div>';
+  }
+  const tasks = f.tasks || [];
+  const taskRows = tasks.length
+    ? tasks.map(x =>
+        '<div style="padding:10px 0;border-bottom:1px solid var(--hair-3)">'
+        + '<div style="font:400 13px/1.5 var(--fb)">'+esc(x.name || (x.kind==='anchor'?'Anchor':t('named_time')))+'</div>'
+        + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'
+        + esc(x.day||'')+' · '+(x.kind==='anchor'?'Anchor':t('named_time'))+'</div></div>').join('')
+    : '<div class="foot" style="padding:12px 0">'+esc(t('pet_tasks_none'))+'</div>';
+  return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
+    + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
+    + '<div class="kicker">MEMO</div>'
+    + '<button data-act="close-memo" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('pet_close'))+'</button></div>'
+    + '<div style="display:flex;align-items:center;gap:12px;margin-top:14px">'
+    + '<div style="font-size:36px">'+petOf(f.petId).emoji+'</div>'
+    + '<div><div style="font:500 18px/1.35 var(--fb)">'+esc(petName(f.petId))+'</div>'
+    + '<div style="font:400 12px/1.5 var(--fb);color:var(--ink-55);margin-top:4px">'+esc(t('pet_fallen_title'))+'</div></div></div>'
+    + '<div style="margin-top:16px;padding:12px 14px;border:1px solid var(--hair)">'
+    + '<div class="num" style="font:600 28px/1 var(--fh)">'+esc(tFill('pet_days_short',{n:f.days}))+'</div>'
+    + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:6px">'
+    +   esc((f.startedOn||'')+' → '+(f.endedOn||''))+'</div></div>'
+    + '<div class="kicker" style="margin-top:22px">'+esc(t('pet_tasks'))+'</div>'
+    + '<div style="margin-top:4px">'+taskRows+'</div></div></div>';
+}
 function sheetOnboarding(){
   const step = ui.ob;
   const dots = [0,1,2,3].map(i =>
@@ -1517,6 +1877,10 @@ function render(){
     + '</div>'
     + (ui.sheet === 'spend' ? sheetSpend() : '')
     + (ui.sheet === 'worth' ? sheetWorth() : '')
+    + (ui.sheet === 'shop' ? sheetShop() : '')
+    + (ui.sheet === 'cabinet' ? sheetCabinet() : '')
+    + (ui.sheet === 'pet-memo' ? sheetPetMemo() : '')
+    + petToastHtml()
     + '<div class="scan"></div><div class="vig"></div>';
 
   const sn = document.getElementById('spendName');
@@ -1545,8 +1909,8 @@ document.addEventListener('click', e => {
     case 'anchor-cancel': ui.anchorCancelling = true; ui.anchorDraft = null; ui.anchorEdit = false;
                           render(); setTimeout(()=>{ ui.anchorCancelling = false; }, 400); break;
     case 'anchor-done': commitAnchorDraft(); setState(()=>{ const a = today().anchor;
-                          if(a.state === 'done'){ a.state = 'doing'; a.doneAt = null; }
-                          else { a.state = 'done'; a.doneAt = Date.now(); } }); break;
+                          if(a.state === 'done'){ a.state = 'doing'; a.doneAt = null; undoAnchorReward(); }
+                          else { a.state = 'done'; a.doneAt = Date.now(); rewardAnchorDone(); } }); break;
     case 'anchor-drop': commitAnchorDraft(); setState(()=>{ const a = today().anchor;
                           a.state = a.state === 'dropped' ? 'doing' : 'dropped'; }); break;
     case 'quick': {
@@ -1569,7 +1933,7 @@ document.addEventListener('click', e => {
     case 'suggest': ui.spend.name = (EN()?SUGGEST[el.dataset.i][1]:SUGGEST[el.dataset.i][0]); render(); break;
     case 'spend-cat': ui.spend.cat = el.dataset.cat; render(); break;
     case 'spend-link': ui.spend.link = !ui.spend.link; render(); break;
-    case 'close-sheet': ui.sheet = null; render(); break;
+    case 'close-sheet': ui.sheet = null; ui.petMemoId = null; render(); break;
     case 'start': createBlock(); break;
     case 'end-early': endBlock(); break;
     case 'extend': extend15(); break;
@@ -1605,7 +1969,14 @@ document.addEventListener('click', e => {
     case 'demo':   toggleDemo(); break;
     case 'redo-ob': ui.ob = 0; setState(()=>{ S.onboarded = false; }); break;
     case 'wipe':   if(confirm(t('confirm_delete'))){ localStorage.removeItem(KEY);
-                     S = JSON.parse(JSON.stringify(DEFAULTS)); ui.ob = 0; save(); render(); } break;
+                     S = migrateState({}); ui.ob = 0; ui.petToast = null; ui.petMemoId = null;
+                     ui.sheet = null; save(); render(); } break;
+    case 'open-shop': ui.sheet = 'shop'; render(); break;
+    case 'open-cabinet': ui.sheet = 'cabinet'; render(); break;
+    case 'buy-pet': buyPet(el.dataset.id); break;
+    case 'equip-pet': equipPet(el.dataset.id); break;
+    case 'pet-memo': ui.petMemoId = el.dataset.id; ui.sheet = 'pet-memo'; render(); break;
+    case 'close-memo': ui.petMemoId = null; ui.sheet = 'cabinet'; render(); break;
     case 'ob-prev': ui.ob = Math.max(0, ui.ob-1); render(); break;
     case 'ob-next':
       if(ui.ob < 3){ ui.ob++; render(); }
@@ -1685,7 +2056,9 @@ function heartbeat(){
   applyPressure();
   if(!S.onboarded) return;
 
-  if(dayKey() !== lastDay){            // 跨過本地午夜 → 換新的一天
+  if(dayKey() !== lastDay){            // 跨過本地午夜 → 結算寵物，換新的一天
+    const prev = lastDay;
+    settlePetDay(prev);
     lastDay = dayKey(); S.fired = {}; ui.anchorDraft = null; ui.anchorEdit = false;
     const a0 = activeBlock();
     if(a0){ endBlock(); return; }      // 走完整結束流程，打開 Worth It
@@ -1740,8 +2113,10 @@ function checkNotif(left){
     fire('sleep', EN()?'Read today’s Time Receipt.':'看一下今天的 Time Receipt。');
 }
 setInterval(heartbeat, 1000);
-document.addEventListener('visibilitychange', () => { if(!document.hidden){ render(); heartbeat(); } });
-window.addEventListener('pageshow', heartbeat);
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden){ catchUpPetSettlement(); save(); render(); heartbeat(); }
+});
+window.addEventListener('pageshow', () => { catchUpPetSettlement(); heartbeat(); });
 
 /* ── 9. PWA：manifest 與圖示都在執行時產生，維持單檔 ─────────────────── */
 function pwaBits(){
@@ -1778,6 +2153,7 @@ function pwaBits(){
 }
 
 /* ── 10. 啟動 ────────────────────────────────────────────────────────── */
+catchUpPetSettlement();
 applyPressure();
 render();
 heartbeat();
