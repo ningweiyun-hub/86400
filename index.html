@@ -140,7 +140,7 @@ input{border-radius:0}
 }
 .btn:active{background:var(--fill)}
 .btn-ghost{border-color:transparent;color:var(--accent-deep)}
-.btn-fill{border:none;background:var(--accent);color:var(--bg);letter-spacing:.06em}
+.btn-fill{border:none;background:var(--accent);color:var(--on-accent);letter-spacing:.06em}
 .btn-wide{width:100%;padding:14px 0;font-size:15px}
 .line{border:none;border-bottom:1px solid var(--hair-2);background:transparent;
   width:100%;padding:6px 0;font:400 16px/1.5 var(--fb);outline:none;-webkit-appearance:none}
@@ -183,8 +183,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 "use strict";
 /* ══════════════════════════════════════════════════════════════════════
    86,400 — 時間覺察 App (PWA)
-   單檔、無建置、離線可用；資料存在 localStorage。
-   設計來源：design_handoff_86400（Industry design system）
+   單檔、無建置；資料存在 localStorage。離線靠同目錄的 sw.js。
+   現行皮膚：After Hours（design_handoff/PrototypeNeon.dc.html）
    ══════════════════════════════════════════════════════════════════ */
 
 /* ── 1. 語言字典 ─────────────────────────────────────────────────────── */
@@ -299,11 +299,15 @@ const T = {
   privacy:         ['隱私與資料管理','Privacy & data'],
   privacy_v:       ['只存在這台裝置','Stays on this device'],
   export:          ['匯出備份（JSON）','Export a backup (JSON)'],
+  import:          ['匯入備份（JSON）','Import a backup (JSON)'],
+  import_ok:       ['備份已匯入。','Backup imported.'],
+  import_bad:      ['這個檔案不是有效的 86,400 備份。','That file is not a valid 86,400 backup.'],
   redo_ob:         ['重新執行初次設定','Run first-time setup again'],
   demo_on:         ['載入示範資料','Load sample data'],
   demo_off:        ['清除示範資料','Clear sample data'],
   delete_all:      ['刪除全部資料','Delete all data'],
   confirm_delete:  ['刪除之後無法復原，確定嗎？','This cannot be undone. Delete everything?'],
+  confirm_import:  ['匯入會覆蓋這台裝置上的現有資料，確定嗎？','Import will replace the data on this device. Continue?'],
   tab_today:       ['今天','Today'],
   tab_receipt:     ['收據','Receipt'],
   tab_insights:    ['洞察','Insights'],
@@ -327,14 +331,14 @@ const T = {
   install_hint:    ['提示：用手機瀏覽器開啟後，選「加入主畫面」就會變成全螢幕 App。','Tip: open this in your phone browser and choose "Add to Home Screen" for a full-screen app.']
 };
 const CATS = [
-  {k:'work',  zh:'工作', en:'Work',         tone:'#1d2d3d'},
-  {k:'side',  zh:'副業', en:'Side project', tone:'#416180'},
-  {k:'commute',zh:'通勤',en:'Commute',      tone:'#749dc4'},
-  {k:'rest',  zh:'休息', en:'Rest',         tone:'#b5d9fd'},
-  {k:'learn', zh:'學習', en:'Learning',     tone:'#597ea3'},
-  {k:'people',zh:'關係', en:'People',       tone:'#94bce3'},
-  {k:'health',zh:'健康', en:'Health',       tone:'#8fa8bd'},
-  {k:'play',  zh:'玩樂', en:'Play',         tone:'#d6ebff'}
+  {k:'work',  zh:'工作', en:'Work'},
+  {k:'side',  zh:'副業', en:'Side project'},
+  {k:'commute',zh:'通勤',en:'Commute'},
+  {k:'rest',  zh:'休息', en:'Rest'},
+  {k:'learn', zh:'學習', en:'Learning'},
+  {k:'people',zh:'關係', en:'People'},
+  {k:'health',zh:'健康', en:'Health'},
+  {k:'play',  zh:'玩樂', en:'Play'}
 ];
 const WORTHS = ['w_v','w_ok','w_no','w_ch'];
 const SUGGEST = [
@@ -370,14 +374,7 @@ function load(){
   try{
     const raw = localStorage.getItem(KEY);
     if(!raw) return JSON.parse(JSON.stringify(DEFAULTS));
-    const s = Object.assign(JSON.parse(JSON.stringify(DEFAULTS)), JSON.parse(raw));
-    s.notif = Object.assign({}, DEFAULTS.notif, s.notif||{});
-    // 舊資料裡 startAt 同時是「排定開始」與「實際開始」；拆成兩個欄位
-    Object.keys(s.days).forEach(k => (s.days[k].blocks||[]).forEach(b => {
-      if(b.startedAt === undefined) b.startedAt = b.startAt;
-    }));
-    if(s.active){ s.activeId = s.active.id; delete s.active; }   // 舊版把 active 存成第二份
-    return s;
+    return migrateState(JSON.parse(raw));
   }catch(e){ return JSON.parse(JSON.stringify(DEFAULTS)); }
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -523,12 +520,28 @@ function scheduledToday(){
   return today().blocks.filter(b => !b.startedAt && !b.endedAt)
                        .sort((a,b) => a.startAt - b.startAt);
 }
+/* 重疊的已命名時段只算一次（牆上時鐘 union），避免 unnamed 被灌成 0 */
+function namedUnionSec(done){
+  const ranges = done
+    .filter(b => b.startedAt && b.endedAt && b.endedAt > b.startedAt)
+    .map(b => [b.startedAt, b.endedAt])
+    .sort((a,b) => a[0] - b[0]);
+  if(!ranges.length) return 0;
+  let total = 0, curS = ranges[0][0], curE = ranges[0][1];
+  for(let i = 1; i < ranges.length; i++){
+    const [s, e] = ranges[i];
+    if(s <= curE) curE = Math.max(curE, e);
+    else { total += curE - curS; curS = s; curE = e; }
+  }
+  total += curE - curS;
+  return Math.round(total / 1000);
+}
 
 /* 一天的統計 ------------------------------------------------------------ */
 function stats(k){
   const day = dayOf(k);
   const done = day.blocks.filter(b => b.endedAt);
-  const named = done.reduce((s,b) => s + blockDur(b), 0);
+  const named = namedUnionSec(done);
   const isToday = k === dayKey();
   const passed = isToday ? secPassed() : 86400;
   const byCat = {};
@@ -581,7 +594,8 @@ function dropScheduled(id){
 }
 function endBlock(){
   const a = activeBlock(); if(!a) return;
-  a.endedAt = Math.min(Date.now(), dayEnd()-1000);
+  // 用 block 自己的 endAt 當上限，跨午夜時也不會寫進「新一天」的 dayEnd
+  a.endedAt = Math.min(Date.now(), a.endAt || Date.now());
   S.activeId = null;
   ui.worth = { blockId:a.id, pick:null, note:'', again:false };
   ui.sheet = 'worth';
@@ -674,6 +688,41 @@ function exportBackup(){
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
 }
+function migrateState(raw){
+  const s = Object.assign(JSON.parse(JSON.stringify(DEFAULTS)), raw || {});
+  s.notif = Object.assign({}, DEFAULTS.notif, s.notif || {});
+  if(typeof s.days !== 'object' || !s.days) s.days = {};
+  Object.keys(s.days).forEach(k => (s.days[k].blocks || []).forEach(b => {
+    if(b.startedAt === undefined) b.startedAt = b.startAt;
+  }));
+  if(s.active){ s.activeId = s.active.id; delete s.active; }
+  if(typeof s.night !== 'boolean') s.night = true;
+  return s;
+}
+function importBackup(file){
+  if(!file) return;
+  if(!confirm(t('confirm_import'))) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('shape');
+      if(data.days !== undefined && (typeof data.days !== 'object' || Array.isArray(data.days)))
+        throw new Error('days');
+      S = migrateState(data);
+      ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
+             anchorDraft:null, anchorEdit:false, anchorCancelling:false,
+             spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
+                    when:'now',at:'',warn:false},
+             worth:{blockId:null,pick:null,note:'',again:false} };
+      lastSkin = ''; lastStage = null;
+      save(); applyPressure(); render();
+      alert(t('import_ok'));
+    }catch(e){ alert(t('import_bad')); }
+  };
+  reader.onerror = () => alert(t('import_bad'));
+  reader.readAsText(file);
+}
 
 /* ── 5. 畫面 ─────────────────────────────────────────────────────────── */
 function corners(color){
@@ -718,20 +767,28 @@ function heroAnim(){
    由右往左燒回來，燒完就是午夜。 */
 function fuseHtml(){
   const p = pressure(), out = fuseOut(), r = ramp(p);
+  // 夜間強度關掉 → p 為 0：火花／flare／ember 必須完全靜止（規則不可只關一半）
+  const calm = p <= 0;
   const rem = (100 - pctToday()).toFixed(2) + '%';
   const neon = ok(r.neon);
-  const ember = (0.45 + p*0.5).toFixed(2);
+  const ember = calm ? '0' : (0.45 + p*0.5).toFixed(2);
+  const shell = ok([Math.max(0.06, r.bg[0] - 0.04), r.bg[1], r.bg[2]]);
+  const tip = out ? ok([0.96, 0.04, 85]) : ok(r.neon, (0.35 + p*0.5).toFixed(2));
+  const sparkCore = ok([0.98, 0.02, r.neon[2]]);
+  const animFlare = calm ? 'none' : 'n-flare .9s ease-in-out infinite';
+  const animSpark = calm ? 'none' : 'n-spark .32s ease-in-out infinite';
   const dot = (size, bg, delay, dur) =>
     '<div style="position:absolute;top:50%;left:'+rem+';width:'+size+'px;height:'+size+'px;border-radius:50%;'
-    + 'background:'+bg+';opacity:'+ember+';animation:n-ember '+dur+'s ease-out '+delay+'s infinite"></div>';
+    + 'background:'+bg+';opacity:'+ember+';animation:'
+    + (calm ? 'none' : 'n-ember '+dur+'s ease-out '+delay+'s infinite')+'"></div>';
   return '<div style="display:flex;align-items:center;gap:6px;margin-top:22px">'
     // 炸彈
     + '<div id="fuseBomb" style="flex:none;width:22px;height:22px;position:relative;animation:'
     +   (out ? 'n-rattle .22s linear infinite' : p > 0.75 ? 'n-bombpulse 1.4s ease-in-out infinite' : 'none')+'">'
     + '<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,'+(0.34+p*0.2).toFixed(2)+')"></div>'
     + '<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;'
-    +   'background:radial-gradient(circle at 34% 32%, '+ok([r.bg[0]+0.1,r.bg[1],r.bg[2]])+', #0a0d12 75%);'
-    +   'border:1px solid '+(out ? '#fff6e8' : ok(r.neon,(0.35+p*0.5).toFixed(2)))+';'
+    +   'background:radial-gradient(circle at 34% 32%, '+ok([r.bg[0]+0.1,r.bg[1],r.bg[2]])+', '+shell+' 75%);'
+    +   'border:1px solid '+tip+';'
     +   'box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 '+(6+p*22+(out?18:0)).toFixed(0)+'px '+ok(r.neon,(0.15+p*0.6).toFixed(2))+'"></div>'
     + '<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>'
     + '</div>'
@@ -744,25 +801,26 @@ function fuseHtml(){
     +   'background:linear-gradient(to left, rgba(233,237,244,.04), rgba(233,237,244,.13))"></div>'
     + '<div id="fuseFlare" style="position:absolute;top:50%;left:'+rem+';width:'+(22+p*26+(out?16:0)).toFixed(0)+'px;'
     +   'height:'+(22+p*26+(out?16:0)).toFixed(0)+'px;border-radius:50%;'
-    +   'background:radial-gradient(circle, '+ok(r.neon,'0.5')+' 0 30%, '+ok(r.neon,'0')+' 70%);'
-    +   'animation:n-flare .9s ease-in-out infinite"></div>'
+    +   'background:radial-gradient(circle, '+ok(r.neon, calm ? '0.2' : '0.5')+' 0 30%, '+ok(r.neon,'0')+' 70%);'
+    +   'animation:'+animFlare+'"></div>'
     + '<div id="fuseSpark" style="position:absolute;top:50%;left:'+rem+';width:'+(9+p*8+(out?6:0)).toFixed(0)+'px;'
     +   'height:'+(9+p*8+(out?6:0)).toFixed(0)+'px;border-radius:50%;'
-    +   'background:radial-gradient(circle, #fff 0 35%, '+neon+' 70%, '+ok(r.neon,'0')+' 100%);'
-    +   'box-shadow:0 0 '+(18+p*34+(out?22:0)).toFixed(0)+'px '+(6+p*8).toFixed(0)+'px '+ok(r.neon,(0.65+p*0.35).toFixed(2))
-    +   ', 0 0 6px 2px rgba(255,255,255,.85);animation:n-spark .32s ease-in-out infinite"></div>'
-    + dot(3,'#fff6e8',0,1.1) + dot(2,neon,0.35,1.5) + dot(2,'#fff6e8',0.8,1.9)
+    +   'background:radial-gradient(circle, '+sparkCore+' 0 35%, '+neon+' 70%, '+ok(r.neon,'0')+' 100%);'
+    +   'box-shadow:0 0 '+(calm ? 0 : (18+p*34+(out?22:0))).toFixed(0)+'px '+(calm ? 0 : (6+p*8)).toFixed(0)+'px '+ok(r.neon,(0.65+p*0.35).toFixed(2))
+    +   (calm ? '' : ', 0 0 6px 2px rgba(255,255,255,.85)')+';animation:'+animSpark+'"></div>'
+    + (calm ? '' : dot(3,sparkCore,0,1.1) + dot(2,neon,0.35,1.5) + dot(2,sparkCore,0.8,1.9))
     + '</div></div>';
 }
 function heroHtml(){
   const left = secLeft(), p = pressure();
   const size = (92 + p*22).toFixed(0);
+  const creep = p <= 0 ? 'none' : 'n-creep 5.5s linear infinite';
   return '<div id="hero" style="margin:6px -20px 0;padding:26px 20px 24px;position:relative;overflow:hidden;'
     + 'background:var(--hero-bg);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)">'
     // 由上往下爬的一道微光
     + '<div style="position:absolute;left:0;right:0;top:0;height:60px;pointer-events:none;opacity:'+(p*0.9).toFixed(2)+';'
     +   'background:linear-gradient(to bottom, '+ok(ramp(p).neon,(0.06+p*0.22).toFixed(2))+', transparent);'
-    +   'animation:n-creep 5.5s linear infinite"></div>'
+    +   'animation:'+creep+'"></div>'
     + '<div style="position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
     + '<div class="kicker">'+esc(t('left_today'))+'</div>' + clockHtml() + '</div>'
     + '<div id="cdNum" class="num" style="position:relative;font:700 '+size+'px/.82 var(--fh);'
@@ -1196,6 +1254,8 @@ function screenSettings(){
     + '<div class="row"><span class="k">'+esc(t('privacy'))+'</span><span class="v">'+esc(t('privacy_v'))+'</span></div>'
 
     + '<button class="btn btn-wide" data-act="export" style="margin-top:18px">'+esc(t('export'))+'</button>'
+    + '<button class="btn btn-wide" data-act="import" style="margin-top:8px">'+esc(t('import'))+'</button>'
+    + '<input id="importFile" type="file" accept="application/json,.json" hidden>'
     + '<button class="btn btn-wide" data-act="demo" style="margin-top:8px">'+esc(S.demo ? t('demo_off') : t('demo_on'))+'</button>'
     + '<button class="btn btn-wide" data-act="redo-ob" style="margin-top:8px">'+esc(t('redo_ob'))+'</button>'
     + '<button class="btn btn-wide btn-ghost" data-act="wipe" style="margin-top:8px;color:rgba(233,237,244,.5)">'+esc(t('delete_all'))+'</button>'
@@ -1399,8 +1459,9 @@ function refreshHero(){
   });
 
   // 階段換了才動字級/動態，避免每秒重設 animation
+  const calm = p <= 0;
   const stage = out ? 4 : p > 0.8 ? 3 : p > 0.55 ? 2 : 1;
-  const key = stage + '|' + (p > 0.45) + '|' + (92 + p*22).toFixed(0);
+  const key = stage + '|' + (p > 0.45) + '|' + (92 + p*22).toFixed(0) + '|' + (calm ? '0' : '1');
   if(key !== lastStage){
     lastStage = key;
     const num = document.getElementById('cdNum');
@@ -1415,6 +1476,16 @@ function refreshHero(){
     const bomb = document.getElementById('fuseBomb');
     if(bomb) bomb.style.animation = out ? 'n-rattle .22s linear infinite'
                                   : p > 0.75 ? 'n-bombpulse 1.4s ease-in-out infinite' : 'none';
+    const flare = document.getElementById('fuseFlare');
+    if(flare) flare.style.animation = calm ? 'none' : 'n-flare .9s ease-in-out infinite';
+    const spark = document.getElementById('fuseSpark');
+    if(spark) spark.style.animation = calm ? 'none' : 'n-spark .32s ease-in-out infinite';
+    const track = document.getElementById('fuseTrack');
+    if(track && calm){
+      Array.prototype.forEach.call(track.children, el => {
+        if(/n-ember/.test(el.style.animation || '')) el.style.animation = 'none';
+      });
+    }
   }
 }
 
@@ -1517,12 +1588,20 @@ document.addEventListener('click', e => {
     case 'nextweek': setState(()=>{ const i = S.nextWeek.indexOf(el.dataset.cat);
                        i>=0 ? S.nextWeek.splice(i,1) : S.nextWeek.push(el.dataset.cat); }); break;
     case 'disp':  setState(()=>{ S.disp = el.dataset.v; }); break;
-    case 'night': setState(()=>{ S.night = !S.night; lastSkin = ''; applyPressure(); }); break;
+    case 'night': setState(()=>{ S.night = !S.night; lastSkin = ''; lastStage = null; applyPressure(); }); break;
     case 'tick':  setState(()=>{ S.tick = !S.tick; }); break;
     case 'cats-open': ui.catsOpen = !ui.catsOpen; render(); break;
     case 'cat-toggle': setState(()=>{ const c = el.dataset.cat, i = S.cats.indexOf(c);
                          if(i>=0){ if(S.cats.length>1) S.cats.splice(i,1); } else S.cats.push(c); }); break;
     case 'export': exportBackup(); break;
+    case 'import': {
+      const inp = document.getElementById('importFile');
+      if(!inp) break;
+      inp.value = '';
+      inp.onchange = () => { importBackup(inp.files && inp.files[0]); inp.onchange = null; };
+      inp.click();
+      break;
+    }
     case 'demo':   toggleDemo(); break;
     case 'redo-ob': ui.ob = 0; setState(()=>{ S.onboarded = false; }); break;
     case 'wipe':   if(confirm(t('confirm_delete'))){ localStorage.removeItem(KEY);
@@ -1609,7 +1688,7 @@ function heartbeat(){
   if(dayKey() !== lastDay){            // 跨過本地午夜 → 換新的一天
     lastDay = dayKey(); S.fired = {}; ui.anchorDraft = null; ui.anchorEdit = false;
     const a0 = activeBlock();
-    if(a0 && a0.endAt <= Date.now()){ a0.endedAt = a0.endAt; S.activeId = null; }
+    if(a0){ endBlock(); return; }      // 走完整結束流程，打開 Worth It
     save(); render(); return;
   }
   const act = activeBlock();
@@ -1669,11 +1748,12 @@ function pwaBits(){
   const icon = size => {
     const c = document.createElement('canvas'); c.width = c.height = size;
     const x = c.getContext('2d');
+    // 對齊 After Hours 白天（p=0）色票
     x.fillStyle = '#101a16'; x.fillRect(0,0,size,size);
     x.strokeStyle = 'rgba(142,240,166,.35)'; x.lineWidth = Math.max(1,size*0.008);
     x.strokeRect(size*0.12, size*0.12, size*0.76, size*0.76);
     x.fillStyle = '#8ef0a6'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.font = '600 ' + Math.round(size*0.21) + 'px "Barlow Condensed",sans-serif';
+    x.font = '600 ' + Math.round(size*0.21) + 'px "Chakra Petch",sans-serif';
     x.fillText('86,400', size/2, size*0.47);
     x.fillStyle = '#8ef0a6'; x.fillRect(size*0.22, size*0.62, size*0.34, size*0.012);
     return c.toDataURL('image/png');
@@ -1691,6 +1771,10 @@ function pwaBits(){
     const a = document.createElement('link'); a.rel = 'apple-touch-icon'; a.href = i192;
     document.head.appendChild(a);
   }catch(e){}
+  // 極簡 SW：http(s) 下快取自身，file:// 會被瀏覽器拒絕所以略過
+  if('serviceWorker' in navigator && location.protocol !== 'file:'){
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
 }
 
 /* ── 10. 啟動 ────────────────────────────────────────────────────────── */
