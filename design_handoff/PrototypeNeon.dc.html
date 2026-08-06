@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
+<script src="i18n.js"></script>
+<style>
+@keyframes n-breathe{0%,100%{opacity:1}50%{opacity:.72}}
+@keyframes n-flick{0%,92%,100%{opacity:1}94%{opacity:.55}96%{opacity:1}98%{opacity:.7}}
+@keyframes n-creep{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+@keyframes n-spark{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}40%{transform:translate(-50%,-50%) scale(1.45);opacity:.75}70%{transform:translate(-50%,-50%) scale(.85);opacity:1}}
+@keyframes n-ember{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(14px,-11px) scale(.2);opacity:0}}
+@keyframes n-shake{0%,100%{transform:translate(0,0)}12%{transform:translate(-3px,2px)}25%{transform:translate(3px,-2px)}38%{transform:translate(-2px,-3px)}50%{transform:translate(2px,3px)}62%{transform:translate(-3px,-1px)}75%{transform:translate(3px,1px)}88%{transform:translate(-1px,3px)}}
+@keyframes n-flare{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}50%{transform:translate(-50%,-50%) scale(1.9);opacity:.25}}
+@keyframes n-bombpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes n-rattle{0%,100%{transform:translate(0,0)}12%{transform:translate(-2.5px,1.5px)}25%{transform:translate(2.5px,-1.5px)}38%{transform:translate(-1.5px,-2.5px)}50%{transform:translate(1.5px,2.5px)}62%{transform:translate(-2.5px,-1px)}75%{transform:translate(2.5px,1px)}88%{transform:translate(-1px,2.5px)}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="height:100%;position:relative;display:flex;flex-direction:column;overflow:hidden;background: {{ bg }};color:#e9edf4;font-family:'IBM Plex Sans',system-ui">
+
+<div style="position:absolute;inset:0;pointer-events:none;z-index:60;background: {{ vignette }}"></div>
+<div style="position:absolute;inset:0;pointer-events:none;z-index:61;opacity: {{ scanOp }};background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+
+<div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:54px 18px 6px;position:relative;z-index:2">
+<div style="display:flex;align-items:baseline;gap:8px">
+<span style="font:600 15px/1 'Chakra Petch';letter-spacing:.2em;color: {{ neon }};text-shadow: {{ glowSm }}">86400</span>
+<span style="font:300 10px/1 'IBM Plex Sans';letter-spacing:.1em;color:rgba(233,237,244,.45)">{{ dateStr }}</span>
+</div>
+<div style="display:flex;gap:6px;align-items:center">
+<div style="display:flex;border:1px solid rgba(233,237,244,.2)">
+<button type="button" onClick="{{ setZh }}" style="border:none;cursor:pointer;padding:3px 7px;font:500 9.5px 'Chakra Petch';letter-spacing:.12em;background: {{ zhBg }};color: {{ zhC }}">中</button>
+<button type="button" onClick="{{ setEn }}" style="border:none;cursor:pointer;padding:3px 7px;font:500 9.5px 'Chakra Petch';letter-spacing:.12em;background: {{ enBg }};color: {{ enC }}">EN</button>
+</div>
+</div>
+</div>
+
+<div style="flex:none;display:flex;align-items:center;gap:6px;padding:4px 18px 8px;position:relative;z-index:2">
+<span style="font:500 8px 'Chakra Petch';letter-spacing:.18em;color:rgba(233,237,244,.3)">DEMO</span>
+<sc-for list="{{ clocks }}" as="c" hint-placeholder-count="4">
+<button type="button" onClick="{{ c.pick }}" style="cursor:pointer;border:1px solid {{ c.bd }};background:transparent;color: {{ c.fg }};padding:2px 7px;font:400 9.5px 'IBM Plex Sans';letter-spacing:.06em">{{ c.label }}</button>
+</sc-for>
+</div>
+
+<div style="flex:1;overflow:auto;padding:0 18px 96px;position:relative;z-index:2">
+
+<sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Today">
+
+<div style="margin:6px -18px 0;padding:26px 18px 24px;position:relative;overflow:hidden;background: {{ heroBg }};border-top:1px solid {{ hairline }};border-bottom:1px solid {{ hairline }}">
+<div style="position:absolute;left:0;right:0;top:0;height:60px;pointer-events:none;opacity: {{ creepOp }};background:linear-gradient(to bottom, {{ neonFaint }}, transparent);animation:n-creep 5.5s linear infinite"></div>
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.24em;text-transform:uppercase;color: {{ neon }};text-shadow: {{ glowSm }}" data-i18n>今天剩下</div>
+<div style="font:700 {{ heroSize }}/.82 'Chakra Petch';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:12px;color: {{ heroInk }};text-shadow: {{ glowBig }};animation: {{ heroAnim }}">{{ secLeft }}</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;font:300 11.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.55);margin-top:12px">
+<span>{{ leftHuman }}</span><span>{{ pctLine }}</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:22px">
+<div style="flex:none;width:22px;height:22px;position:relative;animation: {{ bombAnim }}">
+<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background: {{ ropeLight }}"></div>
+<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;background: {{ bombFill }};border:1px solid {{ bombRim }};box-shadow: {{ bombGlow }}"></div>
+<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>
+</div>
+<div style="flex:1;height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width: {{ fuseW }};background:repeating-linear-gradient(115deg, {{ ropeDark }} 0 3px, {{ ropeLight }} 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width: {{ pctW }};background:linear-gradient(to left, rgba(233,237,244,.04), rgba(233,237,244,.13))"></div>
+<div style="position:absolute;top:50%;left: {{ fuseW }};width: {{ flareSize }};height: {{ flareSize }};border-radius:50%;background: {{ flareFill }};animation:n-flare .9s ease-in-out infinite"></div>
+<div style="position:absolute;top:50%;left: {{ fuseW }};width: {{ sparkSize }};height: {{ sparkSize }};border-radius:50%;background: {{ sparkCore }};box-shadow: {{ sparkGlow }};animation:n-spark .32s ease-in-out infinite"></div>
+<div style="position:absolute;top:50%;left: {{ fuseW }};width:3px;height:3px;border-radius:50%;background:#fff6e8;opacity: {{ emberOp }};animation:n-ember 1.1s ease-out infinite"></div>
+<div style="position:absolute;top:50%;left: {{ fuseW }};width:2px;height:2px;border-radius:50%;background: {{ neon }};opacity: {{ emberOp }};animation:n-ember 1.5s ease-out .35s infinite"></div>
+<div style="position:absolute;top:50%;left: {{ fuseW }};width:2px;height:2px;border-radius:50%;background:#fff6e8;opacity: {{ emberOp }};animation:n-ember 1.9s ease-out .8s infinite"></div>
+</div>
+</div>
+<div style="font:400 11px/1.6 'IBM Plex Sans';color: {{ moodInk }};margin-top:16px">{{ moodLine }}</div>
+</div>
+
+<div style="margin-top:22px;border:1px solid {{ hairline }};padding:15px">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}">TODAY ANCHOR</div>
+<div style="font:300 10px/1 'IBM Plex Sans';color:rgba(233,237,244,.5)">{{ anchorStatus }}</div>
+</div>
+<div style="font:300 11px/1.55 'IBM Plex Sans';color:rgba(233,237,244,.5);margin-top:8px" data-i18n>如果今天只能好好完成一件事，會是什麼？</div>
+<input value="{{ anchor }}" onChange="{{ setAnchor }}" style="width:100%;box-sizing:border-box;margin-top:8px;border:none;border-bottom:1px solid {{ hairlineHot }};background:transparent;font:500 18px/1.4 'IBM Plex Sans';color:#e9edf4;padding:5px 0;outline:none">
+<div style="display:flex;gap:8px;margin-top:13px">
+<button type="button" onClick="{{ toggleAnchor }}" style="cursor:pointer;border:1px solid {{ neon }};background:transparent;color: {{ neon }};padding:8px 12px;font:500 11.5px 'Chakra Petch';letter-spacing:.08em">{{ anchorBtn }}</button>
+<button type="button" onClick="{{ dropAnchor }}" style="cursor:pointer;border:none;background:transparent;color:rgba(233,237,244,.42);padding:8px 6px;font:400 11.5px 'IBM Plex Sans'">{{ anchorDropBtn }}</button>
+</div>
+<div style="font:300 10px/1.6 'IBM Plex Sans';color:rgba(233,237,244,.35);margin-top:9px" data-i18n>沒完成不會扣分，也不會中斷任何紀錄。</div>
+</div>
+
+<sc-if value="{{ noActive }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:22px">
+<div style="font:400 13.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.85)" data-i18n>把下一段時間留給……</div>
+<div style="display:flex;gap:7px;margin-top:11px">
+<button type="button" onClick="{{ q15 }}" style="flex:1;cursor:pointer;border:1px solid {{ hairlineHot }};background:transparent;color:#e9edf4;padding:12px 0;font:600 15px 'Chakra Petch'">15</button>
+<button type="button" onClick="{{ q30 }}" style="flex:1;cursor:pointer;border:1px solid {{ hairlineHot }};background:transparent;color:#e9edf4;padding:12px 0;font:600 15px 'Chakra Petch'">30</button>
+<button type="button" onClick="{{ q60 }}" style="flex:1;cursor:pointer;border:1px solid {{ hairlineHot }};background:transparent;color:#e9edf4;padding:12px 0;font:600 15px 'Chakra Petch'">60</button>
+<button type="button" onClick="{{ qCustom }}" style="flex:1.3;cursor:pointer;border:1px solid {{ hairlineHot }};background:transparent;color:#e9edf4;padding:12px 0;font:500 11.5px 'Chakra Petch';letter-spacing:.06em" data-i18n>自訂</button>
+</div>
+<div style="font:300 10px/1.6 'IBM Plex Sans';color:rgba(233,237,244,.35);margin-top:8px" data-i18n>兩步之內就能開始，不需要先建立清單。</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:22px;border:1px solid {{ neon }};padding:15px;box-shadow: {{ glowBox }}">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>進行中</div>
+<div style="font:300 10px/1 'IBM Plex Sans';color:rgba(233,237,244,.5)">{{ activeCat }} · {{ activeEndAt }}</div>
+</div>
+<div style="font:500 18px/1.35 'IBM Plex Sans';margin-top:9px">{{ activeName }}</div>
+<div style="display:flex;align-items:flex-end;gap:8px;margin-top:10px">
+<div style="font:700 44px/.86 'Chakra Petch';font-variant-numeric:tabular-nums;color: {{ neon }};text-shadow: {{ glowSm }}">{{ activeRemain }}</div>
+<div style="font:300 10.5px/1 'IBM Plex Sans';color:rgba(233,237,244,.5);padding-bottom:6px">{{ activeUnit }}</div>
+</div>
+<div style="height:2px;background:rgba(233,237,244,.14);margin-top:12px;position:relative"><div style="position:absolute;top:0;left:0;height:2px;background: {{ neon }};width: {{ activeW }}"></div></div>
+<div style="font:300 10.5px/1.6 'IBM Plex Sans';color:rgba(233,237,244,.55);margin-top:10px">{{ activeLine }}</div>
+<div style="display:flex;gap:8px;margin-top:13px">
+<button type="button" onClick="{{ endEarly }}" style="flex:1;cursor:pointer;border:none;background: {{ neon }};color:#0b0f14;padding:10px 0;font:600 12px 'Chakra Petch';letter-spacing:.08em" data-i18n>提前結束</button>
+<button type="button" onClick="{{ extend15 }}" style="flex:1;cursor:pointer;border:1px solid {{ hairlineHot }};background:transparent;color:#e9edf4;padding:10px 0;font:500 12px 'Chakra Petch';letter-spacing:.08em" data-i18n>延長 15 分</button>
+</div>
+</div>
+</sc-if>
+
+<div style="margin-top:24px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px;border-bottom:1px solid {{ hairlineHot }}">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>今日已命名時間</div>
+<div style="font:600 14px/1 'Chakra Petch';font-variant-numeric:tabular-nums">{{ namedStr }}</div>
+</div>
+<sc-for list="{{ blocks }}" as="b" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid rgba(233,237,244,.08)">
+<div style="width:3px;height:26px;flex:none;background: {{ b.tone }}"></div>
+<div style="flex:1;min-width:0">
+<div style="font:400 13.5px/1.35 'IBM Plex Sans'">{{ b.name }}</div>
+<div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.42)">{{ b.time }} · {{ b.cat }}</div>
+</div>
+<div style="text-align:right;flex:none">
+<div style="font:600 14px/1 'Chakra Petch';font-variant-numeric:tabular-nums">{{ b.dur }}</div>
+<div style="font:300 10px/1.5 'IBM Plex Sans';color: {{ b.worthC }}">{{ b.worth }}</div>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{ showUnnamed }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;gap:11px;padding:11px 0">
+<div style="width:3px;height:26px;flex:none;background:rgba(233,237,244,.12)"></div>
+<div style="flex:1">
+<div style="font:400 13.5px/1.35 'IBM Plex Sans';color:rgba(233,237,244,.5)" data-i18n>未命名時間</div>
+<div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.33)" data-i18n>不代表浪費，只是今天沒有留下紀錄。</div>
+</div>
+<div style="font:600 14px/1 'Chakra Petch';font-variant-numeric:tabular-nums;color:rgba(233,237,244,.5)">{{ unnamedStr }}</div>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isReceipt }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Time Receipt">
+<div style="padding:16px 0 4px;display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 24px/1 'Chakra Petch';letter-spacing:.02em" data-i18n>今日收據</div>
+<div style="font:500 9px/1 'Chakra Petch';letter-spacing:.18em;border:1px solid {{ neon }};color: {{ neon }};padding:4px 7px" data-i18n>進行中</div>
+</div>
+<div style="border:1px solid {{ hairlineHot }};padding:20px 16px;margin-top:14px">
+<div style="text-align:center;border-bottom:1px dashed rgba(233,237,244,.2);padding-bottom:14px">
+<div style="font:300 9.5px/1.4 'IBM Plex Sans';letter-spacing:.24em;color:rgba(233,237,244,.45)" data-i18n>今天收到</div>
+<div style="font:700 42px/1 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:5px;color: {{ neon }};text-shadow: {{ glowSm }}">86,400</div>
+<div style="font:300 10px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.42);margin-top:5px">{{ dateFull }}</div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.2);font-variant-numeric:tabular-nums">
+<div style="display:flex;justify-content:space-between;font:300 12.5px/1.9 'IBM Plex Sans'"><span data-i18n>今天已過</span><span>{{ passedStr }}</span></div>
+<div style="display:flex;justify-content:space-between;font:300 12.5px/1.9 'IBM Plex Sans'"><span data-i18n>今天還剩</span><span>{{ secLeftPlain }}</span></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.2)">
+<div style="font:600 9px/1 'Chakra Petch';letter-spacing:.2em;color: {{ neon }}">TODAY ANCHOR</div>
+<div style="display:flex;justify-content:space-between;gap:10px;margin-top:6px;font:400 13.5px/1.5 'IBM Plex Sans'"><span>{{ anchor }}</span><span style="flex:none;color:rgba(233,237,244,.45)">{{ anchorStatus }}</span></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.2);font-variant-numeric:tabular-nums">
+<div style="display:flex;justify-content:space-between;font:500 12.5px/1.9 'IBM Plex Sans'"><span data-i18n>已命名時間</span><span>{{ namedStr }}</span></div>
+<div style="display:flex;justify-content:space-between;font:300 12.5px/1.9 'IBM Plex Sans';color:rgba(233,237,244,.5)"><span data-i18n>未命名時間</span><span>{{ unnamedStr }}</span></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.2)">
+<div style="font:600 9px/1 'Chakra Petch';letter-spacing:.2em;color: {{ neon }};margin-bottom:9px" data-i18n>時間類別投入</div>
+<sc-for list="{{ catRows }}" as="c" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:9px;padding:3px 0">
+<div style="width:60px;font:300 11.5px/1.5 'IBM Plex Sans';flex:none">{{ c.name }}</div>
+<div style="flex:1;height:6px;background:rgba(233,237,244,.09)"><div style="height:6px;background: {{ c.tone }};width: {{ c.w }}"></div></div>
+<div style="width:44px;text-align:right;font:300 11px/1.5 'IBM Plex Sans';font-variant-numeric:tabular-nums;color:rgba(233,237,244,.5);flex:none">{{ c.dur }}</div>
+</div>
+</sc-for>
+</div>
+<div style="padding:12px 0 0">
+<div style="font:600 9px/1 'Chakra Petch';letter-spacing:.2em;color: {{ neon }}" data-i18n>今天最值得的片刻</div>
+<div style="font:400 14px/1.6 'IBM Plex Sans';margin-top:7px">「剪片剪到忘記時間，抬頭已經九點。」</div>
+<div style="font:600 9px/1 'Chakra Petch';letter-spacing:.2em;color: {{ neon }};margin-top:16px" data-i18n>明天想多留一點時間給</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">
+<span style="font:300 11px/1 'IBM Plex Sans';border:1px solid {{ neon }};color: {{ neon }};padding:6px 9px">關係</span>
+<span style="font:300 11px/1 'IBM Plex Sans';border:1px solid rgba(233,237,244,.16);padding:6px 9px;color:rgba(233,237,244,.5)">休息</span>
+</div>
+</div>
+</div>
+<div style="font:300 10px/1.7 'IBM Plex Sans';color:rgba(233,237,244,.35);margin-top:12px" data-i18n>已命名時間不等於你今天做過的全部事情。這張收據只記你留下名字的部分。</div>
+<div style="margin-top:20px;padding-bottom:8px;border-bottom:1px solid {{ hairlineHot }};font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>過去的收據</div>
+<sc-for list="{{ pastReceipts }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(233,237,244,.08)">
+<div><div style="font:400 13px/1.4 'IBM Plex Sans'">{{ r.date }}</div><div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.42)">{{ r.anchor }}</div></div>
+<div style="text-align:right"><div style="font:600 13px/1 'Chakra Petch';font-variant-numeric:tabular-nums">{{ r.named }}</div><div style="font:300 10px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.4)">{{ r.note }}</div></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isInsights }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Insights">
+<div style="padding:16px 0 0">
+<div style="font:600 24px/1 'Chakra Petch'" data-i18n>本週回顧</div>
+<div style="font:300 11px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:4px">07.31 — 08.06</div>
+</div>
+<div style="margin-top:18px;border:1px solid {{ hairline }};padding:16px 14px 12px">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>每天的已命名時間</div>
+<div style="display:flex;align-items:flex-end;gap:8px;height:118px;margin-top:14px">
+<sc-for list="{{ weekBars }}" as="w" hint-placeholder-count="7">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+<div style="width:100%;background: {{ w.tone }};height: {{ w.h }};box-shadow: {{ w.glow }}"></div>
+<span style="font:300 10px/1 'IBM Plex Sans';color: {{ w.labelC }}">{{ w.label }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:14px">
+<div style="flex:1;border:1px solid {{ hairline }};padding:13px"><div style="font:700 30px/1 'Chakra Petch';font-variant-numeric:tabular-nums">5<span style="font-size:15px;color:rgba(233,237,244,.4)">/7</span></div><div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.5);margin-top:5px" data-i18n>完成 Today Anchor 的天數</div></div>
+<div style="flex:1;border:1px solid {{ hairline }};padding:13px"><div style="font:700 30px/1 'Chakra Petch';font-variant-numeric:tabular-nums">7:20</div><div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.5);margin-top:5px" data-i18n>已命名時間總量</div></div>
+</div>
+<div style="margin-top:24px;padding-bottom:9px;border-bottom:1px solid {{ hairlineHot }};font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>被評為「很值得」的比例</div>
+<div style="padding-top:10px">
+<sc-for list="{{ worthShares }}" as="s" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:10px;padding:5px 0">
+<div style="width:56px;font:300 12px/1.5 'IBM Plex Sans'">{{ s.name }}</div>
+<div style="flex:1;height:7px;background:rgba(233,237,244,.09)"><div style="height:7px;background: {{ s.tone }};width: {{ s.w }}"></div></div>
+<div style="width:34px;text-align:right;font:600 11.5px/1 'Chakra Petch'">{{ s.pct }}</div>
+</div>
+</sc-for>
+</div>
+<div style="font:300 10px/1.7 'IBM Plex Sans';color:rgba(233,237,244,.35);margin-top:10px" data-i18n>這是你自己的評價，不是活動本身的分數，也不會和其他人比較。</div>
+<div style="margin-top:24px;padding-bottom:9px;border-bottom:1px solid {{ hairlineHot }};font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>一週最值得的三個片刻</div>
+<div style="padding-top:6px">
+<div style="padding:12px 0;border-bottom:1px solid rgba(233,237,244,.08)"><div style="font:400 13.5px/1.6 'IBM Plex Sans'">「剪片剪到忘記時間，抬頭已經九點。」</div><div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.4);margin-top:4px">07.31 · 副業 · 60 分</div></div>
+<div style="padding:12px 0;border-bottom:1px solid rgba(233,237,244,.08)"><div style="font:400 13.5px/1.6 'IBM Plex Sans'">「跟阿姊講了一小時電話，沒看手機。」</div><div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.4);margin-top:4px">07.28 · 關係 · 58 分</div></div>
+<div style="padding:12px 0;border-bottom:1px solid rgba(233,237,244,.08)"><div style="font:400 13.5px/1.6 'IBM Plex Sans'">「什麼都沒做，在陽台坐了二十分鐘。」</div><div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.4);margin-top:4px">07.27 · 休息 · 20 分</div></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Settings">
+<div style="padding:16px 0 10px;font:600 24px/1 'Chakra Petch'" data-i18n>設定</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid {{ hairline }}">
+<span style="font:400 13.5px/1.5 'IBM Plex Sans'" data-i18n>時區</span><span style="font:300 12.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.45)" data-i18n>Asia/Taipei · 自動</span>
+</div>
+<div style="padding:14px 0;border-top:1px solid {{ hairline }}">
+<div style="font:400 13.5px/1.5 'IBM Plex Sans';margin-bottom:10px" data-i18n>顯示模式</div>
+<div style="display:flex;border:1px solid {{ hairlineHot }}">
+<button type="button" onClick="{{ dispSec }}" style="flex:1;border:none;cursor:pointer;padding:9px 0;font:400 12px 'IBM Plex Sans';background: {{ dSecBg }};color: {{ dSecC }}" data-i18n>純秒數</button>
+<button type="button" onClick="{{ dispHms }}" style="flex:1;border:none;border-left:1px solid {{ hairlineHot }};cursor:pointer;padding:9px 0;font:400 12px 'IBM Plex Sans';background: {{ dHmsBg }};color: {{ dHmsC }}" data-i18n>時分秒</button>
+<button type="button" onClick="{{ dispHm }}" style="flex:1;border:none;border-left:1px solid {{ hairlineHot }};cursor:pointer;padding:9px 0;font:400 12px 'IBM Plex Sans';background: {{ dHmBg }};color: {{ dHmC }}" data-i18n>時與分</button>
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid {{ hairline }}">
+<div><div style="font:400 13.5px/1.5 'IBM Plex Sans'" data-i18n>秒數跳動</div><div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.4)" data-i18n>關掉之後只更新到分鐘</div></div>
+<button type="button" onClick="{{ toggleTick }}" style="width:46px;height:24px;flex:none;cursor:pointer;border:1px solid {{ hairlineHot }};padding:2px;background: {{ tickBg }};display:flex;justify-content: {{ tickJustify }}"><span style="width:18px;height:18px;background: {{ tickKnob }}"></span></button>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid {{ hairline }}">
+<div><div style="font:400 13.5px/1.5 'IBM Plex Sans'" data-i18n>夜間強度</div><div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.4)" data-i18n>越晚，畫面越亮、越緊。可以關掉。</div></div>
+<button type="button" onClick="{{ togglePressure }}" style="width:46px;height:24px;flex:none;cursor:pointer;border:1px solid {{ hairlineHot }};padding:2px;background: {{ presBg }};display:flex;justify-content: {{ presJustify }}"><span style="width:18px;height:18px;background: {{ presKnob }}"></span></button>
+</div>
+<div style="padding:16px 0 6px;border-top:1px solid {{ hairline }}">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>通知</div>
+<div style="font:300 10.5px/1.6 'IBM Plex Sans';color:rgba(233,237,244,.4);margin-top:6px" data-i18n>每天最多主動提醒三次，每一類都可以單獨關掉。</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0"><span style="font:400 12.5px/1.5 'IBM Plex Sans'" data-i18n>起床後：設定 Today Anchor</span><span style="width:34px;height:18px;background: {{ neon }};display:flex;justify-content:flex-end;padding:2px"><span style="width:14px;height:14px;background:#0b0f14"></span></span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0"><span style="font:400 12.5px/1.5 'IBM Plex Sans'" data-i18n>剩三小時：重新選擇今晚</span><span style="width:34px;height:18px;background: {{ neon }};display:flex;justify-content:flex-end;padding:2px"><span style="width:14px;height:14px;background:#0b0f14"></span></span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0"><span style="font:400 12.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.45)" data-i18n>睡前：查看 Time Receipt</span><span style="width:34px;height:18px;background:rgba(233,237,244,.14);display:flex;padding:2px"><span style="width:14px;height:14px;background:rgba(233,237,244,.5)"></span></span></div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid {{ hairline }}">
+<span style="font:400 13.5px/1.5 'IBM Plex Sans'" data-i18n>隱私與資料管理</span><span style="font:300 12.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.45)" data-i18n>預設只有自己看得到</span>
+</div>
+<button type="button" onClick="{{ openOb }}" style="width:100%;margin-top:18px;cursor:pointer;border:1px solid {{ hairlineHot }};background:transparent;color:#e9edf4;padding:12px 0;font:500 12.5px 'Chakra Petch';letter-spacing:.06em" data-i18n>重新執行初次設定</button>
+</div>
+</sc-if>
+
+</div>
+
+<div style="flex:none;display:flex;border-top:1px solid {{ hairlineHot }};padding:10px 0 30px;position:relative;z-index:2;background: {{ barBg }}">
+<button type="button" onClick="{{ goToday }}" style="flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;color: {{ cToday }}">
+<span style="width:13px;height:13px;border:1px solid currentColor;display:flex;align-items:flex-end;padding:1px"><span style="width:4px;height:4px;background:currentColor"></span></span>
+<span style="font:400 9.5px/1 'IBM Plex Sans';letter-spacing:.06em" data-i18n>今天</span>
+</button>
+<button type="button" onClick="{{ goReceipt }}" style="flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;color: {{ cReceipt }}">
+<span style="width:13px;height:13px;display:flex;flex-direction:column;justify-content:space-between;padding:1px 0"><span style="height:1px;background:currentColor"></span><span style="height:1px;background:currentColor"></span><span style="height:1px;background:currentColor"></span></span>
+<span style="font:400 9.5px/1 'IBM Plex Sans';letter-spacing:.06em" data-i18n>收據</span>
+</button>
+<button type="button" onClick="{{ goInsights }}" style="flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;color: {{ cInsights }}">
+<span style="width:13px;height:13px;display:flex;align-items:flex-end;gap:2px"><span style="width:3px;height:6px;background:currentColor"></span><span style="width:3px;height:13px;background:currentColor"></span><span style="width:3px;height:9px;background:currentColor"></span></span>
+<span style="font:400 9.5px/1 'IBM Plex Sans';letter-spacing:.06em" data-i18n>洞察</span>
+</button>
+<button type="button" onClick="{{ goSettings }}" style="flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;color: {{ cSettings }}">
+<span style="width:13px;height:13px;border:1px solid currentColor;border-radius:50%"></span>
+<span style="font:400 9.5px/1 'IBM Plex Sans';letter-spacing:.06em" data-i18n>設定</span>
+</button>
+</div>
+
+<sc-if value="{{ sheetSpend }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeSheet }}" style="position:absolute;inset:0;z-index:80;background:rgba(4,6,10,.72);display:flex;align-items:flex-end">
+<div onClick="{{ stop }}" style="width:100%;box-sizing:border-box;background: {{ sheetBg }};border-top:1px solid {{ neon }};padding:20px 18px 40px;max-height:780px;overflow:auto">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}">SPEND THE NEXT</div>
+<button type="button" onClick="{{ closeSheet }}" style="border:none;background:transparent;cursor:pointer;font:300 11px 'IBM Plex Sans';color:rgba(233,237,244,.45)" data-i18n>取消</button>
+</div>
+<div style="font:400 17px/1.5 'IBM Plex Sans';margin-top:10px" data-i18n>接下來想把一點時間留給什麼？</div>
+<div style="display:flex;gap:7px;margin-top:16px">
+<button type="button" onClick="{{ m15 }}" style="flex:1;cursor:pointer;padding:12px 0;font:600 15px 'Chakra Petch';border:1px solid {{ b15 }};background: {{ g15 }};color: {{ t15 }}">15</button>
+<button type="button" onClick="{{ m30 }}" style="flex:1;cursor:pointer;padding:12px 0;font:600 15px 'Chakra Petch';border:1px solid {{ b30 }};background: {{ g30 }};color: {{ t30 }}">30</button>
+<button type="button" onClick="{{ m60 }}" style="flex:1;cursor:pointer;padding:12px 0;font:600 15px 'Chakra Petch';border:1px solid {{ b60 }};background: {{ g60 }};color: {{ t60 }}">60</button>
+<button type="button" onClick="{{ mCustom }}" style="flex:1.3;cursor:pointer;padding:12px 0;font:500 11.5px 'Chakra Petch';border:1px solid {{ bC }};background: {{ gC }};color: {{ tC }}" data-i18n>自訂</button>
+</div>
+<sc-if value="{{ isCustom }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:14px">
+<div style="display:flex;justify-content:space-between;font:300 11px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.5)"><span data-i18n>1 – 240 分鐘</span><span style="font-variant-numeric:tabular-nums;color:#e9edf4">{{ customLabel }}</span></div>
+<input type="range" min="1" max="240" value="{{ customVal }}" onChange="{{ setCustom }}" style="width:100%;margin-top:8px;accent-color: {{ neon }}">
+</div>
+</sc-if>
+<div style="margin-top:20px">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>這段時間要做什麼</div>
+<input value="{{ spendName }}" onChange="{{ setSpendName }}" placeholder="{{ namePlaceholder }}" style="width:100%;box-sizing:border-box;margin-top:8px;border:none;border-bottom:1px solid {{ hairlineHot }};background:transparent;font:400 16px/1.5 'IBM Plex Sans';color:#e9edf4;padding:6px 0;outline:none">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+<sc-for list="{{ suggests }}" as="s" hint-placeholder-count="4">
+<button type="button" onClick="{{ s.pick }}" style="cursor:pointer;border:1px solid rgba(233,237,244,.16);background:transparent;padding:6px 9px;font:300 11.5px 'IBM Plex Sans';color:rgba(233,237,244,.6)">{{ s.label }}</button>
+</sc-for>
+</div>
+</div>
+<div style="margin-top:20px">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>類別</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">
+<sc-for list="{{ cats }}" as="c" hint-placeholder-count="8">
+<button type="button" onClick="{{ c.pick }}" style="cursor:pointer;padding:7px 10px;font:300 12px 'IBM Plex Sans';border:1px solid {{ c.bd }};background: {{ c.bg }};color: {{ c.fg }}">{{ c.name }}</button>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding:13px 0;border-top:1px solid rgba(233,237,244,.12);border-bottom:1px solid rgba(233,237,244,.12)">
+<span style="font:400 13px/1.5 'IBM Plex Sans'" data-i18n>與今天的 Anchor 有關</span>
+<button type="button" onClick="{{ toggleLink }}" style="width:46px;height:24px;flex:none;cursor:pointer;border:1px solid {{ hairlineHot }};padding:2px;background: {{ linkBg }};display:flex;justify-content: {{ linkJustify }}"><span style="width:18px;height:18px;background: {{ linkKnob }}"></span></button>
+</div>
+<div style="font:300 13.5px/1.8 'IBM Plex Sans';color:rgba(233,237,244,.7);margin-top:18px">{{ spendPreview1 }}<br>{{ spendPreview2 }}</div>
+<button type="button" onClick="{{ startBlock }}" style="width:100%;margin-top:18px;cursor:pointer;border:none;background: {{ neon }};color:#0b0f14;padding:15px 0;font:600 15px 'Chakra Petch';letter-spacing:.1em;box-shadow: {{ glowBox }}" data-i18n>開始</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sheetWorth }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:85;background:rgba(4,6,10,.72);display:flex;align-items:flex-end">
+<div style="width:100%;box-sizing:border-box;background: {{ sheetBg }};border-top:1px solid {{ neon }};padding:20px 18px 40px">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}">WORTH IT</div>
+<div style="font:400 20px/1.45 'IBM Plex Sans';margin-top:12px" data-i18n>這段時間值得嗎？</div>
+<div style="font:300 11.5px/1.6 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:6px">{{ worthSubject }}</div>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+<sc-for list="{{ worthOpts }}" as="w" hint-placeholder-count="4">
+<button type="button" onClick="{{ w.pick }}" style="text-align:left;cursor:pointer;padding:14px;font:400 14px 'IBM Plex Sans';border:1px solid {{ w.bd }};background: {{ w.bg }};color: {{ w.fg }}">{{ w.label }}</button>
+</sc-for>
+</div>
+<div style="margin-top:16px">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.22em;color: {{ neon }}" data-i18n>一句想記住的事（選填）</div>
+<input value="{{ worthNote }}" onChange="{{ setWorthNote }}" style="width:100%;box-sizing:border-box;margin-top:8px;border:none;border-bottom:1px solid {{ hairlineHot }};background:transparent;font:400 15px/1.5 'IBM Plex Sans';color:#e9edf4;padding:6px 0;outline:none">
+</div>
+<div style="display:flex;gap:8px;margin-top:18px">
+<button type="button" onClick="{{ skipWorth }}" style="flex:1;cursor:pointer;border:1px solid {{ hairlineHot }};background:transparent;color:#e9edf4;padding:14px 0;font:400 13px 'IBM Plex Sans'" data-i18n>略過</button>
+<button type="button" onClick="{{ saveWorth }}" style="flex:2;cursor:pointer;border:none;background: {{ neon }};color:#0b0f14;padding:14px 0;font:600 14px 'Chakra Petch';letter-spacing:.08em" data-i18n>儲存</button>
+</div>
+<div style="font:300 10px/1.7 'IBM Plex Sans';color:rgba(233,237,244,.35);margin-top:10px" data-i18n>「不太值得」不扣分。休息與無所事事也可以是很值得。</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sheetOb }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:90;background: {{ bg }};padding:64px 22px 40px;display:flex;flex-direction:column" data-screen-label="Onboarding">
+<div style="display:flex;gap:5px">
+<span style="flex:1;height:2px;background: {{ ob1 }}"></span><span style="flex:1;height:2px;background: {{ ob2 }}"></span><span style="flex:1;height:2px;background: {{ ob3 }}"></span>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+<sc-if value="{{ obIs0 }}" hint-placeholder-val="{{ true }}">
+<div>
+<div style="font:700 74px/.86 'Chakra Petch';color: {{ neon }};text-shadow: {{ glowBig }}">86,400</div>
+<div style="font:400 19px/1.6 'IBM Plex Sans';margin-top:20px" data-i18n>你今天收到 86,400 秒。</div>
+<div style="font:300 14px/1.8 'IBM Plex Sans';color:rgba(233,237,244,.55);margin-top:12px" data-i18n>時間不能存起來，也帶不到明天。</div>
+<div style="font:300 13px/1.8 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:20px;border-top:1px solid {{ hairline }};padding-top:16px" data-i18n>這個 App 不會要求你記錄每一秒，也不會判斷什麼是浪費。</div>
+</div>
+</sc-if>
+<sc-if value="{{ obIs1 }}" hint-placeholder-val="{{ false }}">
+<div>
+<div style="font:600 30px/1.15 'Chakra Petch'" data-i18n>先確認你的一天從哪裡開始</div>
+<div style="margin-top:24px;border-top:1px solid {{ hairline }}">
+<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid {{ hairline }}"><span style="font:400 14px 'IBM Plex Sans'" data-i18n>時區</span><span style="font:300 14px 'IBM Plex Sans';color:rgba(233,237,244,.5)">Asia/Taipei</span></div>
+<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid {{ hairline }}"><span style="font:400 14px 'IBM Plex Sans'" data-i18n>預計起床</span><span style="font:300 14px 'IBM Plex Sans';color:rgba(233,237,244,.5)">07:00</span></div>
+<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid {{ hairline }}"><span style="font:400 14px 'IBM Plex Sans'" data-i18n>預計睡眠</span><span style="font:300 14px 'IBM Plex Sans';color:rgba(233,237,244,.5)">23:30</span></div>
+</div>
+<div style="font:300 11.5px/1.8 'IBM Plex Sans';color:rgba(233,237,244,.4);margin-top:14px" data-i18n>起床與睡眠只用來安排提醒，不會改變 86,400 秒的主倒數。</div>
+</div>
+</sc-if>
+<sc-if value="{{ obIs2 }}" hint-placeholder-val="{{ false }}">
+<div>
+<div style="font:600 30px/1.15 'Chakra Petch'" data-i18n>你重視哪些面向？</div>
+<div style="font:300 12.5px/1.7 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:10px" data-i18n>之後都可以再改。這只是類別，不是目標。</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px">
+<sc-for list="{{ obCats }}" as="c" hint-placeholder-count="8">
+<button type="button" onClick="{{ c.pick }}" style="cursor:pointer;padding:11px 14px;font:400 14px 'IBM Plex Sans';border:1px solid {{ c.bd }};background: {{ c.bg }};color: {{ c.fg }}">{{ c.name }}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+<div style="display:flex;gap:9px">
+<button type="button" onClick="{{ obPrev }}" style="cursor:pointer;border:1px solid {{ hairlineHot }};background:transparent;color:#e9edf4;padding:15px 18px;font:400 13px 'IBM Plex Sans'" data-i18n>上一步</button>
+<button type="button" onClick="{{ obNext }}" style="flex:1;cursor:pointer;border:none;background: {{ neon }};color:#0b0f14;padding:15px 0;font:600 15px 'Chakra Petch';letter-spacing:.08em">{{ obNextLabel }}</button>
+</div>
+<div style="text-align:center;margin-top:12px;font:300 11px 'IBM Plex Sans';color:rgba(233,237,244,.35)" data-i18n>除了時區，其他都可以略過。</div>
+</div>
+</sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:402,&quot;height&quot;:874},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;zh&quot;,&quot;en&quot;],&quot;default&quot;:&quot;zh&quot;,&quot;tsType&quot;:&quot;'zh' | 'en'&quot;},&quot;pressure&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;dispMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sec&quot;,&quot;hms&quot;,&quot;hm&quot;],&quot;default&quot;:&quot;sec&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tickSeconds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showUnnamed&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const CAT_LIST = ['工作','副業','通勤','休息','學習','關係','健康','玩樂'];
+const SCHED = [
+  {name:'剪副業影片的第二段', cat:'副業', dur:60, endAgo:40,  worth:'很值得'},
+  {name:'提案第三段：需求收斂', cat:'工作', dur:45, endAgo:190, worth:'還不錯'}
+];
+const WORTHS = ['很值得','還不錯','不太值得','中途改變了'];
+const EN = {'工作':'Work','副業':'Side project','通勤':'Commute','休息':'Rest','學習':'Learning','關係':'People','健康':'Health','玩樂':'Play',
+  '剪副業影片的第二段':'Edit part two of the side-project video','提案第三段：需求收斂':'Proposal part three: narrowing the scope',
+  '把提案的第三段寫完':'Finish part three of the proposal','剪副業影片':'Edit the side-project video','提案第三段':'Proposal part three',
+  '走路不看手機':'Walk without the phone','打電話回家':'Call home','把季度預算表補完':'Finish the quarterly budget','沒有設定 Anchor':'No Anchor set'};
+const ANCHOR_ZH = '把提案的第三段寫完';
+const t = (s, en) => en ? (EN[s] || s) : s;
+const p2 = (n) => String(n).padStart(2, '0');
+const lerp = (a, b, k) => a + (b - a) * k;
+
+// palette stops: calm cool → warm → hot. Interpolated in OKLCH.
+const STOPS = [
+  { at: 0,   bg: [0.16, 0.028, 158], neon: [0.86, 0.20, 148] },
+  { at: 0.55,bg: [0.15, 0.050,  55], neon: [0.84, 0.17,  72] },
+  { at: 1,   bg: [0.12, 0.100,  15], neon: [0.70, 0.26,  20] }
+];
+function ramp(p) {
+  let i = 0;
+  while (i < STOPS.length - 2 && p > STOPS[i + 1].at) i++;
+  const a = STOPS[i], b = STOPS[i + 1];
+  const k = Math.min(1, Math.max(0, (p - a.at) / (b.at - a.at)));
+  const mix = (key) => a[key].map((v, j) => lerp(v, b[key][j], k));
+  return { bg: mix('bg'), neon: mix('neon') };
+}
+const ok = (c, alpha) => 'oklch(' + c[0].toFixed(3) + ' ' + c[1].toFixed(3) + ' ' + c[2].toFixed(1) + (alpha === undefined ? '' : ' / ' + alpha) + ')';
+
+class Component extends DCLogic {
+  state = {
+    now: Date.now(), forcedHour: null, tab: 'today', sheet: null,
+    lang: this.props.lang || 'zh',
+    disp: this.props.dispMode || 'sec',
+    tick: this.props.tickSeconds !== false,
+    pressureOn: this.props.pressure !== false,
+    anchor: ANCHOR_ZH, anchorState: 'doing',
+    active: null, min: 30, custom: 45, spendName: '', spendCat: '副業', link: true,
+    worth: null, worthNote: '', ob: 0, obPicked: ['工作','副業','休息','關係']
+  };
+
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      const st = this.state, n = Date.now();
+      if (!st.tick && !st.active && Math.floor(n / 60000) === Math.floor(st.now / 60000)) return;
+      this.setState({ now: n });
+    }, 1000);
+    this.applyLang();
+  }
+  componentDidUpdate(pp) {
+    if (pp.lang !== this.props.lang && this.props.lang) this.setState({ lang: this.props.lang });
+    if (pp.dispMode !== this.props.dispMode && this.props.dispMode) this.setState({ disp: this.props.dispMode });
+    if (pp.tickSeconds !== this.props.tickSeconds) this.setState({ tick: this.props.tickSeconds !== false });
+    if (pp.pressure !== this.props.pressure) this.setState({ pressureOn: this.props.pressure !== false });
+    this.applyLang();
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  applyLang() { if (window.translate86400) window.translate86400(this.rootEl, this.state.lang === 'en'); }
+
+  get elapsed() {
+    if (this.state.forcedHour !== null) {
+      const h = Math.floor(this.state.forcedHour);
+      const m = Math.round((this.state.forcedHour - h) * 60);
+      return h * 3600 + m * 60 + (new Date(this.state.now).getSeconds());
+    }
+    const d = new Date(this.state.now);
+    return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+  }
+  get left() { return 86400 - this.elapsed; }
+  get pressure() {
+    if (!this.state.pressureOn) return 0;
+    const hour = this.elapsed / 3600;
+    const raw = Math.min(1, Math.max(0, (hour - 9) / 14));
+    return Math.pow(raw, 2.2);
+  }
+  get blocks() {
+    const el = this.elapsed;
+    return SCHED.map(s => ({ ...s, e: el - s.endAgo * 60, st: el - s.endAgo * 60 - s.dur * 60 })).filter(b => b.st >= 0);
+  }
+  hms(s) { return Math.floor(s / 3600) + ':' + p2(Math.floor(s % 3600 / 60)) + ':' + p2(Math.floor(s % 60)); }
+  hm(s) { return Math.floor(s / 3600) + ':' + p2(Math.floor(s % 3600 / 60)); }
+  comma(n) { return Math.max(0, Math.floor(n)).toLocaleString('en-US'); }
+  set(o) { this.setState(o); }
+
+  renderVals() {
+    const st = this.state, en = st.lang === 'en', el = this.elapsed, left = this.left, p = this.pressure;
+    const r = ramp(p);
+    const neon = ok(r.neon), bg = ok(r.bg);
+    const heroBg = ok([r.bg[0] + 0.02 + p * 0.02, r.bg[1] * (1 + p), r.bg[2]]);
+    const barBg = ok([Math.max(0.08, r.bg[0] - 0.03), r.bg[1], r.bg[2]]);
+    const sheetBg = ok([r.bg[0] + 0.015, r.bg[1], r.bg[2]]);
+    const glowSm = '0 0 ' + (4 + p * 14).toFixed(0) + 'px ' + ok(r.neon, (0.25 + p * 0.55).toFixed(2));
+    const glowBig = '0 0 ' + (8 + p * 46).toFixed(0) + 'px ' + ok(r.neon, (0.2 + p * 0.7).toFixed(2));
+    const glowBox = '0 0 ' + (6 + p * 26).toFixed(0) + 'px ' + ok(r.neon, (0.12 + p * 0.4).toFixed(2));
+    const pct = el / 86400 * 100;
+    const fuseOut = pct >= 95;
+    const h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60);
+    const secDisp = st.disp === 'sec' ? this.comma(st.tick ? left : Math.floor(left / 60) * 60)
+      : st.disp === 'hms' ? this.hms(left) : this.hm(left);
+    const seg = (b) => ({ bg: b ? neon : 'transparent', fg: b ? '#0b0f14' : 'rgba(233,237,244,.6)', bd: b ? neon : 'rgba(233,237,244,.18)' });
+    const sw = (b) => ({ bg: b ? neon : 'rgba(233,237,244,.1)', j: b ? 'flex-end' : 'flex-start', knob: b ? '#0b0f14' : 'rgba(233,237,244,.5)' });
+    const tk = sw(st.tick), lk = sw(st.link), pr = sw(st.pressureOn);
+    const d = new Date(st.now);
+    const wd = ['日','一','二','三','四','五','六'][d.getDay()];
+    const act = st.active;
+    const actLeft = act ? Math.max(0, Math.floor((act.endAt - st.now) / 1000)) : 0;
+    const s15 = seg(st.min === 15), s30 = seg(st.min === 30), s60 = seg(st.min === 60);
+    const custom = ![15, 30, 60].includes(st.min), sC = seg(custom);
+    const spendSec = (custom ? st.custom : st.min) * 60;
+    const subject = st.spendName || t(st.spendCat, en);
+    const named = this.blocks.reduce((a, b) => a + b.dur * 60, 0);
+    const anchorText = (st.anchor === ANCHOR_ZH && en) ? EN[ANCHOR_ZH] : st.anchor;
+    const catTone = (i, n) => ok([lerp(r.neon[0], 0.55, i / Math.max(1, n)), r.neon[1] * (1 - i / (n + 2)), r.neon[2]]);
+    const mood = fuseOut ? (en ? 'The fuse is almost gone. Whatever is left is all there is.' : '引線快燒完了。剩下的就是全部了。')
+      
+      : p < 0.25 ? (en ? 'The day is still wide. Nothing is urgent yet.' : '今天還很寬。現在什麼都還來得及。')
+      : p < 0.6 ? (en ? 'More than half is spent. What gets the rest?' : '一半以上已經過去了。剩下的要給誰？')
+      : p < 0.85 ? (en ? 'The light is going. Choose the next stretch on purpose.' : '天色在走了。下一段，刻意選一次。')
+      : (en ? "Today does not roll over. Whatever is left is all there is." : '今天不會結轉。剩下的就是全部了。');
+    const label = (n) => en ? ({ '今天':'Today','剩一半':'Half','傍晚':'Evening','深夜':'Late','現在':'Live' })[n] || n : n;
+
+    return {
+      rootRef: (n) => { this.rootEl = n; },
+      bg, heroBg, barBg, sheetBg, neon, glowSm, glowBig, glowBox,
+      neonFaint: ok(r.neon, (0.06 + p * 0.22).toFixed(2)),
+      hairline: 'rgba(233,237,244,' + (0.1 + p * 0.06).toFixed(2) + ')',
+      hairlineHot: p > 0.6 ? ok(r.neon, (0.18 + p * 0.3).toFixed(2)) : 'rgba(233,237,244,.18)',
+      vignette: 'radial-gradient(120% 80% at 50% 0%, transparent 40%, ' + ok(r.bg, (p * 0.55).toFixed(2)) + ' 100%)',
+      scanOp: (p * 0.16).toFixed(3),
+      creepOp: (p * 0.9).toFixed(2),
+      heroSize: (92 + p * 22).toFixed(0) + 'px',
+      heroInk: p > 0.45 ? neon : '#e9edf4',
+      heroAnim: fuseOut ? 'n-shake .22s linear infinite, n-breathe 1.1s ease-in-out infinite'
+        : p > 0.8 ? 'n-breathe 2.6s ease-in-out infinite' : p > 0.55 ? 'n-flick 7s linear infinite' : 'none',
+      fuseW: (100 - pct).toFixed(2) + '%',
+      ropeDark: 'rgba(233,237,244,' + (0.16 + p * 0.1).toFixed(2) + ')',
+      ropeLight: 'rgba(233,237,244,' + (0.34 + p * 0.2).toFixed(2) + ')',
+      sparkSize: (9 + p * 8 + (fuseOut ? 6 : 0)).toFixed(0) + 'px',
+      sparkCore: 'radial-gradient(circle, #fff 0 35%, ' + ok(r.neon) + ' 70%, ' + ok(r.neon, '0') + ' 100%)',
+      sparkGlow: '0 0 ' + (18 + p * 34 + (fuseOut ? 22 : 0)).toFixed(0) + 'px ' + (6 + p * 8).toFixed(0) + 'px ' + ok(r.neon, (0.65 + p * 0.35).toFixed(2)) + ', 0 0 6px 2px rgba(255,255,255,.85)',
+      flareSize: (22 + p * 26 + (fuseOut ? 16 : 0)).toFixed(0) + 'px',
+      flareFill: 'radial-gradient(circle, ' + ok(r.neon, '0.5') + ' 0 30%, ' + ok(r.neon, '0') + ' 70%)',
+      emberOp: (0.45 + p * 0.5).toFixed(2),
+      bombFill: 'radial-gradient(circle at 34% 32%, ' + ok([r.bg[0] + 0.1, r.bg[1], r.bg[2]]) + ', #0a0d12 75%)',
+      bombRim: fuseOut ? '#fff6e8' : ok(r.neon, (0.35 + p * 0.5).toFixed(2)),
+      bombGlow: 'inset 0 -3px 6px rgba(0,0,0,.7), 0 0 ' + (6 + p * 22 + (fuseOut ? 18 : 0)).toFixed(0) + 'px ' + ok(r.neon, (0.15 + p * 0.6).toFixed(2)),
+      bombAnim: fuseOut ? 'n-rattle .22s linear infinite' : p > 0.75 ? 'n-bombpulse 1.4s ease-in-out infinite' : 'none',
+      moodLine: mood,
+      moodInk: p > 0.6 ? ok(r.neon, '0.85') : 'rgba(233,237,244,.5)',
+
+      clocks: [
+        { key: null, label: label('現在') }, { key: 9.5, label: '09:30' },
+        { key: 15, label: '15:00' }, { key: 20.5, label: '20:30' }, { key: 23.7, label: '23:40' }
+      ].map(c => {
+        const on = st.forcedHour === c.key;
+        return { label: c.label, bd: on ? neon : 'rgba(233,237,244,.16)', fg: on ? neon : 'rgba(233,237,244,.42)', pick: () => this.set({ forcedHour: c.key }) };
+      }),
+
+      dateStr: en ? (d.getMonth() + 1) + '/' + d.getDate() : (d.getMonth() + 1) + '月' + d.getDate() + '日 · 週' + wd,
+      dateFull: d.getFullYear() + '.' + p2(d.getMonth() + 1) + '.' + p2(d.getDate()) + ' · Asia/Taipei',
+      secLeft: secDisp, secLeftPlain: this.comma(left), passedStr: this.hms(el),
+      leftHuman: en ? '≈ ' + h + 'h ' + m + 'm' : '≈ ' + h + ' 小時 ' + m + ' 分',
+      pctLine: (en ? 'elapsed ' : '已過 ') + pct.toFixed(1) + '%',
+      pctW: pct.toFixed(2) + '%',
+      showUnnamed: this.props.showUnnamed !== false,
+
+      isToday: st.tab === 'today', isReceipt: st.tab === 'receipt', isInsights: st.tab === 'insights', isSettings: st.tab === 'settings',
+      goToday: () => this.set({ tab: 'today' }), goReceipt: () => this.set({ tab: 'receipt' }),
+      goInsights: () => this.set({ tab: 'insights' }), goSettings: () => this.set({ tab: 'settings' }),
+      cToday: st.tab === 'today' ? neon : 'rgba(233,237,244,.35)',
+      cReceipt: st.tab === 'receipt' ? neon : 'rgba(233,237,244,.35)',
+      cInsights: st.tab === 'insights' ? neon : 'rgba(233,237,244,.35)',
+      cSettings: st.tab === 'settings' ? neon : 'rgba(233,237,244,.35)',
+
+      setZh: () => this.set({ lang: 'zh' }), setEn: () => this.set({ lang: 'en' }),
+      zhBg: en ? 'transparent' : neon, zhC: en ? 'rgba(233,237,244,.55)' : '#0b0f14',
+      enBg: en ? neon : 'transparent', enC: en ? '#0b0f14' : 'rgba(233,237,244,.55)',
+
+      anchor: anchorText, setAnchor: (e) => this.set({ anchor: e.target.value }),
+      anchorStatus: st.anchorState === 'done' ? (en ? 'Finished' : '已完成') : st.anchorState === 'dropped' ? (en ? 'No longer matters' : '不再重要') : (en ? 'In progress' : '進行中'),
+      anchorBtn: st.anchorState === 'done' ? (en ? 'Mark unfinished' : '改回未完成') : (en ? 'Mark finished' : '標記完成'),
+      anchorDropBtn: en ? 'No longer matters' : '不再重要了',
+      toggleAnchor: () => this.set({ anchorState: st.anchorState === 'done' ? 'doing' : 'done' }),
+      dropAnchor: () => this.set({ anchorState: st.anchorState === 'dropped' ? 'doing' : 'dropped' }),
+
+      noActive: !act, hasActive: !!act,
+      activeName: act ? t(act.name, en) : '', activeCat: act ? t(act.cat, en) : '',
+      activeRemain: this.comma(actLeft), activeUnit: en ? 'sec left' : '秒',
+      activeEndAt: act ? p2(new Date(act.endAt).getHours()) + ':' + p2(new Date(act.endAt).getMinutes()) + (en ? ' end' : ' 結束') : '',
+      activeW: act ? (100 - actLeft / (act.sec || 1) * 100).toFixed(1) + '%' : '0%',
+      activeLine: act ? (en ? this.comma(left) + ' sec left today — the next ' + this.comma(actLeft) + ' go to ' + t(act.name, en) + '.' : '今天還剩 ' + this.comma(left) + ' 秒，其中接下來 ' + this.comma(actLeft) + ' 秒留給' + act.name + '。') : '',
+      endEarly: () => this.set({ sheet: 'worth', worth: null, worthNote: '' }),
+      extend15: () => this.set({ active: { ...act, endAt: act.endAt + 900000, sec: act.sec + 900 } }),
+
+      q15: () => this.set({ sheet: 'spend', min: 15, spendName: '' }),
+      q30: () => this.set({ sheet: 'spend', min: 30, spendName: '' }),
+      q60: () => this.set({ sheet: 'spend', min: 60, spendName: '' }),
+      qCustom: () => this.set({ sheet: 'spend', min: 0, spendName: '' }),
+      sheetSpend: st.sheet === 'spend', sheetWorth: st.sheet === 'worth', sheetOb: st.sheet === 'ob',
+      closeSheet: () => this.set({ sheet: null }), stop: (e) => e.stopPropagation(),
+      m15: () => this.set({ min: 15 }), m30: () => this.set({ min: 30 }), m60: () => this.set({ min: 60 }), mCustom: () => this.set({ min: 0 }),
+      b15: s15.bd, g15: s15.bg, t15: s15.fg, b30: s30.bd, g30: s30.bg, t30: s30.fg,
+      b60: s60.bd, g60: s60.bg, t60: s60.fg, bC: sC.bd, gC: sC.bg, tC: sC.fg,
+      isCustom: custom, customVal: st.custom, customLabel: st.custom + (en ? ' min' : ' 分'),
+      setCustom: (e) => this.set({ custom: Number(e.target.value) }),
+      spendName: st.spendName, setSpendName: (e) => this.set({ spendName: e.target.value }),
+      namePlaceholder: en ? 'e.g. finish part three of the proposal' : '例如：把提案的第三段寫完',
+      suggests: ['剪副業影片','提案第三段','走路不看手機','打電話回家'].map(l => ({ label: t(l, en), pick: () => this.set({ spendName: t(l, en) }) })),
+      cats: CAT_LIST.map(c => { const s = seg(st.spendCat === c); return { name: t(c, en), bd: s.bd, bg: s.bg, fg: s.fg, pick: () => this.set({ spendCat: c }) }; }),
+      toggleLink: () => this.set({ link: !st.link }), linkBg: lk.bg, linkJustify: lk.j, linkKnob: lk.knob,
+      spendPreview1: en ? this.comma(left) + ' seconds left today.' : '今天還剩 ' + this.comma(left) + ' 秒。',
+      spendPreview2: en ? 'The next ' + this.comma(spendSec) + ' go to ' + subject + '.' : '其中接下來 ' + this.comma(spendSec) + ' 秒，留給' + subject + '。',
+      startBlock: () => this.set({ sheet: null, active: { name: subject, cat: st.spendCat, sec: spendSec, endAt: Date.now() + spendSec * 1000 } }),
+
+      worthSubject: act ? (en ? t(act.name, en) + ' · ' + Math.round((act.sec - actLeft) / 60) + ' min' : act.name + ' · 實際 ' + Math.round((act.sec - actLeft) / 60) + ' 分') : '',
+      worthOpts: WORTHS.map(w => { const s = seg(st.worth === w); return { label: en ? ({ '很值得':'Very worth it','還不錯':'It was fine','不太值得':'Not really','中途改變了':'It changed partway' })[w] : w, bd: s.bd, bg: s.bg, fg: s.fg, pick: () => this.set({ worth: w }) }; }),
+      worthNote: st.worthNote, setWorthNote: (e) => this.set({ worthNote: e.target.value }),
+      saveWorth: () => this.set({ sheet: null, active: null }), skipWorth: () => this.set({ sheet: null, active: null }),
+
+      blocks: this.blocks.map((b, i) => ({
+        name: t(b.name, en), cat: t(b.cat, en), tone: catTone(i, SCHED.length), dur: b.dur + (en ? 'm' : ' 分'),
+        time: p2(Math.floor(b.st / 3600)) + ':' + p2(Math.floor(b.st % 3600 / 60)) + '–' + p2(Math.floor(b.e / 3600)) + ':' + p2(Math.floor(b.e % 3600 / 60)),
+        worth: en ? ({ '很值得':'Very worth it','還不錯':'It was fine' })[b.worth] || b.worth : b.worth,
+        worthC: b.worth === '很值得' ? neon : 'rgba(233,237,244,.4)'
+      })),
+      namedStr: this.hm(named), unnamedStr: this.hm(Math.max(0, el - named)),
+      catRows: (() => {
+        const by = {}; this.blocks.forEach(b => { by[b.cat] = (by[b.cat] || 0) + b.dur; });
+        const keys = Object.keys(by), max = Math.max(1, ...Object.values(by));
+        return keys.map((k, i) => ({ name: t(k, en), tone: catTone(i, keys.length), w: (by[k] / max * 100).toFixed(0) + '%', dur: by[k] + (en ? 'm' : ' 分') }));
+      })(),
+      pastReceipts: [
+        { date: en ? 'Wed 08.05' : '08.05 週三', anchor: t('把季度預算表補完', en), named: '1:20', note: en ? 'Anchor finished' : 'Anchor 已完成' },
+        { date: en ? 'Tue 08.04' : '08.04 週二', anchor: t('沒有設定 Anchor', en), named: '0:45', note: en ? '1 rating' : '1 筆評價' },
+        { date: en ? 'Mon 08.03' : '08.03 週一', anchor: t('打電話回家', en), named: '1:50', note: en ? 'Anchor finished' : 'Anchor 已完成' }
+      ],
+      weekBars: [
+        { label: en ? 'Fri' : '五', v: 44 }, { label: en ? 'Sat' : '六', v: 22 }, { label: en ? 'Sun' : '日', v: 58 },
+        { label: en ? 'Mon' : '一', v: 14 }, { label: en ? 'Tue' : '二', v: 36 }, { label: en ? 'Wed' : '三', v: 24 }, { label: en ? 'Thu' : '四', v: 50 }
+      ].map((b, i, arr) => ({
+        label: b.label, h: b.v + 'px',
+        tone: i === arr.length - 1 ? neon : ok(r.neon, (0.3 + b.v / 120).toFixed(2)),
+        glow: i === arr.length - 1 ? glowSm : 'none',
+        labelC: i === arr.length - 1 ? neon : 'rgba(233,237,244,.45)'
+      })),
+      worthShares: [
+        { name: t('副業', en), pct: '86%', w: '86%' }, { name: t('休息', en), pct: '74%', w: '74%' }, { name: t('工作', en), pct: '41%', w: '41%' }
+      ].map((s, i) => ({ ...s, tone: catTone(i, 3) })),
+
+      dispSec: () => this.set({ disp: 'sec' }), dispHms: () => this.set({ disp: 'hms' }), dispHm: () => this.set({ disp: 'hm' }),
+      dSecBg: st.disp === 'sec' ? neon : 'transparent', dSecC: st.disp === 'sec' ? '#0b0f14' : 'rgba(233,237,244,.6)',
+      dHmsBg: st.disp === 'hms' ? neon : 'transparent', dHmsC: st.disp === 'hms' ? '#0b0f14' : 'rgba(233,237,244,.6)',
+      dHmBg: st.disp === 'hm' ? neon : 'transparent', dHmC: st.disp === 'hm' ? '#0b0f14' : 'rgba(233,237,244,.6)',
+      toggleTick: () => this.set({ tick: !st.tick }), tickBg: tk.bg, tickJustify: tk.j, tickKnob: tk.knob,
+      togglePressure: () => this.set({ pressureOn: !st.pressureOn }), presBg: pr.bg, presJustify: pr.j, presKnob: pr.knob,
+
+      openOb: () => this.set({ sheet: 'ob', ob: 0 }),
+      obIs0: st.ob === 0, obIs1: st.ob === 1, obIs2: st.ob === 2,
+      ob1: neon, ob2: st.ob >= 1 ? neon : 'rgba(233,237,244,.16)', ob3: st.ob >= 2 ? neon : 'rgba(233,237,244,.16)',
+      obNextLabel: st.ob === 2 ? (en ? 'Finish setup' : '完成設定') : st.ob === 0 ? (en ? 'Start' : '開始') : (en ? 'Next' : '下一步'),
+      obNext: () => st.ob === 2 ? this.set({ sheet: null, tab: 'today' }) : this.set({ ob: st.ob + 1 }),
+      obPrev: () => st.ob === 0 ? this.set({ sheet: null }) : this.set({ ob: st.ob - 1 }),
+      obCats: CAT_LIST.map(c => { const s = seg(st.obPicked.includes(c)); return { name: t(c, en), bd: s.bd, bg: s.bg, fg: s.fg,
+        pick: () => this.set({ obPicked: st.obPicked.includes(c) ? st.obPicked.filter(x => x !== c) : st.obPicked.concat([c]) }) }; })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

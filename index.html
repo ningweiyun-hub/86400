@@ -3,37 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<meta name="theme-color" content="#f2f2f3">
+<meta name="theme-color" content="#0d1512">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="86,400">
 <meta name="format-detection" content="telephone=no">
 <title>86,400</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ── Industry tokens ─────────────────────────────────────────────────── */
+/* ── After Hours tokens ──────────────────────────────────────────────────
+   配色不是固定的：--bg / --accent 這些每一拍由 JS 依「今天過掉多少」
+   在 OKLCH 上內插後寫進來（見 script 的 applyPressure）。這裡只放起始值，
+   代表 p = 0（白天、最平靜）的樣子。
+   ───────────────────────────────────────────────────────────────────── */
 :root{
-  --ink:#1d1f20;
-  --ink-55:rgba(29,31,32,.55);
-  --ink-48:rgba(29,31,32,.48);
-  --ink-42:rgba(29,31,32,.42);
-  --hair:rgba(29,31,32,.16);
-  --hair-2:rgba(29,31,32,.20);
-  --hair-3:rgba(29,31,32,.10);
-  --fill:rgba(29,31,32,.07);
-  --bg:#f2f2f3;
-  --paper:#ffffff;
-  --accent:#5980a6;
-  --accent-deep:#416180;
-  --accent-tint:#eef6ff;
-  --field:#1d2d3d;
-  --on-dark:#f2f2f3;
-  --on-dark-accent:#b5d9fd;
-  --fh:"Barlow Condensed","Helvetica Neue",system-ui,sans-serif;
-  --fb:"Barlow","Helvetica Neue",system-ui,sans-serif;
+  --bg:oklch(0.160 0.028 158);
+  --hero-bg:oklch(0.180 0.028 158);
+  --bar-bg:oklch(0.130 0.028 158);
+  --sheet-bg:oklch(0.175 0.028 158);
+  --accent:oklch(0.860 0.200 148);
+  --accent-deep:oklch(0.860 0.200 148);
+  --accent-tint:oklch(0.860 0.200 148 / 0.10);
+  --on-accent:#0b0f14;
+
+  --ink:#e9edf4;
+  --ink-55:rgba(233,237,244,.55);
+  --ink-48:rgba(233,237,244,.48);
+  --ink-42:rgba(233,237,244,.42);
+  --hair:rgba(233,237,244,.10);
+  --hair-2:rgba(233,237,244,.18);
+  --hair-3:rgba(233,237,244,.08);
+  --fill:rgba(233,237,244,.07);
+  --paper:var(--sheet-bg);
+  --field:var(--hero-bg);
+  --on-dark:#e9edf4;
+  --on-dark-accent:var(--accent);
+
+  --glow-sm:0 0 4px oklch(0.860 0.200 148 / 0.25);
+  --glow-big:0 0 8px oklch(0.860 0.200 148 / 0.20);
+  --glow-box:0 0 6px oklch(0.860 0.200 148 / 0.12);
+  --scan-op:0;
+  --vignette:transparent;
+
+  --fh:"Chakra Petch","Helvetica Neue",system-ui,sans-serif;
+  --fb:"IBM Plex Sans","Helvetica Neue",system-ui,sans-serif;
+}
+
+/* ── After Hours 動態 ─────────────────────────────────────────────────── */
+@keyframes n-breathe{0%,100%{opacity:1}50%{opacity:.72}}
+@keyframes n-flick{0%,92%,100%{opacity:1}94%{opacity:.55}96%{opacity:1}98%{opacity:.7}}
+@keyframes n-creep{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+@keyframes n-spark{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}40%{transform:translate(-50%,-50%) scale(1.45);opacity:.75}70%{transform:translate(-50%,-50%) scale(.85);opacity:1}}
+@keyframes n-ember{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(14px,-11px) scale(.2);opacity:0}}
+@keyframes n-shake{0%,100%{transform:translate(0,0)}12%{transform:translate(-3px,2px)}25%{transform:translate(3px,-2px)}38%{transform:translate(-2px,-3px)}50%{transform:translate(2px,3px)}62%{transform:translate(-3px,-1px)}75%{transform:translate(3px,1px)}88%{transform:translate(-1px,3px)}}
+@keyframes n-rattle{0%,100%{transform:translate(0,0)}12%{transform:translate(-2.5px,1.5px)}25%{transform:translate(2.5px,-1.5px)}38%{transform:translate(-1.5px,-2.5px)}50%{transform:translate(1.5px,2.5px)}62%{transform:translate(-2.5px,-1px)}75%{transform:translate(2.5px,1px)}88%{transform:translate(-1px,2.5px)}}
+@keyframes n-flare{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}50%{transform:translate(-50%,-50%) scale(1.9);opacity:.25}}
+@keyframes n-bombpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* 螢幕上的掃描線與暗角，強度也跟著壓力走 */
+.scan,.vig{position:fixed;inset:0;pointer-events:none;z-index:60}
+.scan{opacity:var(--scan-op);
+  background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 3px)}
+.vig{background:var(--vignette)}
+
+/* 減少動態偏好：停在靜態，不閃不抖 */
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important}
+  .scan{display:none}
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
@@ -47,7 +86,7 @@ button{cursor:pointer;border-radius:0;touch-action:manipulation}
 input{border-radius:0}
 :focus{outline:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-::selection{background:rgba(89,128,166,.3)}
+::selection{background:var(--accent-tint)}
 
 /* ── shell ───────────────────────────────────────────────────────────── */
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
@@ -55,21 +94,21 @@ input{border-radius:0}
   flex:none;display:flex;align-items:center;justify-content:space-between;
   padding:calc(env(safe-area-inset-top,0px) + 14px) 20px 8px;
 }
-.brand{font:600 16px/1 var(--fh);letter-spacing:.16em}
-.date{font:400 10.5px/1 var(--fb);letter-spacing:.06em;color:rgba(29,31,32,.45)}
+.brand{font:600 15px/1 var(--fh);letter-spacing:.2em;color:var(--accent);text-shadow:var(--glow-sm)}
+.date{font:400 10.5px/1 var(--fb);letter-spacing:.06em;color:rgba(233,237,244,.45)}
 .langsw{display:flex;border:1px solid var(--hair-2)}
 .langsw button{border:none;padding:4px 9px;font:600 10px/1.4 var(--fh);letter-spacing:.1em;background:transparent}
-.langsw button.on{background:var(--ink);color:var(--bg)}
+.langsw button.on{background:var(--accent);color:var(--on-accent)}
 .scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px 34px}
 .tabs{
-  flex:none;display:flex;border-top:1px solid var(--hair);background:var(--bg);
+  flex:none;display:flex;border-top:1px solid var(--hair);background:var(--bar-bg);
   padding:10px 0 calc(env(safe-area-inset-bottom,0px) + 12px);
 }
 .tabs button{
   flex:1;border:none;background:transparent;display:flex;flex-direction:column;
-  align-items:center;gap:5px;padding:2px 0;min-height:44px;color:rgba(29,31,32,.42);
+  align-items:center;gap:5px;padding:2px 0;min-height:44px;color:rgba(233,237,244,.42);
 }
-.tabs button.on{color:var(--ink)}
+.tabs button.on{color:var(--accent);text-shadow:var(--glow-sm)}
 .tabs .lbl{font:500 9.5px/1 var(--fb);letter-spacing:.06em}
 .ic{width:13px;height:13px;display:flex}
 .ic-today{border:1px solid currentColor;align-items:flex-end;padding:1px}
@@ -81,14 +120,14 @@ input{border-radius:0}
 .ic-settings{border:1px solid currentColor;border-radius:50%}
 
 /* ── primitives ──────────────────────────────────────────────────────── */
-.kicker{font:600 10px/1 var(--fh);letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep)}
-.kicker-s{font:600 9.5px/1 var(--fh);letter-spacing:.16em;color:var(--accent-deep)}
+.kicker{font:600 9.5px/1 var(--fh);letter-spacing:.22em;text-transform:uppercase;color:var(--accent);text-shadow:var(--glow-sm)}
+.kicker-s{font:600 9px/1 var(--fh);letter-spacing:.20em;color:var(--accent)}
 .h-screen{font:600 25px/1 var(--fh)}
 .muted{color:var(--ink-55)}
 .foot{font:400 10.5px/1.7 var(--fb);color:var(--ink-42)}
 .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 .blueprint{position:relative;border:1px solid var(--hair)}
-.blueprint>i.c{position:absolute;width:11px;height:11px;color:rgba(29,31,32,.55)}
+.blueprint>i.c{display:none}
 .blueprint>i.c::before,.blueprint>i.c::after{content:"";position:absolute;background:currentColor}
 .blueprint>i.c::before{left:5px;top:0;width:1px;height:100%}
 .blueprint>i.c::after{top:5px;left:0;width:100%;height:1px}
@@ -107,10 +146,10 @@ input{border-radius:0}
   width:100%;padding:6px 0;font:400 16px/1.5 var(--fb);outline:none;-webkit-appearance:none}
 .line:focus{border-bottom-color:var(--accent)}
 .chip{border:1px solid var(--hair-2);background:transparent;padding:7px 10px;
-  font:400 12px/1.2 var(--fb);color:rgba(29,31,32,.6);min-height:34px}
+  font:400 12px/1.2 var(--fb);color:rgba(233,237,244,.6);min-height:34px}
 .chip.on{border-color:var(--accent);background:var(--accent-tint);color:var(--accent-deep)}
-.sw{width:46px;height:24px;flex:none;border:1px solid rgba(29,31,32,.25);padding:2px;display:flex;background:transparent}
-.sw i{width:18px;height:18px;display:block;background:rgba(29,31,32,.2)}
+.sw{width:46px;height:24px;flex:none;border:1px solid rgba(233,237,244,.25);padding:2px;display:flex;background:transparent}
+.sw i{width:18px;height:18px;display:block;background:rgba(233,237,244,.2)}
 .sw.on{background:var(--accent);justify-content:flex-end;border-color:var(--accent)}
 .sw.on i{background:var(--bg)}
 .seg{display:flex;border:1px solid var(--hair-2)}
@@ -118,15 +157,15 @@ input{border-radius:0}
 .seg button+button{border-left:1px solid var(--hair-2)}
 .seg button.on{background:var(--ink);color:var(--bg)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:12px;
-  padding:14px 0;border-top:1px solid rgba(29,31,32,.14)}
+  padding:14px 0;border-top:1px solid rgba(233,237,244,.14)}
 .row .k{font:400 13.5px/1.5 var(--fb)}
-.row .v{font:400 12.5px/1.5 var(--fb);color:rgba(29,31,32,.5);text-align:right}
+.row .v{font:400 12.5px/1.5 var(--fb);color:rgba(233,237,244,.5);text-align:right}
 .sechead{display:flex;justify-content:space-between;align-items:baseline;
   padding-bottom:8px;border-bottom:1px solid var(--hair-2)}
 
 /* ── sheets ──────────────────────────────────────────────────────────── */
 .scrim{position:fixed;inset:0;z-index:80;background:rgba(29,45,61,.45);display:flex;align-items:flex-end}
-.sheet{width:100%;background:var(--bg);border-top:1px solid rgba(29,31,32,.25);
+.sheet{width:100%;background:var(--bg);border-top:1px solid rgba(233,237,244,.25);
   padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 40px);
   max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;
   animation:up .22s ease-out}
@@ -245,9 +284,8 @@ const T = {
   d_sec:           ['純秒數','Seconds'],
   d_hms:           ['時分秒','H:MM:SS'],
   d_hm:            ['時與分','H:MM'],
-  hero_style:      ['倒數樣式','Countdown style'],
-  hero_pure:       ['純數字','Plain'],
-  hero_col:        ['日課柱','Day column'],
+  night:           ['夜間強度','Night intensity'],
+  night_sub:       ['關掉之後畫面整天都維持平靜，不會升溫、不閃也不抖。','When off, the screen stays calm all day — no heat, flicker or shake.'],
   ticking:         ['秒數跳動','Ticking seconds'],
   ticking_sub:     ['關掉之後只更新到分鐘','When off, it only updates by the minute'],
   cats_row:        ['時間類別','Categories'],
@@ -311,7 +349,7 @@ const WD_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 /* ── 2. 狀態 ─────────────────────────────────────────────────────────── */
 const KEY = '86400.v1';
 const DEFAULTS = {
-  lang:'zh', tab:'today', disp:'sec', hero:'pure', tick:true,
+  lang:'zh', tab:'today', disp:'sec', tick:true, night:true,
   onboarded:false, wake:'07:00', sleep:'23:30',
   cats:['work','side','rest','learn','people','play'],
   days:{},              // 'YYYY-MM-DD' -> { anchor:{text,state}, blocks:[], tomorrow:[] }
@@ -365,8 +403,87 @@ function today(){
 function dayOf(k){ return S.days[k] || { anchor:{text:'',state:'doing'}, blocks:[], tomorrow:[] }; }
 
 // 真正的剩餘秒數：永遠從牆上時鐘重算，不保留背景計數器
-function secLeft(now){ return Math.max(0, Math.floor((dayEnd() - (now||Date.now()))/1000)); }
+function secLeft(now){
+  if(typeof PREVIEW !== 'undefined' && PREVIEW !== null) return 86400 - PREVIEW;   // 預覽模式
+  return Math.max(0, Math.floor((dayEnd() - (now||Date.now()))/1000));
+}
 function secPassed(now){ return 86400 - secLeft(now); }
+
+/* ── After Hours：壓力模型 ────────────────────────────────────────────────
+   整個介面的顏色、光暈、字級與動態都是 p 的函數。p 從「今天過掉幾小時」
+   算出來：09:00 之前是 0，約 20:00 到 0.5，午夜 1.0。設定裡的「夜間強度」
+   關掉時 p 恆為 0，整個升溫機制就完全停用。
+   ─────────────────────────────────────────────────────────────────────── */
+const STOPS = [
+  { at:0,    bg:[0.16,0.028,158], neon:[0.86,0.20,148] },   // 霓虹綠
+  { at:0.55, bg:[0.15,0.050, 55], neon:[0.84,0.17, 72] },   // 琥珀
+  { at:1,    bg:[0.12,0.100, 15], neon:[0.70,0.26, 20] }    // 熱紅
+];
+const lerp = (a,b,k) => a + (b-a)*k;
+function ramp(p){
+  let i = 0;
+  while(i < STOPS.length-2 && p > STOPS[i+1].at) i++;
+  const a = STOPS[i], b = STOPS[i+1];
+  const k = Math.min(1, Math.max(0, (p-a.at)/(b.at-a.at)));
+  const mix = key => a[key].map((v,j) => lerp(v, b[key][j], k));
+  return { bg:mix('bg'), neon:mix('neon') };
+}
+const ok = (c,alpha) => 'oklch(' + c[0].toFixed(3) + ' ' + c[1].toFixed(3) + ' ' + c[2].toFixed(1)
+  + (alpha === undefined ? '' : ' / ' + alpha) + ')';
+
+// 只在驗收/預覽時用：?preview=23:40 會把時鐘固定在那個時刻。
+// 不是產品功能，UI 上沒有入口（handoff 註明 DEMO 列不可上線）。
+let PREVIEW = null;
+(function(){
+  const m = /[?&]preview=(\d{1,2}):(\d{2})/.exec(location.search);
+  if(m) PREVIEW = (+m[1])*3600 + (+m[2])*60;
+})();
+function elapsedToday(){
+  if(PREVIEW !== null) return PREVIEW;
+  const d = new Date();
+  return d.getHours()*3600 + d.getMinutes()*60 + d.getSeconds();
+}
+function pressure(){
+  if(!S.night) return 0;                       // 夜間強度關掉 → 完全不升溫
+  const raw = Math.min(1, Math.max(0, (elapsedToday()/3600 - 9)/14));
+  return Math.pow(raw, 2.2);
+}
+function pctToday(){ return elapsedToday()/86400*100; }
+// 引線快燒完（約 22:48）。夜間強度關掉時不成立 —— 開關承諾「不閃也不抖」，
+// 抖動與「引線快燒完了」的文案都必須跟著停。
+function fuseOut(){ return S.night && pctToday() >= 95; }
+
+// 每一拍把整組色票寫進 :root，其餘 CSS 直接吃這些變數
+let lastSkin = '';
+function applyPressure(){
+  const p = pressure(), r = ramp(p);
+  const key = p.toFixed(3) + (S.night ? '1' : '0');
+  if(key === lastSkin) return;
+  lastSkin = key;
+  const s = document.documentElement.style;
+  s.setProperty('--bg', ok(r.bg));
+  s.setProperty('--hero-bg', ok([r.bg[0] + 0.02 + p*0.02, r.bg[1]*(1+p), r.bg[2]]));
+  s.setProperty('--bar-bg', ok([Math.max(0.08, r.bg[0]-0.03), r.bg[1], r.bg[2]]));
+  s.setProperty('--sheet-bg', ok([r.bg[0]+0.015, r.bg[1], r.bg[2]]));
+  s.setProperty('--accent', ok(r.neon));
+  s.setProperty('--accent-deep', ok(r.neon));
+  s.setProperty('--accent-tint', ok(r.neon, (0.08 + p*0.12).toFixed(2)));
+  s.setProperty('--hair', 'rgba(233,237,244,' + (0.10 + p*0.06).toFixed(2) + ')');
+  s.setProperty('--hair-2', p > 0.6 ? ok(r.neon, (0.18 + p*0.30).toFixed(2)) : 'rgba(233,237,244,.18)');
+  s.setProperty('--glow-sm',  '0 0 ' + (4 + p*14).toFixed(0) + 'px ' + ok(r.neon, (0.25 + p*0.55).toFixed(2)));
+  s.setProperty('--glow-big', '0 0 ' + (8 + p*46).toFixed(0) + 'px ' + ok(r.neon, (0.20 + p*0.70).toFixed(2)));
+  s.setProperty('--glow-box', '0 0 ' + (6 + p*26).toFixed(0) + 'px ' + ok(r.neon, (0.12 + p*0.40).toFixed(2)));
+  s.setProperty('--scan-op', (p*0.16).toFixed(3));
+  s.setProperty('--vignette', 'radial-gradient(120% 80% at 50% 0%, transparent 40%, ' + ok(r.bg, (p*0.55).toFixed(2)) + ' 100%)');
+  const tc = document.querySelector('meta[name=theme-color]');
+  if(tc) tc.setAttribute('content', ok(r.bg));
+}
+// 類別色從當下的霓虹色推出來：白天一組綠，深夜整組跟著轉紅
+function catTone(k){
+  const i = Math.max(0, CATS.findIndex(c => c.k === k)), n = CATS.length;
+  const r = ramp(pressure());
+  return ok([lerp(r.neon[0], 0.55, i/n), r.neon[1]*(1 - i/(n+2)), r.neon[2]]);
+}
 
 function fmtDisp(sec){
   const s = S.tick ? sec : sec - (sec % 60);   // 秒數跳動關掉 → 只更新到分鐘
@@ -569,39 +686,94 @@ function swHtml(on, act){
 
 /* ── 5a. Today ──────────────────────────────────────────────────────── */
 function nowClock(){
-  const d = new Date();
-  return p2(d.getHours())+':'+p2(d.getMinutes())+(S.tick ? ':'+p2(d.getSeconds()) : '');
+  const e = elapsedToday();
+  return p2(Math.floor(e/3600))+':'+p2(Math.floor(e%3600/60))+(S.tick ? ':'+p2(e%60) : '');
 }
 function clockHtml(){
   return '<div id="cdClock" class="num" style="font:600 15px/1 var(--fh);letter-spacing:.06em;'
     + 'color:var(--ink-55)">'+nowClock()+'</div>';
 }
+function moodLine(){
+  const p = pressure();
+  if(fuseOut()) return EN() ? 'The fuse is almost gone. Whatever is left is all there is.'
+                            : '引線快燒完了。剩下的就是全部了。';
+  if(p < 0.25) return EN() ? 'The day is still wide. Nothing is urgent yet.'
+                           : '今天還很寬。現在什麼都還來得及。';
+  if(p < 0.60) return EN() ? 'More than half is spent. What gets the rest?'
+                           : '一半以上已經過去了。剩下的要給誰？';
+  if(p < 0.85) return EN() ? 'The light is going. Choose the next stretch on purpose.'
+                           : '天色在走了。下一段，刻意選一次。';
+  return EN() ? 'Today does not roll over. Whatever is left is all there is.'
+              : '今天不會結轉。剩下的就是全部了。';
+}
+// 倒數的四個階段：靜止 → 閃爍 → 呼吸 → 抖動
+function heroAnim(){
+  const p = pressure();
+  if(fuseOut()) return 'n-shake .22s linear infinite, n-breathe 1.1s ease-in-out infinite';
+  if(p > 0.8)   return 'n-breathe 2.6s ease-in-out infinite';
+  if(p > 0.55)  return 'n-flick 7s linear infinite';
+  return 'none';
+}
+/* 進度條是一條引線，不是進度條：炸彈在左端不動，火花沿著剩下的繩子
+   由右往左燒回來，燒完就是午夜。 */
+function fuseHtml(){
+  const p = pressure(), out = fuseOut(), r = ramp(p);
+  const rem = (100 - pctToday()).toFixed(2) + '%';
+  const neon = ok(r.neon);
+  const ember = (0.45 + p*0.5).toFixed(2);
+  const dot = (size, bg, delay, dur) =>
+    '<div style="position:absolute;top:50%;left:'+rem+';width:'+size+'px;height:'+size+'px;border-radius:50%;'
+    + 'background:'+bg+';opacity:'+ember+';animation:n-ember '+dur+'s ease-out '+delay+'s infinite"></div>';
+  return '<div style="display:flex;align-items:center;gap:6px;margin-top:22px">'
+    // 炸彈
+    + '<div id="fuseBomb" style="flex:none;width:22px;height:22px;position:relative;animation:'
+    +   (out ? 'n-rattle .22s linear infinite' : p > 0.75 ? 'n-bombpulse 1.4s ease-in-out infinite' : 'none')+'">'
+    + '<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,'+(0.34+p*0.2).toFixed(2)+')"></div>'
+    + '<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;'
+    +   'background:radial-gradient(circle at 34% 32%, '+ok([r.bg[0]+0.1,r.bg[1],r.bg[2]])+', #0a0d12 75%);'
+    +   'border:1px solid '+(out ? '#fff6e8' : ok(r.neon,(0.35+p*0.5).toFixed(2)))+';'
+    +   'box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 '+(6+p*22+(out?18:0)).toFixed(0)+'px '+ok(r.neon,(0.15+p*0.6).toFixed(2))+'"></div>'
+    + '<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>'
+    + '</div>'
+    // 引線
+    + '<div id="fuseTrack" style="flex:1;height:9px;position:relative">'
+    + '<div id="fuseRope" style="position:absolute;top:2px;left:0;height:5px;width:'+rem+';'
+    +   'background:repeating-linear-gradient(115deg, rgba(233,237,244,'+(0.16+p*0.1).toFixed(2)+') 0 3px, '
+    +   'rgba(233,237,244,'+(0.34+p*0.2).toFixed(2)+') 3px 6px)"></div>'
+    + '<div id="fuseAsh" style="position:absolute;top:3px;right:0;height:3px;width:'+pctToday().toFixed(2)+'%;'
+    +   'background:linear-gradient(to left, rgba(233,237,244,.04), rgba(233,237,244,.13))"></div>'
+    + '<div id="fuseFlare" style="position:absolute;top:50%;left:'+rem+';width:'+(22+p*26+(out?16:0)).toFixed(0)+'px;'
+    +   'height:'+(22+p*26+(out?16:0)).toFixed(0)+'px;border-radius:50%;'
+    +   'background:radial-gradient(circle, '+ok(r.neon,'0.5')+' 0 30%, '+ok(r.neon,'0')+' 70%);'
+    +   'animation:n-flare .9s ease-in-out infinite"></div>'
+    + '<div id="fuseSpark" style="position:absolute;top:50%;left:'+rem+';width:'+(9+p*8+(out?6:0)).toFixed(0)+'px;'
+    +   'height:'+(9+p*8+(out?6:0)).toFixed(0)+'px;border-radius:50%;'
+    +   'background:radial-gradient(circle, #fff 0 35%, '+neon+' 70%, '+ok(r.neon,'0')+' 100%);'
+    +   'box-shadow:0 0 '+(18+p*34+(out?22:0)).toFixed(0)+'px '+(6+p*8).toFixed(0)+'px '+ok(r.neon,(0.65+p*0.35).toFixed(2))
+    +   ', 0 0 6px 2px rgba(255,255,255,.85);animation:n-spark .32s ease-in-out infinite"></div>'
+    + dot(3,'#fff6e8',0,1.1) + dot(2,neon,0.35,1.5) + dot(2,'#fff6e8',0.8,1.9)
+    + '</div></div>';
+}
 function heroHtml(){
-  const left = secLeft(), pct = secPassed()/86400*100;
-  const sub = humanLeft(left) + ' · ' + (EN()?'elapsed ':'已過 ') + pct.toFixed(1) + '%';
-  if(S.hero === 'column'){
-    return '<div style="display:flex;gap:18px;padding:18px 0 4px">'
-      + '<div style="width:54px;height:250px;flex:none;border:1px solid var(--hair-2);position:relative;'
-      + 'background:repeating-linear-gradient(to bottom,transparent 0 9.4px,rgba(29,31,32,.1) 9.4px 10.4px)">'
-      + '<div id="colFill" style="position:absolute;left:0;right:0;top:0;background:var(--fill);height:'+pct.toFixed(2)+'%"></div>'
-      + '<div id="colNow" style="position:absolute;left:-7px;right:-7px;height:1px;background:var(--accent);top:'+pct.toFixed(2)+'%"></div>'
-      + '</div>'
-      + '<div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center">'
-      + '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
-      + '<div class="kicker">'+esc(t('left_today'))+'</div>' + clockHtml() + '</div>'
-      + '<div id="cdNum" class="num" style="font:600 clamp(40px,14vw,56px)/.9 var(--fh);margin-top:8px">'+fmtDisp(left)+'</div>'
-      + '<div id="cdSub" style="font:400 12px/1.6 var(--fb);color:var(--ink-55);margin-top:8px">'+esc(sub)+'</div>'
-      + '<div style="font:400 11.5px/1.7 var(--fb);color:rgba(29,31,32,.45);margin-top:14px">'
-      + (EN()?"Time hasn't stopped. You can choose again, from here.":'時間沒有停下，但你可以從現在重新選擇。')+'</div>'
-      + '</div></div>';
-  }
-  return '<div style="padding:30px 0 22px">'
-    + '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
+  const left = secLeft(), p = pressure();
+  const size = (92 + p*22).toFixed(0);
+  return '<div id="hero" style="margin:6px -20px 0;padding:26px 20px 24px;position:relative;overflow:hidden;'
+    + 'background:var(--hero-bg);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)">'
+    // 由上往下爬的一道微光
+    + '<div style="position:absolute;left:0;right:0;top:0;height:60px;pointer-events:none;opacity:'+(p*0.9).toFixed(2)+';'
+    +   'background:linear-gradient(to bottom, '+ok(ramp(p).neon,(0.06+p*0.22).toFixed(2))+', transparent);'
+    +   'animation:n-creep 5.5s linear infinite"></div>'
+    + '<div style="position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
     + '<div class="kicker">'+esc(t('left_today'))+'</div>' + clockHtml() + '</div>'
-    + '<div id="cdNum" class="num" style="font:600 clamp(56px,25vw,104px)/.82 var(--fh);letter-spacing:-.03em;margin-top:10px">'+fmtDisp(left)+'</div>'
-    + '<div id="cdSub" style="font:400 12px/1.5 var(--fb);color:var(--ink-55);margin-top:12px">'+esc(sub)+'</div>'
-    + '<div style="height:1px;background:var(--hair);margin-top:16px;position:relative">'
-    + '<div id="cdBar" style="position:absolute;top:0;left:0;height:1px;background:var(--ink);width:'+pct.toFixed(2)+'%"></div></div>'
+    + '<div id="cdNum" class="num" style="position:relative;font:700 '+size+'px/.82 var(--fh);'
+    +   'letter-spacing:-.02em;margin-top:12px;color:'+(p > 0.45 ? 'var(--accent)' : 'var(--ink)')+';'
+    +   'text-shadow:var(--glow-big);animation:'+heroAnim()+'">'+fmtDisp(left)+'</div>'
+    + '<div id="cdSub" style="position:relative;display:flex;justify-content:space-between;align-items:baseline;'
+    +   'font:300 11.5px/1.5 var(--fb);color:var(--ink-55);margin-top:12px">'
+    +   '<span>'+esc(humanLeft(left))+'</span><span>'+esc((EN()?'elapsed ':'已過 ')+pctToday().toFixed(1)+'%')+'</span></div>'
+    + fuseHtml()
+    + '<div id="cdMood" style="position:relative;font:400 11px/1.6 var(--fb);margin-top:16px;color:'
+    +   (p > 0.6 ? ok(ramp(p).neon,'0.85') : 'var(--ink-55)')+'">'+esc(moodLine())+'</div>'
     + '</div>';
 }
 /* Anchor 有四個明顯不同的樣子：編輯中 / 進行中 / 已完成 / 不再重要。
@@ -633,7 +805,7 @@ function anchorChip(mode){
     return '<div style="'+base+'border:1px solid var(--accent);color:var(--accent-deep)">'+txt+'</div>';
   return '<div id="anchorStatus" style="font:400 10px/1 var(--fb);flex:none;color:'
     + (ui.anchorDraft !== null && ui.anchorDraft !== today().anchor.text
-        ? 'var(--accent-deep)' : 'rgba(29,31,32,.45)')+'">'+txt+'</div>';
+        ? 'var(--accent-deep)' : 'rgba(233,237,244,.45)')+'">'+txt+'</div>';
 }
 // 文字左邊的狀態方塊：空框 / 打勾 / 劃掉
 function anchorMark(mode){
@@ -644,8 +816,8 @@ function anchorMark(mode){
       + '<span style="font:400 11px/1 var(--fb);color:var(--bg)">✓</span></div>';
   if(mode === 'dropped')
     return '<div style="'+box+'border:1px solid var(--hair)">'
-      + '<span style="width:8px;height:1px;background:rgba(29,31,32,.42);display:block"></span></div>';
-  return '<div style="'+box+'border:1px solid rgba(29,31,32,.35)"></div>';
+      + '<span style="width:8px;height:1px;background:rgba(233,237,244,.42);display:block"></span></div>';
+  return '<div style="'+box+'border:1px solid rgba(233,237,244,.35)"></div>';
 }
 function anchorHtml(){
   const a = today().anchor;
@@ -654,7 +826,7 @@ function anchorHtml(){
 
   // 卡片本身也跟著狀態變：完成是淡藍底，不再重要整張退到背景去
   const skin = mode === 'done'    ? 'background:var(--accent-tint);border-color:var(--accent)'
-             : mode === 'dropped' ? 'background:transparent;border-color:rgba(29,31,32,.10)'
+             : mode === 'dropped' ? 'background:transparent;border-color:rgba(233,237,244,.10)'
              : 'background:transparent';
   const head = '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'
     + '<div class="kicker" style="padding-top:2px">TODAY ANCHOR</div>' + anchorChip(mode) + '</div>';
@@ -662,7 +834,7 @@ function anchorHtml(){
   let body, actions, foot = '';
   if(mode === 'edit'){
     const shown = ui.anchorDraft !== null ? ui.anchorDraft : a.text;
-    body = '<div style="font:400 11.5px/1.55 var(--fb);color:rgba(29,31,32,.5);margin-top:10px">'+esc(t('anchor_q'))+'</div>'
+    body = '<div style="font:400 11.5px/1.55 var(--fb);color:rgba(233,237,244,.5);margin-top:10px">'+esc(t('anchor_q'))+'</div>'
       + '<input id="anchorInput" class="line" style="font:500 18px/1.4 var(--fb);margin-top:8px" '
       + 'placeholder="'+esc(t('anchor_ph'))+'" value="'+esc(shown)+'">';
     actions = '<button id="anchorSave" class="btn'+(dirty?' btn-fill':'')+'" data-act="anchor-save" '
@@ -679,14 +851,14 @@ function anchorHtml(){
     if(mode === 'doing'){
       actions = '<button class="btn" data-act="anchor-done" style="font-size:12px">'+esc(t('mark_done'))+'</button>'
         + '<button class="btn btn-ghost" data-act="anchor-drop" style="font-size:12px">'+esc(t('drop'))+'</button>'
-        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(29,31,32,.5)">'+esc(t('anchor_edit'))+'</button>';
+        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(233,237,244,.5)">'+esc(t('anchor_edit'))+'</button>';
       foot = '<div class="foot" style="margin-top:9px">'+esc(t('anchor_foot'))+'</div>';
     }else if(mode === 'done'){
       actions = '<button class="btn btn-ghost" data-act="anchor-done" style="font-size:12px">'+esc(t('mark_undone'))+'</button>'
-        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(29,31,32,.5)">'+esc(t('anchor_edit'))+'</button>';
+        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(233,237,244,.5)">'+esc(t('anchor_edit'))+'</button>';
     }else{
       actions = '<button class="btn btn-ghost" data-act="anchor-drop" style="font-size:12px">'+esc(t('restore'))+'</button>'
-        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(29,31,32,.5)">'+esc(t('anchor_edit'))+'</button>';
+        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(233,237,244,.5)">'+esc(t('anchor_edit'))+'</button>';
     }
   }
   return '<div class="blueprint" style="margin-top:26px;padding:15px 15px 13px;'+skin+'">' + corners()
@@ -722,20 +894,20 @@ function activeHtml(){
   const total = Math.max(1, Math.round((a.endAt - a.startedAt)/1000));
   const w = ((total - remain)/total*100).toFixed(2);
   return '<div class="blueprint" id="activeCard" style="margin-top:26px;padding:16px;background:var(--field);'
-    + 'color:var(--on-dark);border-color:rgba(242,242,243,.28)">' + corners('rgba(242,242,243,.5)')
+    + 'color:var(--on-dark);border-color:rgba(233,237,244,.28)">' + corners('rgba(233,237,244,.5)')
     + '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
     + '<div style="font:600 10px/1 var(--fh);letter-spacing:.18em;text-transform:uppercase;color:var(--on-dark-accent)">'+esc(t('st_doing'))+'</div>'
-    + '<div style="font:400 10px/1 var(--fb);color:rgba(242,242,243,.55)">'+esc(catName(a.cat))+' · '+clock(a.endAt)+'</div></div>'
+    + '<div style="font:400 10px/1 var(--fb);color:rgba(233,237,244,.55)">'+esc(catName(a.cat))+' · '+clock(a.endAt)+'</div></div>'
     + '<div style="font:500 19px/1.35 var(--fb);margin-top:9px">'+esc(a.name)+'</div>'
     + '<div style="display:flex;align-items:flex-end;gap:8px;margin-top:12px">'
     + '<div id="acNum" class="num" style="font:600 46px/.86 var(--fh)">'+comma(remain)+'</div>'
-    + '<div style="font:400 11px/1 var(--fb);color:rgba(242,242,243,.6);padding-bottom:6px">'+esc(t('sec'))+'</div></div>'
-    + '<div style="height:1px;background:rgba(242,242,243,.25);margin-top:12px;position:relative">'
+    + '<div style="font:400 11px/1 var(--fb);color:rgba(233,237,244,.6);padding-bottom:6px">'+esc(t('sec'))+'</div></div>'
+    + '<div style="height:1px;background:rgba(233,237,244,.25);margin-top:12px;position:relative">'
     + '<div id="acBar" style="position:absolute;top:0;left:0;height:1px;background:var(--on-dark-accent);width:'+w+'%"></div></div>'
-    + '<div id="acLine" style="font:400 11px/1.6 var(--fb);color:rgba(242,242,243,.6);margin-top:10px">'+esc(activeLine())+'</div>'
+    + '<div id="acLine" style="font:400 11px/1.6 var(--fb);color:rgba(233,237,244,.6);margin-top:10px">'+esc(activeLine())+'</div>'
     + '<div style="display:flex;gap:8px;margin-top:13px">'
     + '<button data-act="end-early" style="flex:1;background:var(--on-dark);color:var(--field);border:none;padding:12px 0;font:600 12.5px var(--fh);letter-spacing:.04em">'+esc(t('end_early'))+'</button>'
-    + '<button data-act="extend" style="flex:1;background:transparent;color:var(--on-dark);border:1px solid rgba(242,242,243,.4);padding:12px 0;font:600 12.5px var(--fh);letter-spacing:.04em">'+esc(t('extend15'))+'</button></div></div>';
+    + '<button data-act="extend" style="flex:1;background:transparent;color:var(--on-dark);border:1px solid rgba(233,237,244,.4);padding:12px 0;font:600 12.5px var(--fh);letter-spacing:.04em">'+esc(t('extend15'))+'</button></div></div>';
 }
 function activeLine(){
   const a = activeBlock(); if(!a) return '';
@@ -753,9 +925,9 @@ function namedListHtml(){
     rows = st.done.slice().sort((a,b)=>a.startedAt-b.startedAt).map(b => {
       const dur = blockDur(b);
       const wl  = b.worth ? t(b.worth) : '';
-      const wc  = b.worth === 'w_v' ? 'var(--accent-deep)' : 'rgba(29,31,32,.45)';
+      const wc  = b.worth === 'w_v' ? 'var(--accent-deep)' : 'rgba(233,237,244,.45)';
       return '<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--hair-3)">'
-        + '<div style="width:5px;height:26px;flex:none;background:'+catOf(b.cat).tone+'"></div>'
+        + '<div style="width:5px;height:26px;flex:none;background:'+catTone(b.cat)+'"></div>'
         + '<div style="flex:1;min-width:0">'
         + '<div style="font:500 13.5px/1.35 var(--fb);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(b.name)+'</div>'
         + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-48)">'+clock(b.startedAt)+'–'+clock(b.endedAt)+' · '+esc(catName(b.cat))+'</div></div>'
@@ -769,9 +941,9 @@ function namedListHtml(){
     + '<div class="num" style="font:600 14px/1 var(--fh)">'+hmDur(st.named)+'</div></div>'
     + rows
     + '<div style="display:flex;align-items:center;gap:11px;padding:11px 0">'
-    + '<div style="width:5px;height:26px;flex:none;background:rgba(29,31,32,.09)"></div>'
+    + '<div style="width:5px;height:26px;flex:none;background:rgba(233,237,244,.09)"></div>'
     + '<div style="flex:1"><div style="font:500 13.5px/1.35 var(--fb);color:var(--ink-55)">'+esc(t('unnamed'))+'</div>'
-    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(29,31,32,.4)">'+esc(t('unnamed_sub'))+'</div></div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(233,237,244,.4)">'+esc(t('unnamed_sub'))+'</div></div>'
     + '<div id="unnamedVal" class="num" style="font:600 14px/1 var(--fh);color:var(--ink-55)">'+hmDur(st.unnamed)+'</div></div></div>';
 }
 /* 已排定但還沒開始的小區塊 */
@@ -782,7 +954,7 @@ function upcomingHtml(){
   const rows = list.map((b,i) => {
     const late = busy && i === 0;
     return '<div style="display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--hair-3)">'
-      + '<div style="width:5px;height:34px;flex:none;background:'+catOf(b.cat).tone+';opacity:.45"></div>'
+      + '<div style="width:5px;height:34px;flex:none;background:'+catTone(b.cat)+';opacity:.45"></div>'
       + '<div style="flex:1;min-width:0">'
       + '<div style="font:500 13.5px/1.35 var(--fb);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(b.name)+'</div>'
       + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-48)">'
@@ -790,7 +962,7 @@ function upcomingHtml(){
       +   (late ? ' · '+esc(t('waiting_prev')) : '')+'</div></div>'
       + '<div style="display:flex;gap:6px;flex:none">'
       + '<button class="btn" data-act="start-now" data-id="'+b.id+'" style="font-size:11.5px;padding:7px 9px;min-height:34px">'+esc(t('start_now'))+'</button>'
-      + '<button class="btn btn-ghost" data-act="drop-block" data-id="'+b.id+'" style="font-size:11.5px;padding:7px 4px;min-height:34px;color:rgba(29,31,32,.45)">'+esc(t('remove'))+'</button>'
+      + '<button class="btn btn-ghost" data-act="drop-block" data-id="'+b.id+'" style="font-size:11.5px;padding:7px 4px;min-height:34px;color:rgba(233,237,244,.45)">'+esc(t('remove'))+'</button>'
       + '</div></div>';
   }).join('');
   return '<div style="margin-top:26px">'
@@ -816,14 +988,14 @@ function receiptCard(k){
     const w = st.named ? (st.byCat[c]/st.named*100) : 0;
     return '<div style="display:flex;align-items:center;gap:9px;padding:3px 0">'
       + '<div style="width:58px;flex:none;font:400 11.5px/1.5 var(--fb);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(catName(c))+'</div>'
-      + '<div style="flex:1;height:7px;background:rgba(29,31,32,.06)"><div style="height:7px;background:'+catOf(c).tone+';width:'+w.toFixed(1)+'%"></div></div>'
-      + '<div class="num" style="width:52px;text-align:right;font:400 11px/1.5 var(--fb);color:rgba(29,31,32,.6);flex:none">'+minDur(st.byCat[c])+'</div></div>';
+      + '<div style="flex:1;height:7px;background:rgba(233,237,244,.06)"><div style="height:7px;background:'+catTone(c)+';width:'+w.toFixed(1)+'%"></div></div>'
+      + '<div class="num" style="width:52px;text-align:right;font:400 11px/1.5 var(--fb);color:rgba(233,237,244,.6);flex:none">'+minDur(st.byCat[c])+'</div></div>';
   }).join('') || '<div class="foot">'+esc(t('named_empty'))+'</div>';
 
   const worthCells = WORTHS.map((w,i) => {
     const n = st.counts[w];
     return '<div style="flex:'+(i===0?2:1)+';text-align:center;border:1px solid var(--hair);padding:7px 2px;min-width:0">'
-      + '<div class="num" style="font:600 17px/1 var(--fh)'+(n?'':';color:rgba(29,31,32,.35)')+'">'+n+'</div>'
+      + '<div class="num" style="font:600 17px/1 var(--fh)'+(n?'':';color:rgba(233,237,244,.35)')+'">'+n+'</div>'
       + '<div style="font:400 9.5px/1.4 var(--fb);color:var(--ink-55)">'+esc(t(w))+'</div></div>';
   }).join('');
 
@@ -833,30 +1005,30 @@ function receiptCard(k){
     '<button class="chip'+(tomorrow.indexOf(c)>=0?' on':'')+'" data-act="tomorrow" data-cat="'+c+'" data-day="'+k+'" '
     + 'style="font-size:11px;padding:6px 9px">'+esc(catName(c))+'</button>').join('');
 
-  return '<div style="background:var(--paper);border:1px solid var(--hair);box-shadow:0 3px 10px rgba(43,43,45,.12);padding:20px 18px;margin-top:14px">'
-    + '<div style="text-align:center;border-bottom:1px dashed rgba(29,31,32,.3);padding-bottom:14px">'
-    + '<div style="font:400 10px/1.4 var(--fb);letter-spacing:.2em;color:rgba(29,31,32,.5)">'+esc(t(isToday?'received_today':'received_day'))+'</div>'
+  return '<div style="background:var(--sheet-bg);border:1px solid var(--hair-2);box-shadow:var(--glow-box);padding:20px 18px;margin-top:14px">'
+    + '<div style="text-align:center;border-bottom:1px dashed rgba(233,237,244,.3);padding-bottom:14px">'
+    + '<div style="font:400 10px/1.4 var(--fb);letter-spacing:.2em;color:rgba(233,237,244,.5)">'+esc(t(isToday?'received_today':'received_day'))+'</div>'
     + '<div class="num" style="font:600 44px/1 var(--fh);margin-top:4px">86,400</div>'
-    + '<div style="font:400 10.5px/1.4 var(--fb);color:rgba(29,31,32,.5);margin-top:4px">'+esc(dateFull(k))+'</div></div>'
+    + '<div style="font:400 10.5px/1.4 var(--fb);color:rgba(233,237,244,.5);margin-top:4px">'+esc(dateFull(k))+'</div></div>'
 
-    + '<div class="num" style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3)">'
+    + '<div class="num" style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb)"><span>'+esc(t(isToday?'elapsed_today':'elapsed_day'))+'</span><span>'+comma(st.passed)+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb)"><span>'+esc(t(isToday?'left_plain':'left_day'))+'</span><span id="rcLeft">'+comma(isToday?secLeft():0)+'</span></div></div>'
 
-    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3)">'
+    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
     + '<div class="kicker-s">TODAY ANCHOR</div>'
     + '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:6px;font:500 13.5px/1.5 var(--fb)">'
-    + '<span>'+esc(anchorTxt)+'</span><span style="flex:none;color:rgba(29,31,32,.5);font-weight:400">'+esc(anchorSt)+'</span></div></div>'
+    + '<span>'+esc(anchorTxt)+'</span><span style="flex:none;color:rgba(233,237,244,.5);font-weight:400">'+esc(anchorSt)+'</span></div></div>'
 
-    + '<div class="num" style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3)">'
+    + '<div class="num" style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
     + '<div style="display:flex;justify-content:space-between;font:500 12.5px/1.9 var(--fb)"><span>'+esc(t('named_time'))+'</span><span>'+hmDur(st.named)+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb);color:var(--ink-55)"><span>'+esc(t('unnamed'))+'</span><span id="rcUnnamed">'+hmDur(st.unnamed)+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb);color:var(--ink-55)"><span>'+esc(t('times_named'))+'</span><span>'+st.done.length+'</span></div></div>'
 
-    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3)">'
+    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
     + '<div class="kicker-s" style="margin-bottom:9px">'+esc(t('by_category'))+'</div>' + catRows + '</div>'
 
-    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3)">'
+    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
     + '<div class="kicker-s" style="margin-bottom:8px">'+esc(t('worth_dist'))+'</div>'
     + '<div style="display:flex;gap:6px">'+worthCells+'</div></div>'
 
@@ -886,7 +1058,7 @@ function screenReceipt(){
       + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-48);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
       +   esc(d.anchor.text || t('no_anchor'))+'</div></div>'
       + '<div style="text-align:right;flex:none"><div class="num" style="font:600 13px/1 var(--fh)">'+hmDur(s.named)+'</div>'
-      + '<div style="font:400 10px/1.5 var(--fb);color:rgba(29,31,32,.45)">'+esc(note)+'</div></div></button>';
+      + '<div style="font:400 10px/1.5 var(--fb);color:rgba(233,237,244,.45)">'+esc(note)+'</div></div></button>';
   }).join('') : '<div class="foot" style="padding:14px 0">'+esc(t('past_none'))+'</div>';
 
   return '<div style="padding:16px 0 4px;display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
@@ -917,10 +1089,12 @@ function screenInsights(){
     const isToday = k === dayKey();
     const d = new Date(k+'T00:00:00');
     const lbl = EN() ? WD_EN[d.getDay()] : WD_ZH[d.getDay()];
-    const tone = isToday ? 'var(--accent)' : (s.named ? (s.named > maxNamed*0.6 ? '#416180' : '#749dc4') : 'rgba(29,31,32,.14)');
+    const tone = isToday ? 'var(--accent)'
+      : s.named ? ok(ramp(pressure()).neon, s.named > maxNamed*0.6 ? '0.7' : '0.4')
+      : 'rgba(233,237,244,.14)';
     return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0">'
       + '<div style="width:100%;height:'+Math.max(3,h)+'px;background:'+tone+'"></div>'
-      + '<span style="font:'+(isToday?'600':'400')+' 10px/1 var(--fb);color:'+(isToday?'var(--ink)':'rgba(29,31,32,.5)')+'">'+esc(lbl)+'</span></div>';
+      + '<span style="font:'+(isToday?'600':'400')+' 10px/1 var(--fb);color:'+(isToday?'var(--ink)':'rgba(233,237,244,.5)')+'">'+esc(lbl)+'</span></div>';
   }).join('');
 
   // 「很值得」比例：以類別為單位
@@ -930,12 +1104,13 @@ function screenInsights(){
     agg[b.cat] = agg[b.cat] || {n:0,v:0};
     agg[b.cat].n++; if(b.worth==='w_v') agg[b.cat].v++;
   }));
-  const ramp = ['#416180','#597ea3','#749dc4','#94bce3'];
+  const nr = ramp(pressure()).neon;
+  const shareTone = i => ok(nr, (0.85 - i*0.18).toFixed(2));
   const shareRows = Object.keys(agg).sort((a,b)=>agg[b].v/agg[b].n - agg[a].v/agg[a].n).slice(0,4).map((c,i) => {
     const pct = Math.round(agg[c].v/agg[c].n*100);
     return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0">'
       + '<div style="width:52px;flex:none;font:400 12px/1.5 var(--fb);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(catName(c))+'</div>'
-      + '<div style="flex:1;height:9px;background:rgba(29,31,32,.06)"><div style="height:9px;width:'+pct+'%;background:'+ramp[i]+'"></div></div>'
+      + '<div style="flex:1;height:9px;background:rgba(233,237,244,.06)"><div style="height:9px;width:'+pct+'%;background:'+shareTone(i)+'"></div></div>'
       + '<div class="num" style="width:36px;text-align:right;font:600 11.5px/1 var(--fh)">'+pct+'%</div></div>';
   }).join('') || '<div class="foot" style="padding:6px 0">'+esc(t('week_empty'))+'</div>';
 
@@ -946,7 +1121,7 @@ function screenInsights(){
   const momentRows = moments.slice(0,3).map(m =>
     '<div style="padding:12px 0;border-bottom:1px solid var(--hair-3)">'
     + '<div style="font:400 13.5px/1.6 var(--fb)">「'+esc(m.b.note)+'」</div>'
-    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(29,31,32,.45);margin-top:4px">'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(233,237,244,.45);margin-top:4px">'
     +   esc(dateShort(m.k)) + ' · ' + esc(catName(m.b.cat)) + ' · '
     +   minDur(blockDur(m.b)) + '</div></div>').join('')
     || '<div class="foot" style="padding:12px 0">'+esc(t('three_none'))+'</div>';
@@ -958,13 +1133,13 @@ function screenInsights(){
   const range = dateShort(keys[0]) + ' — ' + dateShort(keys[6]);
 
   return '<div style="padding:16px 0 0"><div class="h-screen">'+esc(t('week'))+'</div>'
-    + '<div style="font:400 11px/1.5 var(--fb);color:rgba(29,31,32,.5);margin-top:4px">'+esc(range)+'</div></div>'
+    + '<div style="font:400 11px/1.5 var(--fb);color:rgba(233,237,244,.5);margin-top:4px">'+esc(range)+'</div></div>'
     + '<div class="blueprint" style="margin-top:18px;padding:16px 14px 12px">' + corners()
     + '<div class="kicker">'+esc(t('named_each_day'))+'</div>'
     + '<div style="display:flex;align-items:flex-end;gap:9px;height:126px;margin-top:14px">'+bars+'</div></div>'
     + '<div style="display:flex;gap:10px;margin-top:14px">'
     + '<div style="flex:1;border:1px solid var(--hair);padding:13px"><div class="num" style="font:600 30px/1 var(--fh)">'+anchorDone
-    +   '<span style="font-size:15px;color:rgba(29,31,32,.45)">/7</span></div>'
+    +   '<span style="font-size:15px;color:rgba(233,237,244,.45)">/7</span></div>'
     + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-55);margin-top:5px">'+esc(t('anchor_days'))+'</div></div>'
     + '<div style="flex:1;border:1px solid var(--hair);padding:13px"><div class="num" style="font:600 30px/1 var(--fh)">'+hmDur(totalNamed)+'</div>'
     + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-55);margin-top:5px">'+esc(t('named_total'))+'</div></div></div>'
@@ -989,21 +1164,18 @@ function screenSettings(){
 
     + '<div class="row"><span class="k">'+esc(t('tz'))+'</span><span class="v">'+esc(tz)+' · '+esc(t('auto'))+'</span></div>'
 
-    + '<div style="padding:14px 0;border-top:1px solid rgba(29,31,32,.14)">'
+    + '<div style="padding:14px 0;border-top:1px solid rgba(233,237,244,.14)">'
     + '<div style="font:400 13.5px/1.5 var(--fb);margin-bottom:10px">'+esc(t('display'))+'</div>'
     + '<div class="seg">'
     + ['sec','hms','hm'].map(m => '<button data-act="disp" data-v="'+m+'"'+(S.disp===m?' class="on"':'')+'>'+esc(t('d_'+m))+'</button>').join('')
     + '</div></div>'
 
-    + '<div style="padding:14px 0;border-top:1px solid rgba(29,31,32,.14)">'
-    + '<div style="font:400 13.5px/1.5 var(--fb);margin-bottom:10px">'+esc(t('hero_style'))+'</div>'
-    + '<div class="seg">'
-    + '<button data-act="hero" data-v="pure"'+(S.hero==='pure'?' class="on"':'')+'>'+esc(t('hero_pure'))+'</button>'
-    + '<button data-act="hero" data-v="column"'+(S.hero==='column'?' class="on"':'')+'>'+esc(t('hero_col'))+'</button>'
-    + '</div></div>'
+    + '<div class="row"><div><div class="k">'+esc(t('night'))+'</div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42)">'+esc(t('night_sub'))+'</div></div>'
+    + swHtml(S.night,'night') + '</div>'
 
     + '<div class="row"><div><div class="k">'+esc(t('ticking'))+'</div>'
-    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(29,31,32,.45)">'+esc(t('ticking_sub'))+'</div></div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(233,237,244,.45)">'+esc(t('ticking_sub'))+'</div></div>'
     + swHtml(S.tick,'tick') + '</div>'
 
     + '<div class="row" style="cursor:pointer" data-act="cats-open"><span class="k">'+esc(t('cats_row'))+'</span>'
@@ -1011,13 +1183,13 @@ function screenSettings(){
     + (ui.catsOpen ? '<div style="padding:0 0 14px"><div class="foot" style="margin-bottom:9px">'+esc(t('cats_hint'))+'</div>'
         + '<div style="display:flex;gap:7px;flex-wrap:wrap">'+catChips+'</div></div>' : '')
 
-    + '<div style="padding:16px 0 6px;border-top:1px solid rgba(29,31,32,.14)">'
+    + '<div style="padding:16px 0 6px;border-top:1px solid rgba(233,237,244,.14)">'
     + '<div class="kicker">'+esc(t('notif'))+'</div>'
     + '<div class="foot" style="margin-top:6px">'+esc(t('notif_sub'))+'</div>'
     + '<div class="foot" style="margin-top:2px">'+esc(t('notif_web'))+'</div>'
     + [['wake','n_wake'],['three','n_3h'],['sleep','n_sleep']].map(([k,lbl]) =>
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0">'
-        + '<span style="font:400 12.5px/1.5 var(--fb)'+(S.notif[k]?'':';color:rgba(29,31,32,.5)')+'">'+esc(t(lbl))+'</span>'
+        + '<span style="font:400 12.5px/1.5 var(--fb)'+(S.notif[k]?'':';color:rgba(233,237,244,.5)')+'">'+esc(t(lbl))+'</span>'
         + swHtml(S.notif[k],'notif:'+k) + '</div>').join('')
     + '</div>'
 
@@ -1026,7 +1198,7 @@ function screenSettings(){
     + '<button class="btn btn-wide" data-act="export" style="margin-top:18px">'+esc(t('export'))+'</button>'
     + '<button class="btn btn-wide" data-act="demo" style="margin-top:8px">'+esc(S.demo ? t('demo_off') : t('demo_on'))+'</button>'
     + '<button class="btn btn-wide" data-act="redo-ob" style="margin-top:8px">'+esc(t('redo_ob'))+'</button>'
-    + '<button class="btn btn-wide btn-ghost" data-act="wipe" style="margin-top:8px;color:rgba(29,31,32,.5)">'+esc(t('delete_all'))+'</button>'
+    + '<button class="btn btn-wide btn-ghost" data-act="wipe" style="margin-top:8px;color:rgba(233,237,244,.5)">'+esc(t('delete_all'))+'</button>'
     + '<div class="foot" style="margin-top:18px">'+esc(t('install_hint'))+'</div>';
 }
 
@@ -1076,7 +1248,7 @@ function sheetSpend(){
   return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">SPEND THE NEXT</div>'
-    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(29,31,32,.5)">'+esc(t('cancel'))+'</button></div>'
+    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('cancel'))+'</button></div>'
     + '<div style="font:400 17px/1.5 var(--fb);margin-top:10px">'+esc(t('spend_title'))+'</div>'
     + '<div style="display:flex;gap:7px;margin-top:16px">'
     +   durBtn(15,'15',1)+durBtn(30,'30',1)+durBtn(60,'60',1)+customBtn+'</div>'
@@ -1092,9 +1264,9 @@ function sheetSpend(){
     + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">'+catChips+'</div></div>'
     + whenBlock
     + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;padding:13px 0;'
-    + 'border-top:1px solid rgba(29,31,32,.14);border-bottom:1px solid rgba(29,31,32,.14)">'
+    + 'border-top:1px solid rgba(233,237,244,.14);border-bottom:1px solid rgba(233,237,244,.14)">'
     + '<span style="font:400 13px/1.5 var(--fb)">'+esc(t('link_anchor'))+'</span>' + swHtml(sp.link,'spend-link') + '</div>'
-    + '<div id="spendPreview" style="font:400 13.5px/1.8 var(--fb);color:rgba(29,31,32,.72);margin-top:18px">'
+    + '<div id="spendPreview" style="font:400 13.5px/1.8 var(--fb);color:rgba(233,237,244,.72);margin-top:18px">'
     +   spendPreviewHtml()+'</div>'
     + '<button id="spendStartBtn" class="btn btn-fill btn-wide" data-act="start" style="margin-top:18px">'
     +   esc(later ? t('schedule_btn') : t('start'))+'</button>'
@@ -1138,11 +1310,11 @@ function sheetWorth(){
   return '<div class="scrim" style="z-index:85"><div class="sheet" data-stop="1">'
     + '<div class="kicker">WORTH IT</div>'
     + '<div style="font:400 20px/1.45 var(--fb);margin-top:12px">'+esc(t('worth_title'))+'</div>'
-    + '<div style="font:400 11.5px/1.6 var(--fb);color:rgba(29,31,32,.5);margin-top:6px">'+esc(subject)+'</div>'
+    + '<div style="font:400 11.5px/1.6 var(--fb);color:rgba(233,237,244,.5);margin-top:6px">'+esc(subject)+'</div>'
     + '<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">'+opts+'</div>'
     + '<div style="margin-top:16px"><div class="kicker">'+esc(t('worth_note'))+'</div>'
     + '<input id="worthNote" class="line" style="font-size:15px;margin-top:8px" value="'+esc(ui.worth.note)+'"></div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;padding:13px 0;border-top:1px solid rgba(29,31,32,.14)">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;padding:13px 0;border-top:1px solid rgba(233,237,244,.14)">'
     + '<span style="font:400 13px/1.5 var(--fb)">'+esc(t('worth_again'))+'</span>' + swHtml(ui.worth.again,'worth-again') + '</div>'
     + '<div style="display:flex;gap:8px;margin-top:14px">'
     + '<button class="btn" data-act="worth-skip" style="flex:1;padding:15px 0;font-size:13px">'+esc(t('skip'))+'</button>'
@@ -1159,18 +1331,18 @@ function sheetOnboarding(){
     body = '<div><div class="num" style="font:600 clamp(56px,20vw,76px)/.86 var(--fh);letter-spacing:-.02em">86,400</div>'
       + '<div style="font:400 19px/1.6 var(--fb);margin-top:20px">'+esc(t('ob_1'))+'</div>'
       + '<div style="font:400 14px/1.8 var(--fb);color:var(--ink-55);margin-top:12px">'+esc(t('ob_1b'))+'</div>'
-      + '<div style="font:400 13px/1.8 var(--fb);color:rgba(29,31,32,.5);margin-top:20px;border-top:1px solid rgba(29,31,32,.14);padding-top:16px">'
+      + '<div style="font:400 13px/1.8 var(--fb);color:rgba(233,237,244,.5);margin-top:20px;border-top:1px solid rgba(233,237,244,.14);padding-top:16px">'
       +   esc(t('ob_1c'))+'</div></div>';
   }else if(step === 1){
     const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone) || 'local';
     body = '<div><div style="font:600 32px/1.15 var(--fh)">'+esc(t('ob_2'))+'</div>'
-      + '<div style="margin-top:24px;border-top:1px solid rgba(29,31,32,.14)">'
-      + '<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid rgba(29,31,32,.14)">'
+      + '<div style="margin-top:24px;border-top:1px solid rgba(233,237,244,.14)">'
+      + '<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid rgba(233,237,244,.14)">'
       + '<span style="font:400 14px var(--fb)">'+esc(t('tz'))+'</span><span style="font:400 14px var(--fb);color:var(--ink-55)">'+esc(tz)+'</span></div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(29,31,32,.14)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(233,237,244,.14)">'
       + '<span style="font:400 14px var(--fb)">'+esc(t('wake'))+'</span>'
       + '<input type="time" data-inp="wake" value="'+esc(S.wake)+'" style="border:none;background:transparent;font:400 14px var(--fb);color:var(--ink-55);text-align:right"></div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(29,31,32,.14)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(233,237,244,.14)">'
       + '<span style="font:400 14px var(--fb)">'+esc(t('sleep'))+'</span>'
       + '<input type="time" data-inp="sleep" value="'+esc(S.sleep)+'" style="border:none;background:transparent;font:400 14px var(--fb);color:var(--ink-55);text-align:right"></div></div>'
       + '<div class="foot" style="margin-top:14px;line-height:1.8">'+esc(t('ob_2foot'))+'</div></div>';
@@ -1179,7 +1351,7 @@ function sheetOnboarding(){
       '<button class="chip'+(S.cats.indexOf(c.k)>=0?' on':'')+'" data-act="cat-toggle" data-cat="'+c.k+'" '
       + 'style="padding:11px 14px;font-size:14px">'+esc(EN()?c.en:c.zh)+'</button>').join('');
     body = '<div><div style="font:600 32px/1.15 var(--fh)">'+esc(t('ob_3'))+'</div>'
-      + '<div style="font:400 12.5px/1.7 var(--fb);color:rgba(29,31,32,.5);margin-top:10px">'+esc(t('ob_3sub'))+'</div>'
+      + '<div style="font:400 12.5px/1.7 var(--fb);color:rgba(233,237,244,.5);margin-top:10px">'+esc(t('ob_3sub'))+'</div>'
       + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px">'+chips+'</div></div>';
   }else{
     const left = secLeft();
@@ -1187,10 +1359,10 @@ function sheetOnboarding(){
     const opt = m => '<button data-act="disp" data-v="'+m+'" style="text-align:left;padding:15px;'
       + 'border:1px solid '+(S.disp===m?'var(--accent)':'var(--hair-2)')+';background:'+(S.disp===m?'var(--accent-tint)':'transparent')+'">'
       + '<div class="num" style="font:600 26px/1 var(--fh)">'+sample(m)+'</div>'
-      + '<div style="font:400 11px/1.5 var(--fb);color:rgba(29,31,32,.5);margin-top:5px">'+esc(t('d_'+m))+'</div></button>';
+      + '<div style="font:400 11px/1.5 var(--fb);color:rgba(233,237,244,.5);margin-top:5px">'+esc(t('d_'+m))+'</div></button>';
     body = '<div><div style="font:600 32px/1.15 var(--fh)">'+esc(t('ob_4'))+'</div>'
       + '<div style="display:flex;flex-direction:column;gap:9px;margin-top:20px">'+opt('sec')+opt('hms')+opt('hm')+'</div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(29,31,32,.14)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(233,237,244,.14)">'
       + '<span style="font:400 13px var(--fb)">'+esc(t('ticking'))+'</span>' + swHtml(S.tick,'tick') + '</div></div>';
   }
   return '<div class="full">'
@@ -1202,6 +1374,48 @@ function sheetOnboarding(){
     +   esc(step===3 ? t('finish_setup') : step===0 ? t('start') : t('next'))+'</button></div>'
     + '<div style="text-align:center;margin-top:12px;font:400 11px var(--fb);color:var(--ink-42);flex:none">'+esc(t('ob_foot'))+'</div>'
     + '</div>';
+}
+
+/* 每一拍就地更新 hero：數字的字級/顏色/動態，以及引線燒到哪裡。
+   不整段重畫 —— 重畫會讓火花與抖動的動畫每秒從頭開始。 */
+let lastStage = null;
+function refreshHero(){
+  const hero = document.getElementById('hero');
+  if(!hero) return;
+  const p = pressure(), out = fuseOut(), pct = pctToday(), rem = (100 - pct).toFixed(2) + '%';
+
+  const sub = document.getElementById('cdSub');
+  if(sub) sub.innerHTML = '<span>'+esc(humanLeft(secLeft()))+'</span><span>'
+    + esc((EN()?'elapsed ':'已過 ') + pct.toFixed(1) + '%')+'</span>';
+
+  const rope = document.getElementById('fuseRope'); if(rope) rope.style.width = rem;
+  const ash  = document.getElementById('fuseAsh');  if(ash)  ash.style.width = pct.toFixed(2) + '%';
+  ['fuseFlare','fuseSpark'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.left = rem;
+  });
+  const track = document.getElementById('fuseTrack');
+  if(track) Array.prototype.forEach.call(track.children, el => {
+    if(el.style.animationName === 'n-ember' || /n-ember/.test(el.style.animation)) el.style.left = rem;
+  });
+
+  // 階段換了才動字級/動態，避免每秒重設 animation
+  const stage = out ? 4 : p > 0.8 ? 3 : p > 0.55 ? 2 : 1;
+  const key = stage + '|' + (p > 0.45) + '|' + (92 + p*22).toFixed(0);
+  if(key !== lastStage){
+    lastStage = key;
+    const num = document.getElementById('cdNum');
+    if(num){
+      num.style.fontSize = (92 + p*22).toFixed(0) + 'px';
+      num.style.color = p > 0.45 ? 'var(--accent)' : 'var(--ink)';
+      num.style.animation = heroAnim();
+    }
+    const mood = document.getElementById('cdMood');
+    if(mood){ mood.textContent = moodLine();
+              mood.style.color = p > 0.6 ? ok(ramp(p).neon,'0.85') : 'var(--ink-55)'; }
+    const bomb = document.getElementById('fuseBomb');
+    if(bomb) bomb.style.animation = out ? 'n-rattle .22s linear infinite'
+                                  : p > 0.75 ? 'n-bombpulse 1.4s ease-in-out infinite' : 'none';
+  }
 }
 
 /* ── 6. Render ──────────────────────────────────────────────────────── */
@@ -1231,7 +1445,8 @@ function render(){
     + tabBtn('settings','<span class="ic ic-settings"></span>', t('tab_settings'))
     + '</div>'
     + (ui.sheet === 'spend' ? sheetSpend() : '')
-    + (ui.sheet === 'worth' ? sheetWorth() : '');
+    + (ui.sheet === 'worth' ? sheetWorth() : '')
+    + '<div class="scan"></div><div class="vig"></div>';
 
   const sn = document.getElementById('spendName');
   if(sn && ui.focusSpend){ sn.focus(); ui.focusSpend = false; }
@@ -1302,7 +1517,7 @@ document.addEventListener('click', e => {
     case 'nextweek': setState(()=>{ const i = S.nextWeek.indexOf(el.dataset.cat);
                        i>=0 ? S.nextWeek.splice(i,1) : S.nextWeek.push(el.dataset.cat); }); break;
     case 'disp':  setState(()=>{ S.disp = el.dataset.v; }); break;
-    case 'hero':  setState(()=>{ S.hero = el.dataset.v; }); break;
+    case 'night': setState(()=>{ S.night = !S.night; lastSkin = ''; applyPressure(); }); break;
     case 'tick':  setState(()=>{ S.tick = !S.tick; }); break;
     case 'cats-open': ui.catsOpen = !ui.catsOpen; render(); break;
     case 'cat-toggle': setState(()=>{ const c = el.dataset.cat, i = S.cats.indexOf(c);
@@ -1348,7 +1563,7 @@ document.addEventListener('input', e => {
     const dirty = el.value !== today().anchor.text;
     const st = document.getElementById('anchorStatus');
     if(st){ st.textContent = anchorStatusText();
-            st.style.color = dirty ? 'var(--accent-deep)' : 'rgba(29,31,32,.45)'; }
+            st.style.color = dirty ? 'var(--accent-deep)' : 'rgba(233,237,244,.45)'; }
     const btn = document.getElementById('anchorSave');
     if(btn){ btn.style.display = dirty ? '' : 'none';
              btn.classList.toggle('btn-fill', dirty); }
@@ -1388,6 +1603,7 @@ document.addEventListener('focusout', e => {
 /* ── 8. 心跳：永遠從牆上時鐘重算 ─────────────────────────────────────── */
 let lastDay = dayKey();
 function heartbeat(){
+  applyPressure();
   if(!S.onboarded) return;
 
   if(dayKey() !== lastDay){            // 跨過本地午夜 → 換新的一天
@@ -1405,19 +1621,15 @@ function heartbeat(){
     if(due){ startScheduled(due.id); return; }
   }
 
-  const left = secLeft(), pct = secPassed()/86400*100;
+  const left = secLeft();
   const num = document.getElementById('cdNum');
   if(num){
     const v = fmtDisp(left);
     if(num.textContent !== v) num.textContent = v;
-    const sub = document.getElementById('cdSub');
-    if(sub) sub.textContent = humanLeft(left) + ' · ' + (EN()?'elapsed ':'已過 ') + pct.toFixed(1) + '%';
-    const bar = document.getElementById('cdBar'); if(bar) bar.style.width = pct.toFixed(2)+'%';
-    const cf = document.getElementById('colFill'); if(cf) cf.style.height = pct.toFixed(2)+'%';
-    const cn = document.getElementById('colNow');  if(cn) cn.style.top = pct.toFixed(2)+'%';
   }
   const ck = document.getElementById('cdClock');
   if(ck){ const v = nowClock(); if(ck.textContent !== v) ck.textContent = v; }
+  refreshHero();
   if(act){
     const remain = Math.max(0, Math.round((act.endAt - Date.now())/1000));
     const total = Math.max(1, Math.round((act.endAt - act.startedAt)/1000));
@@ -1457,20 +1669,20 @@ function pwaBits(){
   const icon = size => {
     const c = document.createElement('canvas'); c.width = c.height = size;
     const x = c.getContext('2d');
-    x.fillStyle = '#f2f2f3'; x.fillRect(0,0,size,size);
-    x.strokeStyle = 'rgba(29,31,32,.16)'; x.lineWidth = Math.max(1,size*0.008);
+    x.fillStyle = '#101a16'; x.fillRect(0,0,size,size);
+    x.strokeStyle = 'rgba(142,240,166,.35)'; x.lineWidth = Math.max(1,size*0.008);
     x.strokeRect(size*0.12, size*0.12, size*0.76, size*0.76);
-    x.fillStyle = '#1d1f20'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillStyle = '#8ef0a6'; x.textAlign = 'center'; x.textBaseline = 'middle';
     x.font = '600 ' + Math.round(size*0.21) + 'px "Barlow Condensed",sans-serif';
     x.fillText('86,400', size/2, size*0.47);
-    x.fillStyle = '#5980a6'; x.fillRect(size*0.22, size*0.62, size*0.34, size*0.012);
+    x.fillStyle = '#8ef0a6'; x.fillRect(size*0.22, size*0.62, size*0.34, size*0.012);
     return c.toDataURL('image/png');
   };
   try{
     const i192 = icon(192), i512 = icon(512);
     const mf = { name:'86,400', short_name:'86,400', start_url:'.', scope:'.',
                  display:'standalone', orientation:'portrait',
-                 background_color:'#f2f2f3', theme_color:'#f2f2f3',
+                 background_color:'#101a16', theme_color:'#101a16',
                  icons:[{src:i192,sizes:'192x192',type:'image/png',purpose:'any'},
                         {src:i512,sizes:'512x512',type:'image/png',purpose:'any'}] };
     const l = document.createElement('link'); l.rel = 'manifest';
@@ -1482,6 +1694,7 @@ function pwaBits(){
 }
 
 /* ── 10. 啟動 ────────────────────────────────────────────────────────── */
+applyPressure();
 render();
 heartbeat();
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(pwaBits); else pwaBits();

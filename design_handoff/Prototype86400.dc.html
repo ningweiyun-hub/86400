@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="stylesheet" href="industry.css">
+<script src="_ds/industry-ee43fa25-0964-4235-8b2f-c70c0b4b6ea1/_ds_bundle.js"></script>
+<script src="i18n.js"></script>
+</helmet>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div ref="{{ rootRef }}" style="height:100%;display:flex;flex-direction:column;background:#f2f2f3;color:#1d1f20;font-family:Barlow,system-ui">
+
+<div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:56px 20px 8px">
+<div style="display:flex;align-items:baseline;gap:9px">
+<span style="font:600 16px/1 'Barlow Condensed';letter-spacing:.16em">86,400</span>
+<span style="font:400 10.5px/1 Barlow;letter-spacing:.06em;color:rgba(29,31,32,.45)">{{ dateStr }}</span>
+</div>
+<div style="display:flex;border:1px solid rgba(29,31,32,.2)">
+<button type="button" onClick="{{ setZh }}" style="border:none;cursor:pointer;padding:3px 8px;font:600 10px/1.4 'Barlow Condensed';letter-spacing:.1em;background: {{ zhBg }};color: {{ zhC }}">中</button>
+<button type="button" onClick="{{ setEn }}" style="border:none;cursor:pointer;padding:3px 8px;font:600 10px/1.4 'Barlow Condensed';letter-spacing:.1em;background: {{ enBg }};color: {{ enC }}">EN</button>
+</div>
+</div>
+
+<div style="flex:1;overflow:auto;padding:0 20px 96px">
+
+<sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Today">
+
+<sc-if value="{{ heroPure }}" hint-placeholder-val="{{ true }}">
+<div style="margin:8px -20px 0;padding:32px 20px 26px;background:#16222e;color:#f2f2f3">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;text-transform:uppercase;color:#b5d9fd" data-i18n>今天剩下</div>
+<div style="font:600 104px/.82 'Barlow Condensed';letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:10px">{{ secLeft }}</div>
+<div style="font:400 12px/1.5 Barlow;color:rgba(242,242,243,.62);margin-top:12px">{{ leftHuman }} · {{ pctLine }}</div>
+<div style="height:1px;background:rgba(242,242,243,.28);margin-top:18px;position:relative"><div style="position:absolute;top:0;left:0;height:1px;background:#f2f2f3;width: {{ pctW }}"></div><div style="position:absolute;top:-4px;width:1px;height:9px;background:#b5d9fd;left: {{ pctW }}"></div></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ heroColumn }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:18px;padding:18px 0 4px">
+<div style="width:54px;height:250px;border:1px solid rgba(29,31,32,.2);position:relative;background:repeating-linear-gradient(to bottom,transparent 0 9.4px,rgba(29,31,32,.1) 9.4px 10.4px)">
+<div style="position:absolute;left:0;right:0;top:0;background:rgba(29,31,32,.07);height: {{ pctW }}"></div>
+<div style="position:absolute;left:-7px;right:-7px;height:1px;background:#5980a6;top: {{ pctW }}"></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;text-transform:uppercase;color:#416180" data-i18n>今天剩下</div>
+<div style="font:600 56px/.9 'Barlow Condensed';font-variant-numeric:tabular-nums;margin-top:8px">{{ secLeft }}</div>
+<div style="font:400 12px/1.6 Barlow;color:rgba(29,31,32,.55);margin-top:8px">{{ leftHuman }}<br>{{ pctLine }}</div>
+<div style="font:400 11.5px/1.7 Barlow;color:rgba(29,31,32,.45);margin-top:14px" data-i18n>時間沒有停下，但你可以從現在重新選擇。</div>
+</div>
+</div>
+</sc-if>
+
+<div class="blueprint" style="margin-top:26px;padding:15px 15px 13px">
+<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;text-transform:uppercase;color:#416180">Today Anchor</div>
+<div style="font:400 10px/1 Barlow;color:rgba(29,31,32,.45)">{{ anchorStatus }}</div>
+</div>
+<div style="font:400 11.5px/1.55 Barlow;color:rgba(29,31,32,.5);margin-top:8px" data-i18n>如果今天只能好好完成一件事，會是什麼？</div>
+<input value="{{ anchor }}" onChange="{{ setAnchor }}" style="width:100%;margin-top:8px;border:none;border-bottom:1px solid rgba(29,31,32,.25);background:transparent;font:500 18px/1.4 Barlow;color:#1d1f20;padding:5px 0;outline:none">
+<div style="display:flex;gap:8px;margin-top:13px">
+<button type="button" onClick="{{ toggleAnchor }}" class="btn btn-secondary" style="font-size:12px">{{ anchorBtn }}</button>
+<button type="button" onClick="{{ dropAnchor }}" class="btn btn-ghost" style="font-size:12px">{{ anchorDropBtn }}</button>
+</div>
+<div style="font:400 10.5px/1.6 Barlow;color:rgba(29,31,32,.42);margin-top:9px" data-i18n>沒完成不會扣分，也不會中斷任何紀錄。</div>
+</div>
+
+<sc-if value="{{ noActive }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:26px">
+<div style="font:400 14px/1.5 Barlow" data-i18n>把下一段時間留給……</div>
+<div style="display:flex;gap:8px;margin-top:11px">
+<button type="button" onClick="{{ q15 }}" class="btn btn-secondary" style="flex:1;font-size:14px;padding:11px 0">15</button>
+<button type="button" onClick="{{ q30 }}" class="btn btn-secondary" style="flex:1;font-size:14px;padding:11px 0">30</button>
+<button type="button" onClick="{{ q60 }}" class="btn btn-secondary" style="flex:1;font-size:14px;padding:11px 0">60</button>
+<button type="button" onClick="{{ qCustom }}" class="btn btn-secondary" style="flex:1.3;font-size:12px;padding:11px 0" data-i18n>自訂</button>
+</div>
+<div style="font:400 10.5px/1.6 Barlow;color:rgba(29,31,32,.42);margin-top:8px" data-i18n>兩步之內就能開始，不需要先建立清單。</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}">
+<div class="blueprint" style="margin-top:26px;padding:16px;background:#1d2d3d;color:#f2f2f3;border-color:rgba(242,242,243,.28)">
+<i class="corner tl" style="color:rgba(242,242,243,.5)"></i><i class="corner tr" style="color:rgba(242,242,243,.5)"></i><i class="corner bl" style="color:rgba(242,242,243,.5)"></i><i class="corner br" style="color:rgba(242,242,243,.5)"></i>
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;text-transform:uppercase;color:#b5d9fd" data-i18n>進行中</div>
+<div style="font:400 10px/1 Barlow;color:rgba(242,242,243,.55)">{{ activeCat }} · {{ activeEndAt }}</div>
+</div>
+<div style="font:500 19px/1.35 Barlow;margin-top:9px">{{ activeName }}</div>
+<div style="display:flex;align-items:flex-end;gap:8px;margin-top:12px">
+<div style="font:600 46px/.86 'Barlow Condensed';font-variant-numeric:tabular-nums">{{ activeRemain }}</div>
+<div style="font:400 11px/1 Barlow;color:rgba(242,242,243,.6);padding-bottom:6px">{{ activeUnit }}</div>
+</div>
+<div style="height:1px;background:rgba(242,242,243,.25);margin-top:12px;position:relative"><div style="position:absolute;top:0;left:0;height:1px;background:#b5d9fd;width: {{ activeW }}"></div></div>
+<div style="font:400 11px/1.6 Barlow;color:rgba(242,242,243,.6);margin-top:10px">{{ activeLine }}</div>
+<div style="display:flex;gap:8px;margin-top:13px">
+<button type="button" onClick="{{ endEarly }}" style="flex:1;cursor:pointer;background:#f2f2f3;color:#1d2d3d;border:none;padding:10px 0;font:600 12.5px 'Barlow Condensed';letter-spacing:.04em" data-i18n>提前結束</button>
+<button type="button" onClick="{{ extend15 }}" style="flex:1;cursor:pointer;background:transparent;color:#f2f2f3;border:1px solid rgba(242,242,243,.4);padding:10px 0;font:600 12.5px 'Barlow Condensed';letter-spacing:.04em" data-i18n>延長 15 分</button>
+</div>
+</div>
+</sc-if>
+
+<div style="margin-top:28px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px;border-bottom:1px solid rgba(29,31,32,.2)">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;text-transform:uppercase;color:#416180" data-i18n>今日已命名時間</div>
+<div style="font:600 14px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">{{ namedStr }}</div>
+</div>
+<sc-for list="{{ blocks }}" as="b" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid rgba(29,31,32,.1)">
+<div style="width:5px;height:26px;flex:none;background: {{ b.tone }}"></div>
+<div style="flex:1;min-width:0">
+<div style="font:500 13.5px/1.35 Barlow">{{ b.name }}</div>
+<div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.48)">{{ b.time }} · {{ b.cat }}</div>
+</div>
+<div style="text-align:right;flex:none">
+<div style="font:600 14px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">{{ b.dur }}</div>
+<div style="font:400 10px/1.5 Barlow;color: {{ b.worthC }}">{{ b.worth }}</div>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{ showUnnamed }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;gap:11px;padding:11px 0">
+<div style="width:5px;height:26px;flex:none;background:rgba(29,31,32,.09)"></div>
+<div style="flex:1">
+<div style="font:500 13.5px/1.35 Barlow;color:rgba(29,31,32,.55)" data-i18n>未命名時間</div>
+<div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.4)" data-i18n>不代表浪費，只是今天沒有留下紀錄。</div>
+</div>
+<div style="font:600 14px/1 'Barlow Condensed';font-variant-numeric:tabular-nums;color:rgba(29,31,32,.55)">{{ unnamedStr }}</div>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isReceipt }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Time Receipt">
+<div style="padding:16px 0 4px;display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 25px/1 'Barlow Condensed'" data-i18n>今日收據</div>
+<div style="font:600 9px/1 'Barlow Condensed';letter-spacing:.16em;border:1px solid #5980a6;color:#416180;padding:4px 7px" data-i18n>進行中</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(29,31,32,.16);padding:20px 18px;margin-top:14px">
+<div style="text-align:center;border-bottom:1px dashed rgba(29,31,32,.3);padding-bottom:14px">
+<div style="font:400 10px/1.4 Barlow;letter-spacing:.2em;color:rgba(29,31,32,.5)" data-i18n>今天收到</div>
+<div style="font:600 44px/1 'Barlow Condensed';font-variant-numeric:tabular-nums;margin-top:4px">86,400</div>
+<div style="font:400 10.5px/1.4 Barlow;color:rgba(29,31,32,.5);margin-top:4px">{{ dateFull }}</div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3);font-variant-numeric:tabular-nums">
+<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 Barlow"><span data-i18n>今天已過</span><span>{{ passedStr }}</span></div>
+<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 Barlow"><span data-i18n>今天還剩</span><span>{{ secLeftPlain }}</span></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3)">
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.16em;color:#416180">TODAY ANCHOR</div>
+<div style="display:flex;justify-content:space-between;gap:10px;margin-top:6px;font:500 13.5px/1.5 Barlow"><span>{{ anchor }}</span><span style="flex:none;color:rgba(29,31,32,.5);font-weight:400">{{ anchorStatus }}</span></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3);font-variant-numeric:tabular-nums">
+<div style="display:flex;justify-content:space-between;font:500 12.5px/1.9 Barlow"><span data-i18n>已命名時間</span><span>{{ namedStr }}</span></div>
+<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 Barlow;color:rgba(29,31,32,.55)"><span data-i18n>未命名時間</span><span>{{ unnamedStr }}</span></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3)">
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.16em;color:#416180;margin-bottom:9px" data-i18n>時間類別投入</div>
+<sc-for list="{{ catRows }}" as="c" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:9px;padding:3px 0">
+<div style="width:52px;font:400 11.5px/1.5 Barlow;flex:none">{{ c.name }}</div>
+<div style="flex:1;height:7px;background:rgba(29,31,32,.06)"><div style="height:7px;background: {{ c.tone }};width: {{ c.w }}"></div></div>
+<div style="width:44px;text-align:right;font:400 11px/1.5 Barlow;font-variant-numeric:tabular-nums;color:rgba(29,31,32,.6);flex:none">{{ c.dur }}</div>
+</div>
+</sc-for>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.3)">
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.16em;color:#416180;margin-bottom:8px" data-i18n>Worth It 評價分布</div>
+<div style="display:flex;gap:6px">
+<div style="flex:2;text-align:center;border:1px solid rgba(29,31,32,.16);padding:7px 2px"><div style="font:600 17px/1 'Barlow Condensed'">1</div><div style="font:400 9.5px/1.4 Barlow;color:rgba(29,31,32,.55)" data-i18n>很值得</div></div>
+<div style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.16);padding:7px 2px"><div style="font:600 17px/1 'Barlow Condensed'">1</div><div style="font:400 9.5px/1.4 Barlow;color:rgba(29,31,32,.55)" data-i18n>還不錯</div></div>
+<div style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.16);padding:7px 2px"><div style="font:600 17px/1 'Barlow Condensed';color:rgba(29,31,32,.35)">0</div><div style="font:400 9.5px/1.4 Barlow;color:rgba(29,31,32,.55)" data-i18n>不太值得</div></div>
+<div style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.16);padding:7px 2px"><div style="font:600 17px/1 'Barlow Condensed';color:rgba(29,31,32,.35)">0</div><div style="font:400 9.5px/1.4 Barlow;color:rgba(29,31,32,.55)" data-i18n>中途改變了</div></div>
+</div>
+</div>
+<div style="padding:12px 0 0">
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.16em;color:#416180" data-i18n>今天最值得的片刻</div>
+<div style="font:400 14px/1.6 Barlow;margin-top:7px">「剪片剪到忘記時間，抬頭已經九點。」</div>
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.16em;color:#416180;margin-top:16px" data-i18n>明天想多留一點時間給</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">
+<span style="font:400 11px/1 Barlow;border:1px solid #5980a6;background:#eef6ff;color:#416180;padding:6px 9px">關係</span>
+<span style="font:400 11px/1 Barlow;border:1px solid rgba(29,31,32,.18);padding:6px 9px;color:rgba(29,31,32,.55)">休息</span>
+<span style="font:400 11px/1 Barlow;border:1px solid rgba(29,31,32,.18);padding:6px 9px;color:rgba(29,31,32,.55)">創作</span>
+</div>
+</div>
+</div>
+<div style="font:400 10.5px/1.7 Barlow;color:rgba(29,31,32,.42);margin-top:12px" data-i18n>已命名時間不等於你今天做過的全部事情。這張收據只記你留下名字的部分。</div>
+<div style="margin-top:20px;padding-bottom:8px;border-bottom:1px solid rgba(29,31,32,.2);font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180" data-i18n>過去的收據</div>
+<sc-for list="{{ pastReceipts }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(29,31,32,.1)">
+<div><div style="font:500 13px/1.4 Barlow">{{ r.date }}</div><div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.48)">{{ r.anchor }}</div></div>
+<div style="text-align:right"><div style="font:600 13px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">{{ r.named }}</div><div style="font:400 10px/1.5 Barlow;color:rgba(29,31,32,.45)">{{ r.note }}</div></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isInsights }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Insights">
+<div style="padding:16px 0 0">
+<div style="font:600 25px/1 'Barlow Condensed'" data-i18n>本週回顧</div>
+<div style="font:400 11px/1.5 Barlow;color:rgba(29,31,32,.5);margin-top:4px">07.25 — 07.31</div>
+</div>
+<div class="blueprint" style="margin-top:18px;padding:16px 14px 12px">
+<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180" data-i18n>每天的已命名時間</div>
+<div style="display:flex;align-items:flex-end;gap:9px;height:126px;margin-top:14px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:44px;background:#416180"></div><span style="font:400 10px/1 Barlow;color:rgba(29,31,32,.5)">五</span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:22px;background:#749dc4"></div><span style="font:400 10px/1 Barlow;color:rgba(29,31,32,.5)">六</span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:58px;background:#416180"></div><span style="font:400 10px/1 Barlow;color:rgba(29,31,32,.5)">日</span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:14px;background:rgba(29,31,32,.14)"></div><span style="font:400 10px/1 Barlow;color:rgba(29,31,32,.5)">一</span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:36px;background:#749dc4"></div><span style="font:400 10px/1 Barlow;color:rgba(29,31,32,.5)">二</span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:24px;background:#749dc4"></div><span style="font:400 10px/1 Barlow;color:rgba(29,31,32,.5)">三</span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:50px;background:#5980a6"></div><span style="font:600 10px/1 Barlow;color:#1d1f20">四</span></div>
+</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:14px">
+<div style="flex:1;border:1px solid rgba(29,31,32,.16);padding:13px"><div style="font:600 30px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">5<span style="font-size:15px;color:rgba(29,31,32,.45)">/7</span></div><div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.55);margin-top:5px" data-i18n>完成 Today Anchor 的天數</div></div>
+<div style="flex:1;border:1px solid rgba(29,31,32,.16);padding:13px"><div style="font:600 30px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">7:20</div><div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.55);margin-top:5px" data-i18n>已命名時間總量</div></div>
+</div>
+<div style="margin-top:24px;padding-bottom:9px;border-bottom:1px solid rgba(29,31,32,.2);font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180" data-i18n>被評為「很值得」的比例</div>
+<div style="padding-top:10px">
+<div style="display:flex;align-items:center;gap:10px;padding:5px 0"><div style="width:44px;font:400 12px/1.5 Barlow">副業</div><div style="flex:1;height:9px;background:rgba(29,31,32,.06)"><div style="height:9px;width:86%;background:#416180"></div></div><div style="width:34px;text-align:right;font:600 11.5px/1 'Barlow Condensed'">86%</div></div>
+<div style="display:flex;align-items:center;gap:10px;padding:5px 0"><div style="width:44px;font:400 12px/1.5 Barlow">休息</div><div style="flex:1;height:9px;background:rgba(29,31,32,.06)"><div style="height:9px;width:74%;background:#597ea3"></div></div><div style="width:34px;text-align:right;font:600 11.5px/1 'Barlow Condensed'">74%</div></div>
+<div style="display:flex;align-items:center;gap:10px;padding:5px 0"><div style="width:44px;font:400 12px/1.5 Barlow">工作</div><div style="flex:1;height:9px;background:rgba(29,31,32,.06)"><div style="height:9px;width:41%;background:#749dc4"></div></div><div style="width:34px;text-align:right;font:600 11.5px/1 'Barlow Condensed'">41%</div></div>
+</div>
+<div style="font:400 10.5px/1.7 Barlow;color:rgba(29,31,32,.42);margin-top:10px" data-i18n>這是你自己的評價，不是活動本身的分數，也不會和其他人比較。</div>
+<div style="margin-top:24px;padding-bottom:9px;border-bottom:1px solid rgba(29,31,32,.2);font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180" data-i18n>一週最值得的三個片刻</div>
+<div style="padding-top:6px">
+<div style="padding:12px 0;border-bottom:1px solid rgba(29,31,32,.1)"><div style="font:400 13.5px/1.6 Barlow">「剪片剪到忘記時間，抬頭已經九點。」</div><div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.45);margin-top:4px">07.31 · 副業 · 60 分</div></div>
+<div style="padding:12px 0;border-bottom:1px solid rgba(29,31,32,.1)"><div style="font:400 13.5px/1.6 Barlow">「跟阿姊講了一小時電話，沒看手機。」</div><div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.45);margin-top:4px">07.28 · 關係 · 58 分</div></div>
+<div style="padding:12px 0;border-bottom:1px solid rgba(29,31,32,.1)"><div style="font:400 13.5px/1.6 Barlow">「什麼都沒做，在陽台坐了二十分鐘。」</div><div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.45);margin-top:4px">07.27 · 休息 · 20 分</div></div>
+</div>
+<div style="margin-top:22px;border:1px solid rgba(29,31,32,.16);padding:15px">
+<div style="font:400 13px/1.6 Barlow" data-i18n>下週想多留時間給哪個面向</div>
+<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px">
+<span style="font:400 12px/1 Barlow;border:1px solid #5980a6;background:#eef6ff;color:#416180;padding:8px 11px">關係</span>
+<span style="font:400 12px/1 Barlow;border:1px solid rgba(29,31,32,.18);padding:8px 11px;color:rgba(29,31,32,.6)">健康</span>
+<span style="font:400 12px/1 Barlow;border:1px solid rgba(29,31,32,.18);padding:8px 11px;color:rgba(29,31,32,.6)">創作</span>
+<span style="font:400 12px/1 Barlow;border:1px solid rgba(29,31,32,.18);padding:8px 11px;color:rgba(29,31,32,.6)">休息</span>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Settings">
+<div style="padding:16px 0 10px;font:600 25px/1 'Barlow Condensed'" data-i18n>設定</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid rgba(29,31,32,.14)">
+<span style="font:400 13.5px/1.5 Barlow" data-i18n>時區</span><span style="font:400 12.5px/1.5 Barlow;color:rgba(29,31,32,.5)">Asia/Taipei · 自動</span>
+</div>
+<div style="padding:14px 0;border-top:1px solid rgba(29,31,32,.14)">
+<div style="font:400 13.5px/1.5 Barlow;margin-bottom:10px" data-i18n>顯示模式</div>
+<div style="display:flex;border:1px solid rgba(29,31,32,.18)">
+<button type="button" onClick="{{ dispSec }}" style="flex:1;border:none;cursor:pointer;padding:9px 0;font:400 12px Barlow;background: {{ dSecBg }};color: {{ dSecC }}" data-i18n>純秒數</button>
+<button type="button" onClick="{{ dispHms }}" style="flex:1;border:none;border-left:1px solid rgba(29,31,32,.18);cursor:pointer;padding:9px 0;font:400 12px Barlow;background: {{ dHmsBg }};color: {{ dHmsC }}" data-i18n>時分秒</button>
+<button type="button" onClick="{{ dispHm }}" style="flex:1;border:none;border-left:1px solid rgba(29,31,32,.18);cursor:pointer;padding:9px 0;font:400 12px Barlow;background: {{ dHmBg }};color: {{ dHmC }}" data-i18n>時與分</button>
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid rgba(29,31,32,.14)">
+<div><div style="font:400 13.5px/1.5 Barlow" data-i18n>秒數跳動</div><div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.45)" data-i18n>關掉之後只更新到分鐘</div></div>
+<button type="button" onClick="{{ toggleTick }}" style="width:46px;height:24px;flex:none;cursor:pointer;border:1px solid rgba(29,31,32,.25);padding:2px;background: {{ tickBg }};display:flex;justify-content: {{ tickJustify }}"><span style="width:18px;height:18px;background: {{ tickKnob }}"></span></button>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid rgba(29,31,32,.14)">
+<span style="font:400 13.5px/1.5 Barlow" data-i18n>時間類別</span><span style="font:400 12.5px/1.5 Barlow;color:rgba(29,31,32,.5)">8</span>
+</div>
+<div style="padding:16px 0 6px;border-top:1px solid rgba(29,31,32,.14)">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180" data-i18n>通知</div>
+<div style="font:400 10.5px/1.6 Barlow;color:rgba(29,31,32,.45);margin-top:6px" data-i18n>每天最多主動提醒三次，每一類都可以單獨關掉。</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0"><span style="font:400 12.5px/1.5 Barlow" data-i18n>起床後：設定 Today Anchor</span><span style="width:34px;height:18px;background:#5980a6;display:flex;justify-content:flex-end;padding:2px"><span style="width:14px;height:14px;background:#f2f2f3"></span></span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0"><span style="font:400 12.5px/1.5 Barlow" data-i18n>剩三小時：重新選擇今晚</span><span style="width:34px;height:18px;background:#5980a6;display:flex;justify-content:flex-end;padding:2px"><span style="width:14px;height:14px;background:#f2f2f3"></span></span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0"><span style="font:400 12.5px/1.5 Barlow;color:rgba(29,31,32,.5)" data-i18n>睡前：查看 Time Receipt</span><span style="width:34px;height:18px;background:rgba(29,31,32,.14);display:flex;padding:2px"><span style="width:14px;height:14px;background:#fff"></span></span></div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid rgba(29,31,32,.14)">
+<span style="font:400 13.5px/1.5 Barlow">Widget</span><span style="font:400 12.5px/1.5 Barlow;color:rgba(29,31,32,.5)">只顯示數字</span>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid rgba(29,31,32,.14)">
+<span style="font:400 13.5px/1.5 Barlow" data-i18n>隱私與資料管理</span><span style="font:400 12.5px/1.5 Barlow;color:rgba(29,31,32,.5)" data-i18n>預設只有自己看得到</span>
+</div>
+<button type="button" onClick="{{ openOb }}" class="btn btn-secondary" style="width:100%;margin-top:18px;padding:12px 0" data-i18n>重新執行初次設定</button>
+<button type="button" class="btn btn-ghost" style="width:100%;margin-top:8px;padding:10px 0;color:rgba(29,31,32,.5)" data-i18n>刪除全部資料</button>
+</div>
+</sc-if>
+
+</div>
+
+<div style="flex:none;display:flex;border-top:1px solid rgba(29,31,32,.16);background:#f2f2f3;padding:10px 0 30px">
+<button type="button" onClick="{{ goToday }}" style="flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;color: {{ cToday }}">
+<span style="width:13px;height:13px;border:1px solid currentColor;display:flex;align-items:flex-end;padding:1px"><span style="width:4px;height:4px;background:currentColor"></span></span>
+<span style="font:500 9.5px/1 Barlow;letter-spacing:.06em" data-i18n>今天</span>
+</button>
+<button type="button" onClick="{{ goReceipt }}" style="flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;color: {{ cReceipt }}">
+<span style="width:13px;height:13px;display:flex;flex-direction:column;justify-content:space-between;padding:1px 0"><span style="height:1px;background:currentColor"></span><span style="height:1px;background:currentColor"></span><span style="height:1px;background:currentColor"></span></span>
+<span style="font:500 9.5px/1 Barlow;letter-spacing:.06em" data-i18n>收據</span>
+</button>
+<button type="button" onClick="{{ goInsights }}" style="flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;color: {{ cInsights }}">
+<span style="width:13px;height:13px;display:flex;align-items:flex-end;gap:2px"><span style="width:3px;height:6px;background:currentColor"></span><span style="width:3px;height:13px;background:currentColor"></span><span style="width:3px;height:9px;background:currentColor"></span></span>
+<span style="font:500 9.5px/1 Barlow;letter-spacing:.06em" data-i18n>洞察</span>
+</button>
+<button type="button" onClick="{{ goSettings }}" style="flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;color: {{ cSettings }}">
+<span style="width:13px;height:13px;border:1px solid currentColor;border-radius:50%"></span>
+<span style="font:500 9.5px/1 Barlow;letter-spacing:.06em" data-i18n>設定</span>
+</button>
+</div>
+
+<sc-if value="{{ sheetSpend }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeSheet }}" style="position:absolute;inset:0;z-index:80;background:rgba(29,45,61,.45);display:flex;align-items:flex-end">
+<div onClick="{{ stop }}" style="width:100%;background:#f2f2f3;border-top:1px solid rgba(29,31,32,.25);padding:20px 20px 40px;max-height:790px;overflow:auto">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180">SPEND THE NEXT</div>
+<button type="button" onClick="{{ closeSheet }}" style="border:none;background:transparent;cursor:pointer;font:400 11px Barlow;color:rgba(29,31,32,.5)" data-i18n>取消</button>
+</div>
+<div style="font:400 17px/1.5 Barlow;margin-top:10px" data-i18n>接下來想把一點時間留給什麼？</div>
+<div style="display:flex;gap:7px;margin-top:16px">
+<button type="button" onClick="{{ m15 }}" style="flex:1;cursor:pointer;padding:12px 0;font:600 15px 'Barlow Condensed';border:1px solid {{ b15 }};background: {{ g15 }};color: {{ t15 }}">15</button>
+<button type="button" onClick="{{ m30 }}" style="flex:1;cursor:pointer;padding:12px 0;font:600 15px 'Barlow Condensed';border:1px solid {{ b30 }};background: {{ g30 }};color: {{ t30 }}">30</button>
+<button type="button" onClick="{{ m60 }}" style="flex:1;cursor:pointer;padding:12px 0;font:600 15px 'Barlow Condensed';border:1px solid {{ b60 }};background: {{ g60 }};color: {{ t60 }}">60</button>
+<button type="button" onClick="{{ mCustom }}" style="flex:1.3;cursor:pointer;padding:12px 0;font:600 12px 'Barlow Condensed';border:1px solid {{ bC }};background: {{ gC }};color: {{ tC }}" data-i18n>自訂</button>
+</div>
+<sc-if value="{{ isCustom }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:14px">
+<div style="display:flex;justify-content:space-between;font:400 11px/1.5 Barlow;color:rgba(29,31,32,.55)"><span data-i18n>1 – 240 分鐘</span><span style="font-variant-numeric:tabular-nums;color:#1d1f20">{{ customLabel }}</span></div>
+<input type="range" min="1" max="240" value="{{ customVal }}" onChange="{{ setCustom }}" style="width:100%;margin-top:8px;accent-color:#5980a6">
+</div>
+</sc-if>
+<div style="margin-top:20px">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180" data-i18n>這段時間要做什麼</div>
+<input value="{{ spendName }}" onChange="{{ setSpendName }}" placeholder="{{ namePlaceholder }}" style="width:100%;margin-top:8px;border:none;border-bottom:1px solid rgba(29,31,32,.25);background:transparent;font:400 16px/1.5 Barlow;padding:6px 0;outline:none">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+<sc-for list="{{ suggests }}" as="s" hint-placeholder-count="4">
+<button type="button" onClick="{{ s.pick }}" style="cursor:pointer;border:1px solid rgba(29,31,32,.18);background:transparent;padding:6px 9px;font:400 11.5px Barlow;color:rgba(29,31,32,.65)">{{ s.label }}</button>
+</sc-for>
+</div>
+</div>
+<div style="margin-top:20px">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180" data-i18n>類別</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">
+<sc-for list="{{ cats }}" as="c" hint-placeholder-count="8">
+<button type="button" onClick="{{ c.pick }}" style="cursor:pointer;padding:7px 10px;font:400 12px Barlow;border:1px solid {{ c.bd }};background: {{ c.bg }};color: {{ c.fg }}">{{ c.name }}</button>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding:13px 0;border-top:1px solid rgba(29,31,32,.14);border-bottom:1px solid rgba(29,31,32,.14)">
+<span style="font:400 13px/1.5 Barlow" data-i18n>與今天的 Anchor 有關</span>
+<button type="button" onClick="{{ toggleLink }}" style="width:46px;height:24px;flex:none;cursor:pointer;border:1px solid rgba(29,31,32,.25);padding:2px;background: {{ linkBg }};display:flex;justify-content: {{ linkJustify }}"><span style="width:18px;height:18px;background: {{ linkKnob }}"></span></button>
+</div>
+<div style="font:400 13.5px/1.8 Barlow;color:rgba(29,31,32,.72);margin-top:18px">{{ spendPreview1 }}<br>{{ spendPreview2 }}</div>
+<button type="button" onClick="{{ startBlock }}" style="width:100%;margin-top:18px;cursor:pointer;border:none;background:#5980a6;color:#f2f2f3;padding:15px 0;font:600 15px 'Barlow Condensed';letter-spacing:.06em" data-i18n>開始</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sheetWorth }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:85;background:rgba(29,45,61,.45);display:flex;align-items:flex-end">
+<div style="width:100%;background:#f2f2f3;border-top:1px solid rgba(29,31,32,.25);padding:20px 20px 40px">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180">WORTH IT</div>
+<div style="font:400 20px/1.45 Barlow;margin-top:12px" data-i18n>這段時間值得嗎？</div>
+<div style="font:400 11.5px/1.6 Barlow;color:rgba(29,31,32,.5);margin-top:6px">{{ worthSubject }}</div>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+<sc-for list="{{ worthOpts }}" as="w" hint-placeholder-count="4">
+<button type="button" onClick="{{ w.pick }}" style="text-align:left;cursor:pointer;padding:14px;font:400 14px Barlow;border:1px solid {{ w.bd }};background: {{ w.bg }};color: {{ w.fg }}">{{ w.label }}</button>
+</sc-for>
+</div>
+<div style="margin-top:16px">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180" data-i18n>一句想記住的事（選填）</div>
+<input value="{{ worthNote }}" onChange="{{ setWorthNote }}" style="width:100%;margin-top:8px;border:none;border-bottom:1px solid rgba(29,31,32,.25);background:transparent;font:400 15px/1.5 Barlow;padding:6px 0;outline:none">
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:13px 0;border-top:1px solid rgba(29,31,32,.14)">
+<span style="font:400 13px/1.5 Barlow" data-i18n>下次還想留時間給這件事</span>
+<button type="button" onClick="{{ toggleAgain }}" style="width:46px;height:24px;flex:none;cursor:pointer;border:1px solid rgba(29,31,32,.25);padding:2px;background: {{ againBg }};display:flex;justify-content: {{ againJustify }}"><span style="width:18px;height:18px;background: {{ againKnob }}"></span></button>
+</div>
+<div style="display:flex;gap:8px;margin-top:14px">
+<button type="button" onClick="{{ skipWorth }}" class="btn btn-secondary" style="flex:1;padding:14px 0;font-size:13px" data-i18n>略過</button>
+<button type="button" onClick="{{ saveWorth }}" style="flex:2;cursor:pointer;border:none;background:#5980a6;color:#f2f2f3;padding:14px 0;font:600 14px 'Barlow Condensed';letter-spacing:.06em" data-i18n>儲存</button>
+</div>
+<div style="font:400 10.5px/1.7 Barlow;color:rgba(29,31,32,.42);margin-top:10px" data-i18n>「不太值得」不扣分。休息與無所事事也可以是很值得。</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sheetOb }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:90;background:#f2f2f3;padding:64px 24px 40px;display:flex;flex-direction:column" data-screen-label="Onboarding">
+<div style="display:flex;gap:5px">
+<span style="flex:1;height:2px;background: {{ ob1 }}"></span><span style="flex:1;height:2px;background: {{ ob2 }}"></span><span style="flex:1;height:2px;background: {{ ob3 }}"></span><span style="flex:1;height:2px;background: {{ ob4 }}"></span>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+<sc-if value="{{ obIs0 }}" hint-placeholder-val="{{ true }}">
+<div>
+<div style="font:600 76px/.86 'Barlow Condensed';letter-spacing:-.02em">86,400</div>
+<div style="font:400 19px/1.6 Barlow;margin-top:20px" data-i18n>你今天收到 86,400 秒。</div>
+<div style="font:400 14px/1.8 Barlow;color:rgba(29,31,32,.55);margin-top:12px" data-i18n>時間不能存起來，也帶不到明天。</div>
+<div style="font:400 13px/1.8 Barlow;color:rgba(29,31,32,.5);margin-top:20px;border-top:1px solid rgba(29,31,32,.14);padding-top:16px" data-i18n>這個 App 不會要求你記錄每一秒，也不會判斷什麼是浪費。</div>
+</div>
+</sc-if>
+<sc-if value="{{ obIs1 }}" hint-placeholder-val="{{ false }}">
+<div>
+<div style="font:600 32px/1.15 'Barlow Condensed'" data-i18n>先確認你的一天從哪裡開始</div>
+<div style="margin-top:24px;border-top:1px solid rgba(29,31,32,.14)">
+<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid rgba(29,31,32,.14)"><span style="font:400 14px Barlow" data-i18n>時區</span><span style="font:400 14px Barlow;color:rgba(29,31,32,.55)">Asia/Taipei</span></div>
+<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid rgba(29,31,32,.14)"><span style="font:400 14px Barlow" data-i18n>預計起床</span><span style="font:400 14px Barlow;color:rgba(29,31,32,.55)">07:00</span></div>
+<div style="display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid rgba(29,31,32,.14)"><span style="font:400 14px Barlow" data-i18n>預計睡眠</span><span style="font:400 14px Barlow;color:rgba(29,31,32,.55)">23:30</span></div>
+</div>
+<div style="font:400 11.5px/1.8 Barlow;color:rgba(29,31,32,.45);margin-top:14px" data-i18n>起床與睡眠只用來安排提醒，不會改變 86,400 秒的主倒數。</div>
+</div>
+</sc-if>
+<sc-if value="{{ obIs2 }}" hint-placeholder-val="{{ false }}">
+<div>
+<div style="font:600 32px/1.15 'Barlow Condensed'" data-i18n>你重視哪些面向？</div>
+<div style="font:400 12.5px/1.7 Barlow;color:rgba(29,31,32,.5);margin-top:10px" data-i18n>之後都可以再改。這只是類別，不是目標。</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px">
+<sc-for list="{{ obCats }}" as="c" hint-placeholder-count="8">
+<button type="button" onClick="{{ c.pick }}" style="cursor:pointer;padding:11px 14px;font:400 14px Barlow;border:1px solid {{ c.bd }};background: {{ c.bg }};color: {{ c.fg }}">{{ c.name }}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ obIs3 }}" hint-placeholder-val="{{ false }}">
+<div>
+<div style="font:600 32px/1.15 'Barlow Condensed'" data-i18n>倒數要怎麼顯示？</div>
+<div style="display:flex;flex-direction:column;gap:9px;margin-top:20px">
+<button type="button" onClick="{{ dispSec }}" style="text-align:left;cursor:pointer;padding:15px;border:1px solid {{ dSecBd }};background: {{ dSecBg2 }}"><div style="font:600 26px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">{{ secPlainSample }}</div><div style="font:400 11px/1.5 Barlow;color:rgba(29,31,32,.5);margin-top:5px" data-i18n>純秒數</div></button>
+<button type="button" onClick="{{ dispHms }}" style="text-align:left;cursor:pointer;padding:15px;border:1px solid {{ dHmsBd }};background: {{ dHmsBg2 }}"><div style="font:600 26px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">{{ hmsSample }}</div><div style="font:400 11px/1.5 Barlow;color:rgba(29,31,32,.5);margin-top:5px" data-i18n>時分秒</div></button>
+<button type="button" onClick="{{ dispHm }}" style="text-align:left;cursor:pointer;padding:15px;border:1px solid {{ dHmBd }};background: {{ dHmBg2 }}"><div style="font:600 26px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">{{ hmSample }}</div><div style="font:400 11px/1.5 Barlow;color:rgba(29,31,32,.5);margin-top:5px" data-i18n>時與分</div></button>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(29,31,32,.14)">
+<span style="font:400 13px Barlow" data-i18n>秒數跳動</span>
+<button type="button" onClick="{{ toggleTick }}" style="width:46px;height:24px;flex:none;cursor:pointer;border:1px solid rgba(29,31,32,.25);padding:2px;background: {{ tickBg }};display:flex;justify-content: {{ tickJustify }}"><span style="width:18px;height:18px;background: {{ tickKnob }}"></span></button>
+</div>
+</div>
+</sc-if>
+</div>
+<div style="display:flex;gap:9px">
+<button type="button" onClick="{{ obPrev }}" class="btn btn-secondary" style="padding:15px 18px;font-size:13px" data-i18n>上一步</button>
+<button type="button" onClick="{{ obNext }}" style="flex:1;cursor:pointer;border:none;background:#5980a6;color:#f2f2f3;padding:15px 0;font:600 15px 'Barlow Condensed';letter-spacing:.06em">{{ obNextLabel }}</button>
+</div>
+<div style="text-align:center;margin-top:12px;font:400 11px Barlow;color:rgba(29,31,32,.42)" data-i18n>除了時區，其他都可以略過。</div>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:402,&quot;height&quot;:874},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;zh&quot;,&quot;en&quot;],&quot;default&quot;:&quot;zh&quot;,&quot;tsType&quot;:&quot;'zh' | 'en'&quot;},&quot;countdownStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pure&quot;,&quot;column&quot;],&quot;default&quot;:&quot;pure&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dispMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sec&quot;,&quot;hms&quot;,&quot;hm&quot;],&quot;default&quot;:&quot;sec&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tickSeconds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showUnnamed&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const CATS = {'工作':'#1d2d3d','副業':'#416180','通勤':'#749dc4','休息':'#b5d9fd','學習':'#597ea3','關係':'#94bce3','健康':'#8fa8bd','玩樂':'#d6ebff'};
+const CAT_LIST = ['工作','副業','通勤','休息','學習','關係','健康','玩樂'];
+const SCHED = [
+  {name:'剪副業影片的第二段', cat:'副業', dur:60, endAgo:40,  worth:'很值得'},
+  {name:'提案第三段：需求收斂', cat:'工作', dur:45, endAgo:190, worth:'還不錯'}
+];
+const WORTHS = ['很值得','還不錯','不太值得','中途改變了'];
+const EN = {'工作':'Work','副業':'Side project','通勤':'Commute','休息':'Rest','學習':'Learning','關係':'People','健康':'Health','玩樂':'Play',
+  '剪副業影片的第二段':'Edit part two of the side-project video','提案第三段：需求收斂':'Proposal part three: narrowing the scope',
+  '把提案的第三段寫完':'Finish part three of the proposal',
+  '剪副業影片':'Edit the side-project video','提案第三段':'Proposal part three','走路不看手機':'Walk without the phone','打電話回家':'Call home',
+  '把季度預算表補完':'Finish the quarterly budget','沒有設定 Anchor':'No Anchor set'};
+const ANCHOR_ZH = '把提案的第三段寫完';
+const t = (s, en) => en ? (EN[s] || s) : s;
+const DICT = {
+  '今天剩下':'Seconds left today','已命名':'named','未命名':'unnamed','還沒到':'not yet',
+  '如果今天只能好好完成一件事，會是什麼？':'If you could do one thing well today, what would it be?',
+  '沒完成不會扣分，也不會中斷任何紀錄。':'Not finishing costs you nothing. There is no streak to break.',
+  '把下一段時間留給……':'Give the next stretch of time to…','自訂':'Custom',
+  '兩步之內就能開始，不需要先建立清單。':'Two taps to start. No list to build first.',
+  '今日已命名時間':'Named time today','未命名時間':'Unnamed time',
+  '不代表浪費，只是今天沒有留下紀錄。':'Not wasted — just not written down today.',
+  '進行中':'In progress','提前結束':'End early','延長 15 分':'+15 min',
+  '接下來想把一點時間留給什麼？':'What do you want the next stretch to be for?',
+  '這段時間要做什麼':'What is this time for','類別':'Category','取消':'Cancel',
+  '1 – 240 分鐘':'1 – 240 minutes','與今天的 Anchor 有關':"Related to today's Anchor",'開始':'Start',
+  '這段時間值得嗎？':'Was that time worth it?','很值得':'Very worth it','還不錯':'It was fine',
+  '不太值得':'Not really','中途改變了':'It changed partway',
+  '一句想記住的事（選填）':'One line worth remembering (optional)',
+  '下次還想留時間給這件事':"I'd give time to this again",'儲存':'Save','略過':'Skip',
+  '「不太值得」不扣分。休息與無所事事也可以是很值得。':'"Not really" costs nothing. Rest and doing nothing can be very worth it.',
+  '今日收據':"Today's receipt",'今天收到':'Received today','今天已過':'Elapsed today','今天還剩':'Left today',
+  '已命名時間':'Named time','時間類別投入':'Time by category','Worth It 評價分布':'Worth It ratings',
+  '今天最值得的片刻':'The best moment today','明天想多留一點時間給':'Tomorrow, a little more time for',
+  '已命名時間不等於你今天做過的全部事情。這張收據只記你留下名字的部分。':'Named time is not everything you did today. This receipt only holds what you gave a name to.',
+  '過去的收據':'Past receipts','本週回顧':'This week','每天的已命名時間':'Named time each day',
+  '完成 Today Anchor 的天數':'Days the Anchor was finished','已命名時間總量':'Total named time',
+  '被評為「很值得」的比例':'Share rated "very worth it"',
+  '這是你自己的評價，不是活動本身的分數，也不會和其他人比較。':'This is your own rating, not a score on the activity — and never compared with anyone else.',
+  '一週最值得的三個片刻':'Three best moments of the week',
+  '下週想多留時間給哪個面向':'Next week, give more time to',
+  '設定':'Settings','時區':'Time zone','顯示模式':'Display','純秒數':'Seconds','時分秒':'H:MM:SS','時與分':'H:MM',
+  '秒數跳動':'Ticking seconds','關掉之後只更新到分鐘':'When off, it only updates by the minute',
+  '時間類別':'Categories','通知':'Notifications',
+  '每天最多主動提醒三次，每一類都可以單獨關掉。':'At most three prompts a day. Each kind can be turned off on its own.',
+  '起床後：設定 Today Anchor':'On waking: set the Anchor','剩三小時：重新選擇今晚':'3h left: choose tonight again',
+  '睡前：查看 Time Receipt':'Before bed: read the receipt','隱私與資料管理':'Privacy & data',
+  '預設只有自己看得到':'Private by default','重新執行初次設定':'Run first-time setup again','刪除全部資料':'Delete all data',
+  '今天':'Today','收據':'Receipt','洞察':'Insights',
+  '你今天收到 86,400 秒。':'You received 86,400 seconds today.',
+  '時間不能存起來，也帶不到明天。':"Time can't be saved, and it doesn't carry into tomorrow.",
+  '這個 App 不會要求你記錄每一秒，也不會判斷什麼是浪費。':'This app never asks you to log every second, and never decides what counts as waste.',
+  '先確認你的一天從哪裡開始':'Where does your day begin','預計起床':'Usually awake','預計睡眠':'Usually asleep',
+  '起床與睡眠只用來安排提醒，不會改變 86,400 秒的主倒數。':'Sleep hours only shape reminders. They never change the 86,400.',
+  '你重視哪些面向？':'Which parts of life matter to you?',
+  '之後都可以再改。這只是類別，不是目標。':'You can change these later. They are categories, not goals.',
+  '倒數要怎麼顯示？':'How should the countdown read?',
+  '上一步':'Back','除了時區，其他都可以略過。':'Everything but the time zone can be skipped.',
+  '時間沒有停下，但你可以從現在重新選擇。':"Time hasn't stopped. You can choose again, from here."
+};
+const p2 = (n) => String(n).padStart(2, '0');
+
+class Component extends DCLogic {
+  state = {
+    now: Date.now(), tab: 'today', sheet: null,
+    lang: this.props.lang || 'zh',
+    disp: this.props.dispMode || 'sec',
+    tick: this.props.tickSeconds !== false,
+    anchor: '把提案的第三段寫完', anchorState: 'doing',
+    active: null, min: 30, custom: 45, spendName: '', spendCat: '副業', link: true,
+    worth: null, worthNote: '', again: true, ob: 0, obPicked: ['工作','副業','休息','關係']
+  };
+
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      const n = Date.now();
+      const st = this.state;
+      if (!st.tick && !st.active && st.tab !== 'receipt' && Math.floor(n / 60000) === Math.floor(st.now / 60000)) return;
+      this.setState({ now: n });
+    }, 1000);
+    this.applyLang();
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.lang !== this.props.lang && this.props.lang) this.setState({ lang: this.props.lang });
+    if (prevProps.dispMode !== this.props.dispMode && this.props.dispMode) this.setState({ disp: this.props.dispMode });
+    if (prevProps.tickSeconds !== this.props.tickSeconds) this.setState({ tick: this.props.tickSeconds !== false });
+    this.applyLang();
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+
+  applyLang() {
+    if (window.translate86400) window.translate86400(this.rootEl, this.state.lang === 'en');
+  }
+
+  get elapsed() { const d = new Date(this.state.now); return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds(); }
+  get left() { return 86400 - this.elapsed; }
+  get blocks() {
+    const el = this.elapsed;
+    return SCHED.map(s => ({ ...s, e: el - s.endAgo * 60, st: el - s.endAgo * 60 - s.dur * 60 })).filter(b => b.st >= 0);
+  }
+  hms(s) { return Math.floor(s / 3600) + ':' + p2(Math.floor(s % 3600 / 60)) + ':' + p2(Math.floor(s % 60)); }
+  hm(s) { return Math.floor(s / 3600) + ':' + p2(Math.floor(s % 3600 / 60)); }
+  comma(n) { return Math.max(0, Math.floor(n)).toLocaleString('en-US'); }
+
+  liveGrid() {
+    const slot = Math.floor(this.elapsed / 300);
+    if (this._gk !== slot) {
+      this._gk = slot;
+      const el = this.elapsed, bl = this.blocks, cols = [];
+      for (let h = 0; h < 24; h++) {
+        const rows = [];
+        for (let s = 0; s < 12; s++) {
+          const start = (h * 60 + s * 5) * 60, end = start + 300;
+          let bg = 'transparent', bd = 'rgba(29,31,32,.13)';
+          if (end <= el) {
+            const b = bl.find(x => x.st < end && x.e > start);
+            if (b) { bg = CATS[b.cat]; bd = bg; } else { bg = 'rgba(29,31,32,.07)'; bd = bg; }
+          } else if (start <= el && el < end) { bg = '#d6ebff'; bd = '#5980a6'; }
+          rows.push(React.createElement('div', { key: s, style: { width: 13, height: 9, background: bg, border: '1px solid ' + bd, boxSizing: 'border-box' } }));
+        }
+        cols.push(React.createElement('div', { key: h, style: { display: 'flex', flexDirection: 'column', gap: 2 } }, rows));
+      }
+      this._g = React.createElement('div', { style: { display: 'flex', gap: 2 } }, cols);
+    }
+    return this._g;
+  }
+
+  set(o) { this.setState(o); }
+
+  renderVals() {
+    const st = this.state, en = st.lang === 'en', left = this.left, el = this.elapsed;
+    const pct = el / 86400 * 100;
+    const h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60);
+    const heroStyle = this.props.countdownStyle === 'column' ? 'column' : 'pure';
+    const secDisp = st.disp === 'sec' ? this.comma(st.tick ? left : Math.floor(left / 60) * 60)
+      : st.disp === 'hms' ? this.hms(left) : this.hm(left);
+    const seg = (b) => ({ bg: b ? '#5980a6' : 'transparent', fg: b ? '#f2f2f3' : 'rgba(29,31,32,.6)', bd: b ? '#5980a6' : 'rgba(29,31,32,.18)' });
+    const sw = (b) => ({ bg: b ? '#5980a6' : 'rgba(29,31,32,.1)', j: b ? 'flex-end' : 'flex-start', knob: b ? '#f2f2f3' : '#fff' });
+    const tk = sw(st.tick), lk = sw(st.link), ag = sw(st.again);
+    const d = new Date(st.now);
+    const wd = ['日','一','二','三','四','五','六'][d.getDay()];
+    const act = st.active;
+    const actLeft = act ? Math.max(0, Math.floor((act.endAt - st.now) / 1000)) : 0;
+    const s15 = seg(st.min === 15), s30 = seg(st.min === 30), s60 = seg(st.min === 60);
+    const custom = ![15, 30, 60].includes(st.min);
+    const sC = seg(custom);
+    const spendSec = (custom ? st.custom : st.min) * 60;
+    const subject = st.spendName || t(st.spendCat, en);
+    const anchorText = (st.anchor === ANCHOR_ZH && en) ? EN[ANCHOR_ZH] : st.anchor;
+    const named = this.blocks.reduce((a, b) => a + b.dur * 60, 0);
+
+    return {
+      rootRef: (n) => { this.rootEl = n; },
+      dateStr: en ? (d.getMonth() + 1) + '/' + d.getDate() : (d.getMonth() + 1) + '月' + d.getDate() + '日 · 週' + wd,
+      dateFull: d.getFullYear() + '.' + p2(d.getMonth() + 1) + '.' + p2(d.getDate()) + ' · Asia/Taipei',
+      secLeft: secDisp,
+      secLeftPlain: this.comma(left),
+      passedStr: this.hms(el),
+      unitLabel: st.disp === 'sec' ? (en ? 'sec' : '秒') : '',
+      leftHuman: en ? '≈ ' + h + 'h ' + m + 'm' : '≈ ' + h + ' 小時 ' + m + ' 分',
+      pctLine: (en ? 'elapsed ' : '已過 ') + pct.toFixed(1) + '%',
+      pctW: pct.toFixed(2) + '%',
+      heroPure: heroStyle === 'pure', heroColumn: heroStyle === 'column',
+      showUnnamed: this.props.showUnnamed !== false,
+
+      isToday: st.tab === 'today', isReceipt: st.tab === 'receipt', isInsights: st.tab === 'insights', isSettings: st.tab === 'settings',
+      goToday: () => this.set({ tab: 'today' }), goReceipt: () => this.set({ tab: 'receipt' }),
+      goInsights: () => this.set({ tab: 'insights' }), goSettings: () => this.set({ tab: 'settings' }),
+      cToday: st.tab === 'today' ? '#1d1f20' : 'rgba(29,31,32,.38)',
+      cReceipt: st.tab === 'receipt' ? '#1d1f20' : 'rgba(29,31,32,.38)',
+      cInsights: st.tab === 'insights' ? '#1d1f20' : 'rgba(29,31,32,.38)',
+      cSettings: st.tab === 'settings' ? '#1d1f20' : 'rgba(29,31,32,.38)',
+
+      setZh: () => this.set({ lang: 'zh' }), setEn: () => this.set({ lang: 'en' }),
+      zhBg: en ? 'transparent' : '#1d1f20', zhC: en ? 'rgba(29,31,32,.6)' : '#f2f2f3',
+      enBg: en ? '#1d1f20' : 'transparent', enC: en ? '#f2f2f3' : 'rgba(29,31,32,.6)',
+
+      anchor: anchorText,
+      setAnchor: (e) => this.set({ anchor: e.target.value }),
+      anchorStatus: st.anchorState === 'done' ? (en ? 'Finished' : '已完成') : st.anchorState === 'dropped' ? (en ? 'No longer matters' : '不再重要') : (en ? 'In progress' : '進行中'),
+      anchorBtn: st.anchorState === 'done' ? (en ? 'Mark unfinished' : '改回未完成') : (en ? 'Mark finished' : '標記完成'),
+      anchorDropBtn: en ? 'No longer matters' : '不再重要了',
+      toggleAnchor: () => this.set({ anchorState: st.anchorState === 'done' ? 'doing' : 'done' }),
+      dropAnchor: () => this.set({ anchorState: st.anchorState === 'dropped' ? 'doing' : 'dropped' }),
+
+      noActive: !act, hasActive: !!act,
+      activeName: act ? t(act.name, en) : '', activeCat: act ? t(act.cat, en) : '',
+      activeRemain: this.comma(actLeft), activeUnit: en ? 'sec left' : '秒',
+      activeEndAt: act ? p2(new Date(act.endAt).getHours()) + ':' + p2(new Date(act.endAt).getMinutes()) + (en ? ' end' : ' 結束') : '',
+      activeW: act ? (100 - actLeft / (act.sec || 1) * 100).toFixed(1) + '%' : '0%',
+      activeLine: act ? (en ? this.comma(left) + ' sec left today — the next ' + this.comma(actLeft) + ' go to ' + t(act.name, en) + '.' : '今天還剩 ' + this.comma(left) + ' 秒，其中接下來 ' + this.comma(actLeft) + ' 秒留給' + act.name + '。') : '',
+      endEarly: () => this.set({ sheet: 'worth', worth: null, worthNote: '' }),
+      extend15: () => this.set({ active: { ...act, endAt: act.endAt + 900000, sec: act.sec + 900 } }),
+
+      q15: () => this.set({ sheet: 'spend', min: 15, spendName: '' }),
+      q30: () => this.set({ sheet: 'spend', min: 30, spendName: '' }),
+      q60: () => this.set({ sheet: 'spend', min: 60, spendName: '' }),
+      qCustom: () => this.set({ sheet: 'spend', min: 0, spendName: '' }),
+      sheetSpend: st.sheet === 'spend', sheetWorth: st.sheet === 'worth', sheetOb: st.sheet === 'ob',
+      closeSheet: () => this.set({ sheet: null }),
+      stop: (e) => e.stopPropagation(),
+      m15: () => this.set({ min: 15 }), m30: () => this.set({ min: 30 }), m60: () => this.set({ min: 60 }), mCustom: () => this.set({ min: 0 }),
+      b15: s15.bd, g15: s15.bg, t15: s15.fg, b30: s30.bd, g30: s30.bg, t30: s30.fg,
+      b60: s60.bd, g60: s60.bg, t60: s60.fg, bC: sC.bd, gC: sC.bg, tC: sC.fg,
+      isCustom: custom,
+      customVal: st.custom, customLabel: st.custom + (en ? ' min' : ' 分'),
+      setCustom: (e) => this.set({ custom: Number(e.target.value) }),
+      spendName: st.spendName, setSpendName: (e) => this.set({ spendName: e.target.value }),
+      namePlaceholder: en ? 'e.g. finish part three of the proposal' : '例如：把提案的第三段寫完',
+      suggests: ['剪副業影片','提案第三段','走路不看手機','打電話回家'].map(l => ({ label: t(l, en), pick: () => this.set({ spendName: t(l, en) }) })),
+      cats: CAT_LIST.map(c => { const s = seg(st.spendCat === c); return { name: t(c, en), bd: s.bd, bg: s.bg, fg: s.fg, pick: () => this.set({ spendCat: c }) }; }),
+      toggleLink: () => this.set({ link: !st.link }), linkBg: lk.bg, linkJustify: lk.j, linkKnob: lk.knob,
+      spendPreview1: en ? this.comma(left) + ' seconds left today.' : '今天還剩 ' + this.comma(left) + ' 秒。',
+      spendPreview2: en ? 'The next ' + this.comma(spendSec) + ' go to ' + subject + '.' : '其中接下來 ' + this.comma(spendSec) + ' 秒，留給' + subject + '。',
+      startBlock: () => this.set({ sheet: null, active: { name: subject, cat: st.spendCat, sec: spendSec, endAt: Date.now() + spendSec * 1000 } }),
+
+      worthSubject: act ? (en ? t(act.name, en) + ' · ' + Math.round((act.sec - actLeft) / 60) + ' min' : act.name + ' · 實際 ' + Math.round((act.sec - actLeft) / 60) + ' 分') : '',
+      worthOpts: WORTHS.map(w => { const s = seg(st.worth === w); return { label: en ? DICT[w] : w, bd: s.bd, bg: s.bg, fg: s.fg, pick: () => this.set({ worth: w }) }; }),
+      worthNote: st.worthNote, setWorthNote: (e) => this.set({ worthNote: e.target.value }),
+      toggleAgain: () => this.set({ again: !st.again }), againBg: ag.bg, againJustify: ag.j, againKnob: ag.knob,
+      saveWorth: () => this.set({ sheet: null, active: null }), skipWorth: () => this.set({ sheet: null, active: null }),
+
+      blocks: this.blocks.map(b => ({
+        name: t(b.name, en), cat: t(b.cat, en), tone: CATS[b.cat], dur: b.dur + (en ? 'm' : ' 分'),
+        time: p2(Math.floor(b.st / 3600)) + ':' + p2(Math.floor(b.st % 3600 / 60)) + '–' + p2(Math.floor(b.e / 3600)) + ':' + p2(Math.floor(b.e % 3600 / 60)),
+        worth: en ? DICT[b.worth] : b.worth,
+        worthC: b.worth === '很值得' ? '#416180' : 'rgba(29,31,32,.45)'
+      })),
+      namedStr: this.hm(named), unnamedStr: this.hm(Math.max(0, el - named)),
+      catRows: (() => {
+        const by = {};
+        this.blocks.forEach(b => { by[b.cat] = (by[b.cat] || 0) + b.dur; });
+        const max = Math.max(1, ...Object.values(by));
+        return Object.keys(by).map(k => ({ name: t(k, en), tone: CATS[k], w: (by[k] / max * 100).toFixed(0) + '%', dur: by[k] + (en ? 'm' : ' 分') }));
+      })(),
+      pastReceipts: [
+        { date: en ? 'Thu 07.30' : '07.30 週四', anchor: t('把季度預算表補完', en), named: '1:20', note: en ? 'Anchor finished' : 'Anchor 已完成' },
+        { date: en ? 'Wed 07.29' : '07.29 週三', anchor: t('沒有設定 Anchor', en), named: '0:45', note: en ? '1 rating' : '1 筆評價' },
+        { date: en ? 'Tue 07.28' : '07.28 週二', anchor: t('打電話回家', en), named: '1:50', note: en ? 'Anchor finished' : 'Anchor 已完成' }
+      ],
+
+      dispSec: () => this.set({ disp: 'sec' }), dispHms: () => this.set({ disp: 'hms' }), dispHm: () => this.set({ disp: 'hm' }),
+      dSecBg: st.disp === 'sec' ? '#5980a6' : 'transparent', dSecC: st.disp === 'sec' ? '#f2f2f3' : 'rgba(29,31,32,.6)',
+      dSecBd: st.disp === 'sec' ? '#5980a6' : 'rgba(29,31,32,.18)', dSecBg2: st.disp === 'sec' ? '#eef6ff' : 'transparent',
+      dHmsBg: st.disp === 'hms' ? '#5980a6' : 'transparent', dHmsC: st.disp === 'hms' ? '#f2f2f3' : 'rgba(29,31,32,.6)',
+      dHmsBd: st.disp === 'hms' ? '#5980a6' : 'rgba(29,31,32,.18)', dHmsBg2: st.disp === 'hms' ? '#eef6ff' : 'transparent',
+      dHmBg: st.disp === 'hm' ? '#5980a6' : 'transparent', dHmC: st.disp === 'hm' ? '#f2f2f3' : 'rgba(29,31,32,.6)',
+      dHmBd: st.disp === 'hm' ? '#5980a6' : 'rgba(29,31,32,.18)', dHmBg2: st.disp === 'hm' ? '#eef6ff' : 'transparent',
+      toggleTick: () => this.set({ tick: !st.tick }), tickBg: tk.bg, tickJustify: tk.j, tickKnob: tk.knob,
+      secPlainSample: this.comma(left), hmsSample: this.hms(left), hmSample: this.hm(left),
+
+      openOb: () => this.set({ sheet: 'ob', ob: 0 }),
+      obIs0: st.ob === 0, obIs1: st.ob === 1, obIs2: st.ob === 2, obIs3: st.ob === 3,
+      ob1: '#5980a6', ob2: st.ob >= 1 ? '#5980a6' : 'rgba(29,31,32,.18)',
+      ob3: st.ob >= 2 ? '#5980a6' : 'rgba(29,31,32,.18)', ob4: st.ob >= 3 ? '#5980a6' : 'rgba(29,31,32,.18)',
+      obNextLabel: st.ob === 3 ? (en ? 'Finish setup' : '完成設定') : st.ob === 0 ? (en ? 'Start' : '開始') : (en ? 'Next' : '下一步'),
+      obNext: () => st.ob === 3 ? this.set({ sheet: null, tab: 'today' }) : this.set({ ob: st.ob + 1 }),
+      obPrev: () => st.ob === 0 ? this.set({ sheet: null }) : this.set({ ob: st.ob - 1 }),
+      obCats: CAT_LIST.map(c => { const s = seg(st.obPicked.includes(c)); return { name: t(c, en), bd: s.bd, bg: s.bg, fg: s.fg,
+        pick: () => this.set({ obPicked: st.obPicked.includes(c) ? st.obPicked.filter(x => x !== c) : st.obPicked.concat([c]) }) }; })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

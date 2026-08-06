@@ -1,2 +1,5 @@
 .DS_Store
 *.log
+
+# 設計原始檔已解壓到 design_handoff/
+*.zip

@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="industry.css">
+<script src="_ds/industry-ee43fa25-0964-4235-8b2f-c70c0b4b6ea1/_ds_bundle.js"></script>
+<script src="i18n.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
+<style>
+@keyframes n-breathe{0%,100%{opacity:1}50%{opacity:.72}}
+@keyframes n-flick{0%,92%,100%{opacity:1}94%{opacity:.55}96%{opacity:1}98%{opacity:.7}}
+@keyframes n-bombpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes n-rattle{0%,100%{transform:translate(0,0)}12%{transform:translate(-2.5px,1.5px)}25%{transform:translate(2.5px,-1.5px)}38%{transform:translate(-1.5px,-2.5px)}50%{transform:translate(1.5px,2.5px)}62%{transform:translate(-2.5px,-1px)}75%{transform:translate(2.5px,1px)}88%{transform:translate(-1px,2.5px)}}
+@keyframes n-shake{0%,100%{transform:translate(0,0)}12%{transform:translate(-3px,2px)}25%{transform:translate(3px,-2px)}38%{transform:translate(-2px,-3px)}50%{transform:translate(2px,3px)}62%{transform:translate(-3px,-1px)}75%{transform:translate(3px,1px)}88%{transform:translate(-1px,3px)}}
+body{margin:0;background:#e4e4e5;font-family:Barlow,system-ui,sans-serif}
+a{color:#416180}a:hover{color:#1d2d3d}
+.dv-turn{padding:40px 44px 34px;border-bottom:1px solid rgba(29,31,32,.14);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+.dv-tid{font:600 10px 'Barlow Condensed',monospace;letter-spacing:.12em;padding:3px 7px;background:#1d1f20;color:#f2f2f3;text-decoration:none}
+.dv-tname{font:600 15px/1.2 'Barlow Condensed';letter-spacing:.04em;color:#1d1f20;text-transform:uppercase}
+.dv-note{max-width:780px;margin:0 0 26px;font:400 12.5px/1.7 Barlow;color:rgba(29,31,32,.62)}
+.dv-opts{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px 'Barlow Condensed',monospace;letter-spacing:.1em;padding:3px 7px;background:rgba(29,31,32,.1);color:#1d1f20;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;max-width:402px;font:400 11.5px/1.5 Barlow;color:rgba(29,31,32,.6)}
+.dv-opt:target .dv-oid{background:#5980a6;color:#f2f2f3}
+.dv-next{margin:28px 0 0;font:400 12px/1.7 Barlow;color:rgba(29,31,32,.5)}
+input,button,textarea{font-family:Barlow,system-ui}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t5" style="background:#0d1117">
+<div class="dv-thd"><a class="dv-tid" href="#t5" style="background:#e9edf4;color:#0d1117">5</a><span class="dv-tname" style="color:#e9edf4">AFTER HOURS · Widget 與鎖定畫面</span></div>
+<p class="dv-note" style="color:rgba(233,237,244,.62)">同一套壓力曲線搬到桌面。左邊是白天（綠、靜止），右邊是深夜（紅、震動）。作業系統多半無法逐秒刷新 Widget，所以引線用分鐘級推進，並且明寫最近更新時間；只有 App 內與鎖定畫面的即時動態會逐秒跑。Anchor 內容可以在鎖定畫面隱藏成「已設定」。</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="5a">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#5a" style="background:rgba(233,237,244,.14);color:#e9edf4">5a</a>iOS Small 2×2 — 白天／深夜。秒數、引線、Anchor 一行。點下去直接進 Today。</div>
+<div style="display:flex;gap:14px">
+<div style="width:170px;height:170px;background:oklch(0.160 0.028 158);color:#e9edf4;font-family:'IBM Plex Sans';padding:14px;display:flex;flex-direction:column">
+<div style="font:600 8.5px/1 'Chakra Petch';letter-spacing:.2em;color:oklch(0.860 0.200 148)">今天剩下</div>
+<div style="font:700 40px/.9 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:9px">52,200</div>
+<div style="font:300 9px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:4px">14 小時 30 分 · 09:30 更新</div>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:5px">
+<div style="flex:none;width:14px;height:14px;position:relative;animation:none">
+<div style="position:absolute;right:-7px;top:5px;width:9px;height:4px;background:rgba(233,237,244,.34)"></div>
+<div style="position:absolute;left:0;top:0;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid oklch(0.860 0.200 148 / .4);box-shadow:inset 0 -2px 5px rgba(0,0,0,.7), 0 0 8px oklch(0.860 0.200 148 / .25)"></div>
+</div>
+<div style="flex:1;height:8px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:4px;width:60.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.16) 0 3px,rgba(233,237,244,.34) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:2px;width:39.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:60.4%;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.860 0.200 148 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:60.4%;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.860 0.200 148) 70%,transparent 100%);box-shadow:0 0 16px 5px oklch(0.860 0.200 148 / .7), 0 0 5px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:300 10.5px/1.35 'IBM Plex Sans';margin-top:10px">把提案的第三段寫完</div>
+</div>
+<div style="width:170px;height:170px;background:oklch(0.120 0.100 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:14px;display:flex;flex-direction:column;position:relative;overflow:hidden"><div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 8.5px/1 'Chakra Petch';letter-spacing:.2em;color:oklch(0.700 0.260 20)">今天剩下</div>
+<div style="font:700 40px/.9 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:9px;color:oklch(0.700 0.260 20);text-shadow:0 0 26px oklch(0.700 0.260 20 / .9);animation:n-shake .22s linear infinite">1,200</div>
+<div style="font:300 9px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:4px">20 分 · 23:40 更新</div>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:5px">
+<div style="flex:none;width:14px;height:14px;position:relative;animation:n-rattle .22s linear infinite">
+<div style="position:absolute;right:-7px;top:5px;width:9px;height:4px;background:rgba(233,237,244,.54)"></div>
+<div style="position:absolute;left:0;top:0;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid #fff6e8;box-shadow:inset 0 -2px 5px rgba(0,0,0,.7), 0 0 26px oklch(0.700 0.260 20 / .95)"></div>
+</div>
+<div style="flex:1;height:8px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:4px;width:1.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.26) 0 3px,rgba(233,237,244,.54) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:2px;width:98.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:30px;height:30px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.700 0.260 20 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.700 0.260 20) 70%,transparent 100%);box-shadow:0 0 40px 11px oklch(0.700 0.260 20), 0 0 5px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:300 10.5px/1.35 'IBM Plex Sans';margin-top:10px;color:oklch(0.700 0.260 20 / .9)">Anchor 還沒完成</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="5b">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#5b" style="background:rgba(233,237,244,.14);color:#e9edf4">5b</a>iOS Medium 4×2 — 深夜。左半是倒數與引線，右半是 Anchor 與快速開始，三顆按鈕直接落到 Spend the Next。</div>
+<div style="width:352px;height:170px;background:oklch(0.120 0.100 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:15px;display:flex;gap:14px;position:relative;overflow:hidden"><div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="flex:1.15;display:flex;flex-direction:column">
+<div style="font:600 8.5px/1 'Chakra Petch';letter-spacing:.2em;color:oklch(0.700 0.260 20)">今天剩下</div>
+<div style="font:700 42px/.9 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:9px;color:oklch(0.700 0.260 20);text-shadow:0 0 26px oklch(0.700 0.260 20 / .9);animation:n-shake .22s linear infinite">1,200</div>
+<div style="font:300 9px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:4px">已過 98.6% · 23:40 更新</div>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:5px">
+<div style="flex:none;width:14px;height:14px;position:relative;animation:n-rattle .22s linear infinite">
+<div style="position:absolute;right:-7px;top:5px;width:9px;height:4px;background:rgba(233,237,244,.54)"></div>
+<div style="position:absolute;left:0;top:0;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid #fff6e8;box-shadow:inset 0 -2px 5px rgba(0,0,0,.7), 0 0 26px oklch(0.700 0.260 20 / .95)"></div>
+</div>
+<div style="flex:1;height:8px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:4px;width:1.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.26) 0 3px,rgba(233,237,244,.54) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:2px;width:98.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:30px;height:30px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.700 0.260 20 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.700 0.260 20) 70%,transparent 100%);box-shadow:0 0 40px 11px oklch(0.700 0.260 20), 0 0 5px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+</div>
+<div style="width:1px;background:rgba(233,237,244,.14)"></div>
+<div style="flex:1;display:flex;flex-direction:column">
+<div style="font:600 8.5px/1 'Chakra Petch';letter-spacing:.2em;color:oklch(0.700 0.260 20)">TODAY ANCHOR</div>
+<div style="font:300 11.5px/1.4 'IBM Plex Sans';margin-top:8px">把提案的第三段寫完</div>
+<div style="font:300 9.5px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:3px">進行中 · 已命名 1:45</div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:5px">
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .45);padding:7px 0;font:600 11px 'Chakra Petch'">15</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .45);padding:7px 0;font:600 11px 'Chakra Petch'">30</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .45);padding:7px 0;font:600 11px 'Chakra Petch'">60</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="5c">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#5c" style="background:rgba(233,237,244,.14);color:#e9edf4">5c</a>Android 主畫面 4×2 — 深夜。明寫「分鐘級更新」，右下直接進今日收據。</div>
+<div style="width:352px;background:oklch(0.120 0.100 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:16px;position:relative;overflow:hidden"><div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.2em;color:oklch(0.700 0.260 20)">86400</div>
+<div style="font:300 9px/1 'IBM Plex Sans';color:rgba(233,237,244,.42)">分鐘級更新 · 23:40</div>
+</div>
+<div style="display:flex;align-items:flex-end;gap:16px;margin-top:12px">
+<div><div style="font:700 46px/.88 'Chakra Petch';font-variant-numeric:tabular-nums;color:oklch(0.700 0.260 20);text-shadow:0 0 30px oklch(0.700 0.260 20 / .9);animation:n-shake .22s linear infinite">1,200</div><div style="font:300 9.5px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:4px">秒 · 今天剩下</div></div>
+<div style="flex:1;border-left:1px solid rgba(233,237,244,.14);padding-left:14px"><div style="font:300 10.5px/1.5 'IBM Plex Sans';color:rgba(233,237,244,.45)">進行中</div><div style="font:300 12.5px/1.4 'IBM Plex Sans';margin-top:2px">剪副業影片</div><div style="font:300 9.5px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:2px">23:58 結束</div></div>
+</div>
+<div style="margin-top:14px"><div style="display:flex;align-items:center;gap:5px">
+<div style="flex:none;width:16px;height:16px;position:relative;animation:n-rattle .22s linear infinite">
+<div style="position:absolute;right:-7px;top:6px;width:9px;height:4px;background:rgba(233,237,244,.54)"></div>
+<div style="position:absolute;left:0;top:0;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid #fff6e8;box-shadow:inset 0 -2px 5px rgba(0,0,0,.7), 0 0 26px oklch(0.700 0.260 20 / .95)"></div>
+</div>
+<div style="flex:1;height:8px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:4px;width:1.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.26) 0 3px,rgba(233,237,244,.54) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:2px;width:98.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:34px;height:34px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.700 0.260 20 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:14px;height:14px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.700 0.260 20) 70%,transparent 100%);box-shadow:0 0 40px 11px oklch(0.700 0.260 20), 0 0 5px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div></div>
+<div style="display:flex;gap:6px;margin-top:14px">
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .45);padding:9px 0;font:600 12px 'Chakra Petch'">15 分</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .45);padding:9px 0;font:600 12px 'Chakra Petch'">30 分</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .45);padding:9px 0;font:600 12px 'Chakra Petch'">60 分</span>
+<span style="flex:1.4;text-align:center;background:oklch(0.700 0.260 20);color:#0b0f14;padding:9px 0;font:600 11px 'Chakra Petch';letter-spacing:.06em">今日收據</span>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="5d">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#5d" style="background:rgba(233,237,244,.14);color:#e9edf4">5d</a>鎖定畫面（即時動態）— 深夜。時鐘下方三個小格＋一條引線。Anchor 文字可隱藏成「已設定」。</div>
+<div style="width:402px;height:640px;background:oklch(0.100 0.075 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:64px 24px 34px;display:flex;flex-direction:column;position:relative;overflow:hidden"><div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 80% at 50% 0%, transparent 40%, oklch(0.100 0.075 15 / .6) 100%)"></div>
+<div style="text-align:center;position:relative">
+<div style="font:300 13px/1.4 'IBM Plex Sans';letter-spacing:.08em;color:rgba(233,237,244,.55)">8月6日 星期四</div>
+<div style="font:700 88px/.94 'Chakra Petch';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:2px">23:40</div>
+</div>
+<div style="display:flex;gap:9px;margin-top:26px;position:relative">
+<div style="flex:1;border:1px solid oklch(0.700 0.260 20 / .4);padding:11px 10px"><div style="font:600 8.5px/1 'Chakra Petch';letter-spacing:.18em;color:oklch(0.700 0.260 20)">剩下</div><div style="font:700 22px/1 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:6px;color:oklch(0.700 0.260 20)">1,200</div><div style="font:300 8.5px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:3px">20 分</div></div>
+<div style="flex:1;border:1px solid rgba(233,237,244,.22);padding:11px 10px"><div style="font:600 8.5px/1 'Chakra Petch';letter-spacing:.18em;color:oklch(0.700 0.260 20)">ANCHOR</div><div style="font:300 12px/1.4 'IBM Plex Sans';margin-top:6px">已設定</div><div style="font:300 8.5px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:3px">內容已隱藏</div></div>
+<div style="flex:1;border:1px solid rgba(233,237,244,.22);padding:11px 10px"><div style="font:600 8.5px/1 'Chakra Petch';letter-spacing:.18em;color:oklch(0.700 0.260 20)">進行中</div><div style="font:300 12px/1.4 'IBM Plex Sans';margin-top:6px">剪片</div><div style="font:300 8.5px/1.4 'IBM Plex Sans';color:rgba(233,237,244,.45);margin-top:3px">23:58 結束</div></div>
+</div>
+<div style="border:1px solid oklch(0.700 0.260 20 / .45);padding:16px;margin-top:13px;position:relative;box-shadow:0 0 26px oklch(0.700 0.260 20 / .25)">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 9px/1 'Chakra Petch';letter-spacing:.2em;color:oklch(0.700 0.260 20)">86400</div>
+<div style="font:300 8.5px/1 'IBM Plex Sans';color:rgba(233,237,244,.4)">即時動態 · 逐秒</div>
+</div>
+<div style="font:700 60px/.86 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:12px;color:oklch(0.700 0.260 20);text-shadow:0 0 40px oklch(0.700 0.260 20 / .9);animation:n-shake .22s linear infinite, n-breathe 1.1s ease-in-out infinite">1,200</div>
+<div style="margin-top:16px"><div style="display:flex;align-items:center;gap:5px">
+<div style="flex:none;width:18px;height:18px;position:relative;animation:n-rattle .22s linear infinite">
+<div style="position:absolute;right:-7px;top:7px;width:9px;height:4px;background:rgba(233,237,244,.54)"></div>
+<div style="position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid #fff6e8;box-shadow:inset 0 -2px 5px rgba(0,0,0,.7), 0 0 26px oklch(0.700 0.260 20 / .95)"></div>
+</div>
+<div style="flex:1;height:8px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:4px;width:1.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.26) 0 3px,rgba(233,237,244,.54) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:2px;width:98.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:40px;height:40px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.700 0.260 20 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.700 0.260 20) 70%,transparent 100%);box-shadow:0 0 40px 11px oklch(0.700 0.260 20), 0 0 5px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div></div>
+<div style="display:flex;gap:6px;margin-top:16px">
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .45);padding:8px 0;font:600 12px 'Chakra Petch'">15</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .45);padding:8px 0;font:600 12px 'Chakra Petch'">30</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .45);padding:8px 0;font:600 12px 'Chakra Petch'">60</span>
+<span style="flex:1.6;text-align:center;background:oklch(0.700 0.260 20);color:#0b0f14;padding:8px 0;font:600 11px 'Chakra Petch';letter-spacing:.06em">看今日收據</span>
+</div>
+</div>
+<div style="flex:1"></div>
+<div style="text-align:center;font:300 11px/1.7 'IBM Plex Sans';color:oklch(0.700 0.260 20 / .8);position:relative">引線快燒完了。剩下的就是全部了。</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next" style="color:rgba(233,237,244,.5)">可以這樣回：「Widget 不要震動，太吵」·「<a class="dv-oid" href="#5a" style="background:rgba(233,237,244,.14);color:#e9edf4">5a</a> 只留數字，不要 Anchor」·「加一個 Apple Watch 圓形版」·「鎖定畫面把引線做成繞著時鐘一圈」</p>
+</section>
+
+<section class="dv-turn" id="t4" style="background:#0d1117">
+<div class="dv-thd"><a class="dv-tid" href="#t4" style="background:#e9edf4;color:#0d1117">4</a><span class="dv-tname" style="color:#e9edf4">秒數的四個動態階段</span></div>
+<p class="dv-note" style="color:rgba(233,237,244,.62)">這四張是活的，動畫正在跑。秒數的狀態由「今天已過多少」推進：字級 92→114px、顏色從綠走過琥珀到紅、輝光 0→46px，動態從完全靜止 → 偶發閃爍 → 呼吸 → 上下左右震動。門檻寫在每張的標籤上。（t3 是我上一輪誤解成「引線的四種畫法」，留著備查。）</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="4a">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#4a" style="background:rgba(233,237,244,.14);color:#e9edf4">4a</a>階段一 · 靜止 — 已過 &lt; 55%（約 09:30）。完全不動，無輝光，92px。火花小、炸彈不亮。</div>
+<div style="width:402px;background:oklch(0.160 0.028 158);color:#e9edf4;font-family:'IBM Plex Sans';padding:24px 20px 20px;position:relative;overflow:hidden">
+<div style="font:600 9px/1 'Chakra Petch';letter-spacing:.22em;color:oklch(0.860 0.200 148)">09:30 · 已過 39.6%</div>
+<div style="font:700 92px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:14px;;animation:none">52,200</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:18px">
+<div style="flex:none;width:22px;height:22px;position:relative;animation:none">
+<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,.34)"></div>
+<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid oklch(0.860 0.200 148 / .4);box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 8px oklch(0.860 0.200 148 / .25)"></div>
+<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>
+</div>
+<div style="flex:1;height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:60.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.16) 0 3px,rgba(233,237,244,.34) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:39.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:60.4%;width:24px;height:24px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.860 0.200 148 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:60.4%;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.860 0.200 148) 70%,transparent 100%);box-shadow:0 0 20px 7px oklch(0.860 0.200 148 / .7), 0 0 6px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:300 10.5px/1.5 ui-monospace,Menlo,monospace;color:rgba(233,237,244,.42);border-top:1px solid rgba(233,237,244,.1);padding-top:10px;margin-top:18px">number: none　·　bomb: none</div>
+</div>
+</div>
+
+<div class="dv-opt" id="4b">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#4b" style="background:rgba(233,237,244,.14);color:#e9edf4">4b</a>階段二 · 閃爍 — 已過 &gt; 55%（約 20:06）。每 7 秒抽動一次，像燈管接觸不良。105px。</div>
+<div style="width:402px;background:oklch(0.147 0.056 51);color:#e9edf4;font-family:'IBM Plex Sans';padding:24px 20px 20px;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;opacity:.09;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 9px/1 'Chakra Petch';letter-spacing:.22em;color:oklch(0.824 0.180 66)">20:06 · 已過 83.8%</div>
+<div style="font:700 105px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:14px;color:oklch(0.824 0.180 66);text-shadow:0 0 30px oklch(0.824 0.180 66 / .62);animation:n-flick 7s linear infinite">13,970</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:18px">
+<div style="flex:none;width:22px;height:22px;position:relative;animation:n-bombpulse 1.4s ease-in-out infinite">
+<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,.44)"></div>
+<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid oklch(0.824 0.180 66 / .65);box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 20px oklch(0.824 0.180 66 / .55)"></div>
+<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>
+</div>
+<div style="flex:1;height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:16.2%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.2) 0 3px,rgba(233,237,244,.44) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:83.8%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:16.2%;width:36px;height:36px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.824 0.180 66 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:16.2%;width:14px;height:14px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.824 0.180 66) 70%,transparent 100%);box-shadow:0 0 34px 10px oklch(0.824 0.180 66 / .85), 0 0 6px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:300 10.5px/1.5 ui-monospace,Menlo,monospace;color:rgba(233,237,244,.42);border-top:1px solid rgba(233,237,244,.14);padding-top:10px;margin-top:18px">number: n-flick 7s　·　bomb: n-bombpulse 1.4s</div>
+</div>
+</div>
+
+<div class="dv-opt" id="4c">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#4c" style="background:rgba(233,237,244,.14);color:#e9edf4">4c</a>階段三 · 呼吸 — 已過 &gt; 80%（約 22:00）。2.6 秒一次明暗起伏，穩定但停不下來。111px。</div>
+<div style="width:402px;background:oklch(0.130 0.083 28);color:#e9edf4;font-family:'IBM Plex Sans';padding:24px 20px 20px;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;opacity:.13;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 9px/1 'Chakra Petch';letter-spacing:.22em;color:oklch(0.747 0.230 37)">22:00 · 已過 91.7%</div>
+<div style="font:700 111px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:14px;color:oklch(0.747 0.230 37);text-shadow:0 0 41px oklch(0.747 0.230 37 / .8);animation:n-breathe 2.6s ease-in-out infinite">7,200</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:18px">
+<div style="flex:none;width:22px;height:22px;position:relative;animation:n-bombpulse 1.4s ease-in-out infinite">
+<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,.5)"></div>
+<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid oklch(0.747 0.230 37 / .8);box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 30px oklch(0.747 0.230 37 / .75)"></div>
+<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>
+</div>
+<div style="flex:1;height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:8.3%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.23) 0 3px,rgba(233,237,244,.5) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:91.7%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:8.3%;width:46px;height:46px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.747 0.230 37 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:8.3%;width:17px;height:17px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.747 0.230 37) 70%,transparent 100%);box-shadow:0 0 44px 12px oklch(0.747 0.230 37 / .92), 0 0 6px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:300 10.5px/1.5 ui-monospace,Menlo,monospace;color:rgba(233,237,244,.42);border-top:1px solid rgba(233,237,244,.16);padding-top:10px;margin-top:18px">number: n-breathe 2.6s　·　bomb: n-bombpulse 1.4s</div>
+</div>
+</div>
+
+<div class="dv-opt" id="4d">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#4d" style="background:rgba(233,237,244,.14);color:#e9edf4">4d</a>階段四 · 震動 — 已過 ≥ 95%（22:48 之後）。數字與炸彈同時上下左右 ±3px、0.22 秒一輪，呼吸加快到 1.1 秒。114px。</div>
+<div style="width:402px;background:oklch(0.120 0.100 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:24px 20px 20px;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 9px/1 'Chakra Petch';letter-spacing:.22em;color:oklch(0.700 0.260 20)">23:40 · 已過 98.6%</div>
+<div style="font:700 114px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:14px;color:oklch(0.700 0.260 20);text-shadow:0 0 46px oklch(0.700 0.260 20 / .9);animation:n-shake .22s linear infinite, n-breathe 1.1s ease-in-out infinite">1,200</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:18px">
+<div style="flex:none;width:22px;height:22px;position:relative;animation:n-rattle .22s linear infinite">
+<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,.54)"></div>
+<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid #fff6e8;box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 40px oklch(0.700 0.260 20 / .95)"></div>
+<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>
+</div>
+<div style="flex:1;height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:1.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.26) 0 3px,rgba(233,237,244,.54) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:98.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:56px;height:56px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.700 0.260 20 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:21px;height:21px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.700 0.260 20) 70%,transparent 100%);box-shadow:0 0 54px 14px oklch(0.700 0.260 20), 0 0 6px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:300 10.5px/1.5 ui-monospace,Menlo,monospace;color:rgba(233,237,244,.42);border-top:1px solid oklch(0.700 0.260 20 / .4);padding-top:10px;margin-top:18px">number: n-shake .22s + n-breathe 1.1s　·　bomb: n-rattle .22s</div>
+</div>
+</div>
+</div>
+<p class="dv-next" style="color:rgba(233,237,244,.5)">可以這樣回：「<a class="dv-oid" href="#4d" style="background:rgba(233,237,244,.14);color:#e9edf4">4d</a> 的震動再大一點」·「加一個第五階段：最後 60 秒逐秒放大」·「<a class="dv-oid" href="#4b" style="background:rgba(233,237,244,.14);color:#e9edf4">4b</a> 的閃爍太密，改成 15 秒一次」·「震動門檻改成 90%」</p>
+</section>
+
+<section class="dv-turn" id="t3" style="background:#0d1117">
+<div class="dv-thd"><a class="dv-tid" href="#t3" style="background:#e9edf4;color:#0d1117">3</a><span class="dv-tname" style="color:#e9edf4">引線與炸彈的四種做法</span></div>
+<p class="dv-note" style="color:rgba(233,237,244,.62)">方向修正：炸彈固定在左端，引線往右延伸，火從右端往左燒——剩下的繩子就是今天剩下的時間，會越縮越短。四張都定在 23:40（剩 1,200 秒），這樣差異才看得出來。<a href="#3a">3a</a> 是現在原型裡跑的那一版。</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="3a">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#3a" style="background:rgba(233,237,244,.14);color:#e9edf4">3a</a>霓虹火花（目前採用）— 白心火花＋外焰＋火星，圓形炸彈在深夜搏動，過 95% 後數字與炸彈一起上下左右震動。最戲劇化。</div>
+<div style="width:402px;background:oklch(0.120 0.100 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:26px 20px 24px;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.24em;color:oklch(0.700 0.260 20);text-shadow:0 0 18px oklch(0.700 0.260 20 / .8)">今天剩下</div>
+<div style="font:700 96px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:10px;color:oklch(0.700 0.260 20);text-shadow:0 0 46px oklch(0.700 0.260 20 / .9)">1,200</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:22px">
+<div style="flex:none;width:22px;height:22px;position:relative">
+<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,.54)"></div>
+<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid #fff6e8;box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 40px oklch(0.700 0.260 20 / .95)"></div>
+<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>
+</div>
+<div style="flex:1;height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:1.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.26) 0 3px,rgba(233,237,244,.54) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:98.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:56px;height:56px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.700 0.260 20 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:21px;height:21px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.700 0.260 20) 70%,transparent 100%);box-shadow:0 0 54px 14px oklch(0.700 0.260 20), 0 0 6px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:400 11px/1.6 'IBM Plex Sans';color:oklch(0.700 0.260 20 / .85);margin-top:18px">引線快燒完了。剩下的就是全部了。</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3b">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#3b" style="background:rgba(233,237,244,.14);color:#e9edf4">3b</a>TNT 方塊 — 方形炸藥、粗編織繩、火花小但冒煙。輪廓感重、比較卡通，適合想把兇度轉成幽默的方向。</div>
+<div style="width:402px;background:oklch(0.120 0.100 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:26px 20px 24px;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.24em;color:oklch(0.700 0.260 20)">今天剩下</div>
+<div style="font:700 96px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:10px;color:oklch(0.700 0.260 20);text-shadow:0 0 30px oklch(0.700 0.260 20 / .7)">1,200</div>
+<div style="display:flex;align-items:center;gap:7px;margin-top:22px">
+<div style="flex:none;width:34px;height:22px;position:relative;background:oklch(0.420 0.180 22);border:1px solid oklch(0.700 0.260 20);display:flex;align-items:center;justify-content:center">
+<span style="font:700 9px/1 'Chakra Petch';letter-spacing:.14em;color:#ffeede">TNT</span>
+<div style="position:absolute;right:-8px;top:9px;width:9px;height:5px;background:rgba(233,237,244,.6)"></div>
+</div>
+<div style="flex:1;height:11px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:7px;width:1.4%;background:repeating-linear-gradient(90deg,rgba(233,237,244,.24) 0 2px,rgba(233,237,244,.6) 2px 4px)"></div>
+<div style="position:absolute;top:4px;right:0;height:3px;width:98.6%;background:rgba(233,237,244,.08)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:11px;height:11px;border-radius:50%;transform:translate(-50%,-50%);background:#ffd9a0;box-shadow:0 0 16px 4px oklch(0.790 0.207 51 / .8)"></div>
+<div style="position:absolute;top:-8px;left:3%;width:9px;height:9px;border-radius:50%;background:rgba(233,237,244,.14)"></div>
+<div style="position:absolute;top:-16px;left:6%;width:13px;height:13px;border-radius:50%;background:rgba(233,237,244,.09)"></div>
+<div style="position:absolute;top:-25px;left:10%;width:17px;height:17px;border-radius:50%;background:rgba(233,237,244,.05)"></div>
+</div>
+</div>
+<div style="font:400 11px/1.6 'IBM Plex Sans';color:rgba(233,237,244,.6);margin-top:18px">引線快燒完了。剩下的就是全部了。</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3c">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#3c" style="background:rgba(233,237,244,.14);color:#e9edf4">3c</a>熔斷（無炸彈）— 只有一條會燒完的繩，燒過的地方掉灰。最克制，也最容易通過 App Store 與焦慮反指標。</div>
+<div style="width:402px;background:oklch(0.120 0.100 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:26px 20px 24px;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.24em;color:oklch(0.700 0.260 20)">今天剩下</div>
+<div style="font:700 96px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:10px;color:oklch(0.700 0.260 20);text-shadow:0 0 24px oklch(0.700 0.260 20 / .55)">1,200</div>
+<div style="height:9px;margin-top:22px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:1.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.3) 0 3px,rgba(233,237,244,.62) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:98.6%;background:rgba(233,237,244,.07)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:9px;height:9px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 30%,oklch(0.700 0.260 20) 75%,transparent 100%);box-shadow:0 0 22px 5px oklch(0.700 0.260 20 / .75)"></div>
+<div style="position:absolute;top:12px;left:2.5%;width:2px;height:2px;border-radius:50%;background:rgba(233,237,244,.3)"></div>
+<div style="position:absolute;top:19px;left:5%;width:2px;height:2px;border-radius:50%;background:rgba(233,237,244,.18)"></div>
+<div style="position:absolute;top:26px;left:8%;width:1px;height:1px;border-radius:50%;background:rgba(233,237,244,.12)"></div>
+</div>
+<div style="font:400 11px/1.6 'IBM Plex Sans';color:rgba(233,237,244,.55);margin-top:30px">引線快燒完了。剩下的就是全部了。</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3d">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#3d" style="background:rgba(233,237,244,.14);color:#e9edf4">3d</a>角色版（被綁著的小人）— 我畫不出像樣的角色，這裡放插畫佔位框，需要你給一組角色素材（正常／緊張／崩潰三態）我才能接上。</div>
+<div style="width:402px;background:oklch(0.120 0.100 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:26px 20px 24px;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.24em;color:oklch(0.700 0.260 20)">今天剩下</div>
+<div style="font:700 96px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;margin-top:10px;color:oklch(0.700 0.260 20);text-shadow:0 0 40px oklch(0.700 0.260 20 / .85)">1,200</div>
+<div style="display:flex;align-items:flex-end;gap:8px;margin-top:20px">
+<div style="flex:none;width:64px;height:64px;border:1px dashed oklch(0.700 0.260 20 / .6);background:repeating-linear-gradient(45deg,rgba(233,237,244,.05) 0 5px,transparent 5px 10px);display:flex;align-items:center;justify-content:center;text-align:center">
+<span style="font:400 8px/1.35 ui-monospace,Menlo,monospace;color:rgba(233,237,244,.55);padding:3px">CHARACTER<br>tied to<br>the charge</span>
+</div>
+<div style="flex:1;padding-bottom:22px;position:relative">
+<div style="height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:1.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.26) 0 3px,rgba(233,237,244,.54) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:98.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:44px;height:44px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.700 0.260 20 / .45) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:17px;height:17px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.700 0.260 20) 70%,transparent 100%);box-shadow:0 0 44px 12px oklch(0.700 0.260 20 / .95)"></div>
+</div>
+<div style="font:400 10.5px/1.5 'IBM Plex Sans';color:oklch(0.700 0.260 20 / .8);margin-top:9px">還有 1,200 秒可以救他</div>
+</div>
+</div>
+<div style="font:300 9.5px/1.5 ui-monospace,Menlo,monospace;color:rgba(233,237,244,.38);margin-top:14px">需要素材：角色三態 PNG／SVG，透明背景，約 200×200</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next" style="color:rgba(233,237,244,.5)">可以這樣回：「原型改用 <a class="dv-oid" href="#3b" style="background:rgba(233,237,244,.14);color:#e9edf4">3b</a>」·「<a class="dv-oid" href="#3c" style="background:rgba(233,237,244,.14);color:#e9edf4">3c</a> 但保留左端炸彈」·「我給你角色素材，做 <a class="dv-oid" href="#3d" style="background:rgba(233,237,244,.14);color:#e9edf4">3d</a>」·「引線改成繞著秒數走一圈」</p>
+</section>
+
+<section class="dv-turn" id="t2" style="background:#0d1117">
+<div class="dv-thd"><a class="dv-tid" href="#t2" style="background:#e9edf4;color:#0d1117">2</a><span class="dv-tname" style="color:#e9edf4">AFTER HOURS · 會隨時間變焦慮的霓虹版</span></div>
+<p class="dv-note" style="color:rgba(233,237,244,.62)">換掉 Industry，新的系統叫 After Hours：深色底、Chakra Petch 配 IBM Plex Sans，只有一個霓虹強調色——但那個顏色會隨著今天剩下的時間移動。早上是霓虹綠、幾乎沒有輝光、字級最小、留白最多；過午轉成琥珀；入夜之後變成高彩度的紅，字級長大 22px，輝光擴到 46px，數字開始呼吸與閃爍，掃描線與暗角壓上來。進度條改成一條炸彈引線：炸彈在左端，引線往右延伸，火從右往左燒——左邊還沒燒到的繩就是今天剩下的時間。火花白心＋外焰＋火星，越晚越大；深夜炸彈搏動，過 95%（約 22:48）之後數字與炸彈同時上下左右震動。四種引線做法見 t3。這和 PRD §12「不要製造焦慮」是相反的取態，是你要的。<br>提醒：這一版把警示色帶進產品，長期指標要盯 §13.4 的反指標（秒數關閉率、焦慮回報率）；設定裡我放了一個「夜間強度」開關讓使用者能整個關掉。<a href="#2a">2a</a> 是可點的原型，頂上 DEMO 那排可以直接跳到 09:30 / 15:00 / 20:30 / 23:40 看同一畫面怎麼變。<a href="#2b">2b</a>–<a href="#2d">2d</a> 是三個時刻的定格。</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#2a" style="background:rgba(233,237,244,.14);color:#e9edf4">2a</a>互動原型 — 全流程都在，配色與字級由「今天還剩多少」驅動。用 DEMO 那排切時刻。</div>
+<dc-import name="PrototypeNeon" lang="{{ lang }}" disp-mode="{{ dispMode }}" tick-seconds="{{ tickSeconds }}" show-unnamed="{{ showUnnamed }}" hint-size="402px,874px"></dc-import>
+</div>
+
+<div class="dv-opt" id="2b">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#2b" style="background:rgba(233,237,244,.14);color:#e9edf4">2b</a>09:30 — 霓虹綠、無輝光、數字 92px。整天最安靜的狀態，幾乎像一張排版乾淨的儀表板。</div>
+<div style="width:402px;height:400px;background:oklch(0.160 0.028 158);color:#e9edf4;font-family:'IBM Plex Sans';padding:34px 20px;display:flex;flex-direction:column">
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.24em;color:oklch(0.860 0.200 148)">今天剩下</div>
+<div style="font:700 92px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:12px">52,200</div>
+<div style="display:flex;justify-content:space-between;font:300 11.5px 'IBM Plex Sans';color:rgba(233,237,244,.55);margin-top:12px"><span>≈ 14 小時 30 分</span><span>已過 39.6%</span></div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:22px">
+<div style="flex:none;width:22px;height:22px;position:relative">
+<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,.34)"></div>
+<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid oklch(0.860 0.200 148 / .4);box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 8px oklch(0.860 0.200 148 / .25)"></div>
+<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>
+</div>
+<div style="flex:1;height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:60.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.16) 0 3px,rgba(233,237,244,.34) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:39.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:60.4%;width:24px;height:24px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.860 0.200 148 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:60.4%;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.860 0.200 148) 70%,transparent 100%);box-shadow:0 0 20px 7px oklch(0.860 0.200 148 / .7), 0 0 6px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:400 11px/1.6 'IBM Plex Sans';color:rgba(233,237,244,.5);margin-top:14px">今天還很寬。現在什麼都還來得及。</div>
+<div style="flex:1"></div>
+<div style="border-top:1px solid rgba(233,237,244,.1);padding-top:14px;display:flex;gap:7px">
+<span style="flex:1;text-align:center;border:1px solid rgba(233,237,244,.18);padding:12px 0;font:600 15px 'Chakra Petch'">15</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(233,237,244,.18);padding:12px 0;font:600 15px 'Chakra Petch'">30</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(233,237,244,.18);padding:12px 0;font:600 15px 'Chakra Petch'">60</span>
+<span style="flex:1.3;text-align:center;border:1px solid rgba(233,237,244,.18);padding:12px 0;font:500 11.5px 'Chakra Petch'">自訂</span>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2c">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#2c" style="background:rgba(233,237,244,.14);color:#e9edf4">2c</a>20:30 — 琥珀、輝光 24px、數字 105px 且改為強調色。掃描線開始出現，語氣從描述轉成催促。</div>
+<div style="width:402px;height:400px;background:oklch(0.139 0.072 41);color:#e9edf4;font-family:'IBM Plex Sans';padding:34px 20px;display:flex;flex-direction:column;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;opacity:.09;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.24em;color:oklch(0.790 0.207 51);text-shadow:0 0 11px oklch(0.790 0.207 51 / .55)">今天剩下</div>
+<div style="font:700 105px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:12px;color:oklch(0.790 0.207 51);text-shadow:0 0 34px oklch(0.790 0.207 51 / .62)">12,600</div>
+<div style="display:flex;justify-content:space-between;font:300 11.5px 'IBM Plex Sans';color:rgba(233,237,244,.55);margin-top:12px"><span>≈ 3 小時 30 分</span><span>已過 85.4%</span></div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:22px">
+<div style="flex:none;width:22px;height:22px;position:relative">
+<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,.48)"></div>
+<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid oklch(0.790 0.207 51 / .7);box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 22px oklch(0.790 0.207 51 / .6)"></div>
+<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>
+</div>
+<div style="flex:1;height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:14.6%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.22) 0 3px,rgba(233,237,244,.48) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:85.4%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:14.6%;width:40px;height:40px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.790 0.207 51 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:14.6%;width:15px;height:15px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.790 0.207 51) 70%,transparent 100%);box-shadow:0 0 38px 11px oklch(0.790 0.207 51 / .9), 0 0 6px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:400 11px/1.6 'IBM Plex Sans';color:oklch(0.790 0.207 51 / .85);margin-top:14px">天色在走了。下一段，刻意選一次。</div>
+<div style="flex:1"></div>
+<div style="border-top:1px solid oklch(0.790 0.207 51 / .35);padding-top:14px;display:flex;gap:7px">
+<span style="flex:1;text-align:center;border:1px solid oklch(0.790 0.207 51 / .35);padding:12px 0;font:600 15px 'Chakra Petch'">15</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.790 0.207 51 / .35);padding:12px 0;font:600 15px 'Chakra Petch'">30</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.790 0.207 51 / .35);padding:12px 0;font:600 15px 'Chakra Petch'">60</span>
+<span style="flex:1.3;text-align:center;border:1px solid oklch(0.790 0.207 51 / .35);padding:12px 0;font:500 11.5px 'Chakra Petch'">自訂</span>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2d">
+<div class="dv-olabel" style="color:rgba(233,237,244,.6)"><a class="dv-oid" href="#2d" style="background:rgba(233,237,244,.14);color:#e9edf4">2d</a>23:40 — 紅、輝光 46px、數字 114px、引線只剩 1.4%，火花漲到 17px。最後 30 分鐘數字會抖動並呼吸——爆炸前的狀態。</div>
+<div style="width:402px;height:400px;background:oklch(0.120 0.100 15);color:#e9edf4;font-family:'IBM Plex Sans';padding:34px 20px;display:flex;flex-direction:column;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 80% at 50% 0%, transparent 40%, oklch(0.120 0.100 15 / .55) 100%)"></div>
+<div style="position:absolute;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)"></div>
+<div style="font:600 9.5px/1 'Chakra Petch';letter-spacing:.24em;color:oklch(0.700 0.260 20);text-shadow:0 0 18px oklch(0.700 0.260 20 / .8)">今天剩下</div>
+<div style="font:700 114px/.82 'Chakra Petch';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:12px;color:oklch(0.700 0.260 20);text-shadow:0 0 46px oklch(0.700 0.260 20 / .9)">1,200</div>
+<div style="display:flex;justify-content:space-between;font:300 11.5px 'IBM Plex Sans';color:rgba(233,237,244,.55);margin-top:12px"><span>≈ 0 小時 20 分</span><span>已過 98.6%</span></div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:22px">
+<div style="flex:none;width:22px;height:22px;position:relative">
+<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,.54)"></div>
+<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#232a33,#0a0d12 75%);border:1px solid #fff6e8;box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 40px oklch(0.700 0.260 20 / .95)"></div>
+<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>
+</div>
+<div style="flex:1;height:9px;position:relative">
+<div style="position:absolute;top:2px;left:0;height:5px;width:1.4%;background:repeating-linear-gradient(115deg,rgba(233,237,244,.26) 0 3px,rgba(233,237,244,.54) 3px 6px)"></div>
+<div style="position:absolute;top:3px;right:0;height:3px;width:98.6%;background:rgba(233,237,244,.1)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:56px;height:56px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,oklch(0.700 0.260 20 / .5) 0 30%,transparent 70%)"></div>
+<div style="position:absolute;top:50%;left:1.4%;width:21px;height:21px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 35%,oklch(0.700 0.260 20) 70%,transparent 100%);box-shadow:0 0 54px 14px oklch(0.700 0.260 20 / 1), 0 0 6px 2px rgba(255,255,255,.85)"></div>
+</div>
+</div>
+<div style="font:400 11px/1.6 'IBM Plex Sans';color:oklch(0.700 0.260 20 / .85);margin-top:14px">今天不會結轉。剩下的就是全部了。</div>
+<div style="flex:1"></div>
+<div style="border-top:1px solid oklch(0.700 0.260 20 / .48);padding-top:14px;display:flex;gap:7px">
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .48);padding:12px 0;font:600 15px 'Chakra Petch'">15</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .48);padding:12px 0;font:600 15px 'Chakra Petch'">30</span>
+<span style="flex:1;text-align:center;border:1px solid oklch(0.700 0.260 20 / .48);padding:12px 0;font:600 15px 'Chakra Petch'">60</span>
+<span style="flex:1.3;text-align:center;border:1px solid oklch(0.700 0.260 20 / .48);padding:12px 0;font:500 11.5px 'Chakra Petch'">自訂</span>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next" style="color:rgba(233,237,244,.5)">可以這樣回：「<a class="dv-oid" href="#2d" style="background:rgba(233,237,244,.14);color:#e9edf4">2d</a> 再更兇一點，加心跳震動與聲音提示」·「白天那格 <a class="dv-oid" href="#2b" style="background:rgba(233,237,244,.14);color:#e9edf4">2b</a> 再更淡、更接近純黑」·「把 Widget 與鎖定畫面也套上 After Hours」·「換成綠→紫→紅，不要走琥珀」</p>
+</section>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">86,400 · P0 原型與視覺探索（Industry，已被 t2 取代）</span></div>
+<p class="dv-note">假設：用 Industry 設計系統（鋼藍線稿、Barlow Condensed、方角＋十字定位標）——它天生像「一張量測今天的圖紙」，剛好承接「儀式感、詩意、不焦慮」的語氣：紙白為日、鋼藍深色場為夜與收據，沒有第二個顏色，倒數永遠不會變成警示紅。未命名時間一律是最淺的灰，安靜佔位。<a href="#1a">1a</a> 是可點的原型（真的依你的裝置時間逐秒倒數，資料是上班族的一天）；<a href="#1c">1c</a>–<a href="#1d">1d</a> 是兩種倒數視覺（刻度地圖已依你的決定移除），<a href="#1e">1e</a>–<a href="#1g">1g</a> 是三種 Time Receipt 版面，<a href="#1h">1h</a>–<a href="#1i">1i</a> 是鎖定畫面與 Widget。原型右上角 中／EN 可切換語言。</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>互動原型 — Today → Spend the Next → 進行中 → Worth It → Receipt → Insights → Settings → 初次設定。底部分頁可點，倒數是真的。</div>
+<dc-import name="Prototype86400" lang="{{ lang }}" countdown-style="{{ countdownStyle }}" disp-mode="{{ dispMode }}" tick-seconds="{{ tickSeconds }}" show-unnamed="{{ showUnnamed }}" hint-size="402px,874px"></dc-import>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>倒數視覺 B「純秒數」— 數字大到只能被相信，其他全部退場。一條細線是今天的耗損，不是進度條，不會變紅。</div>
+<div style="width:402px;height:560px;background:#f2f2f3;border:1px solid rgba(29,31,32,.16);padding:44px 22px 22px;font-family:Barlow;color:#1d1f20;display:flex;flex-direction:column">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;text-transform:uppercase;color:#416180">今天剩下</div>
+<div style="font:600 118px/.8 'Barlow Condensed';letter-spacing:-.035em;font-variant-numeric:tabular-nums;margin-top:14px">34,182</div>
+<div style="font:400 13px/1.6 Barlow;color:rgba(29,31,32,.55);margin-top:16px">≈ 9 小時 29 分<br>已過 60.4%</div>
+<div style="height:1px;background:rgba(29,31,32,.16);margin-top:20px;position:relative"><div style="position:absolute;top:0;left:0;height:1px;background:#1d1f20;width:60.4%"></div></div>
+<div style="flex:1"></div>
+<div style="font:400 15px/1.75 Barlow;color:rgba(29,31,32,.7)">時間沒有停下，<br>但你可以從現在重新選擇。</div>
+<div style="border-top:1px solid rgba(29,31,32,.16);margin-top:20px;padding-top:16px;display:flex;gap:8px">
+<span style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.18);padding:12px 0;font:600 15px 'Barlow Condensed'">15</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.18);padding:12px 0;font:600 15px 'Barlow Condensed'">30</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.18);padding:12px 0;font:600 15px 'Barlow Condensed'">60</span>
+<span style="flex:1.3;text-align:center;border:1px solid rgba(29,31,32,.18);padding:12px 0;font:600 12px 'Barlow Condensed'">自訂</span>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>倒數視覺 C「日課」— 一天是一根從上往下沉的柱子，鋼藍細線就是「現在」。最安靜、最有儀式感，一眼看不出秒數在跳。</div>
+<div style="width:402px;height:560px;background:#f2f2f3;border:1px solid rgba(29,31,32,.16);padding:40px 22px 22px;font-family:Barlow;color:#1d1f20;display:flex;gap:20px">
+<div style="width:56px;flex:none;display:flex;flex-direction:column">
+<div style="flex:1;border:1px solid rgba(29,31,32,.2);position:relative;background:repeating-linear-gradient(to bottom,transparent 0 17.6px,rgba(29,31,32,.1) 17.6px 18.6px)">
+<div style="position:absolute;left:0;right:0;top:0;background:rgba(29,31,32,.07);height:60.4%"></div>
+<div style="position:absolute;left:-9px;right:-9px;height:1px;background:#5980a6;top:60.4%"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(29,31,32,.2)"></div>
+</div>
+<div style="font:400 9px/1 Barlow;letter-spacing:.1em;color:rgba(29,31,32,.4);text-align:center;padding-top:6px">24:00</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;text-transform:uppercase;color:#416180">今天剩下</div>
+<div style="font:600 62px/.88 'Barlow Condensed';font-variant-numeric:tabular-nums;margin-top:10px">34,182</div>
+<div style="font:400 12.5px/1.7 Barlow;color:rgba(29,31,32,.55);margin-top:10px">≈ 9 小時 29 分<br>已過 60.4%</div>
+<div style="font:400 14px/1.8 Barlow;color:rgba(29,31,32,.7);margin-top:22px;border-top:1px solid rgba(29,31,32,.14);padding-top:18px">今天走到這裡了。<br>接下來想把一點時間<br>留給什麼？</div>
+<div style="flex:1"></div>
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180">TODAY ANCHOR</div>
+<div style="font:400 15px/1.55 Barlow;margin-top:8px">把提案的第三段寫完</div>
+<div style="font:400 10.5px/1.6 Barlow;color:rgba(29,31,32,.45);margin-top:6px">進行中 · 今天只有這一件</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Time Receipt A「熱感紙」— 等寬數字、虛線分隔、扇形撕邊。最有「一天結帳」的儀式感，也最好做成可分享卡片。</div>
+<div style="width:402px;background:#e9e9ea;border:1px solid rgba(29,31,32,.16);padding:26px 30px 34px;font-family:Barlow">
+<div style="background:#fff;box-shadow:0 3px 10px rgba(43,43,45,.12)">
+<div style="height:8px;background:radial-gradient(circle at 5px 8px,transparent 5px,#fff 5.5px) 0 0/10px 8px"></div>
+<div style="padding:6px 20px 20px;font-family:ui-monospace,'SF Mono',Menlo,monospace;color:#1d1f20">
+<div style="text-align:center;padding-bottom:14px;border-bottom:1px dashed rgba(29,31,32,.35)">
+<div style="font:400 9.5px/1.6 ui-monospace;letter-spacing:.24em">TIME RECEIPT</div>
+<div style="font:600 40px/1 'Barlow Condensed';font-variant-numeric:tabular-nums;margin-top:6px">86,400</div>
+<div style="font:400 9.5px/1.6 ui-monospace;letter-spacing:.1em;margin-top:4px">2026-07-31 FRI · ASIA/TAIPEI</div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.35);font:400 11px/2 ui-monospace;font-variant-numeric:tabular-nums">
+<div style="display:flex;justify-content:space-between"><span>ANCHOR</span><span>DONE</span></div>
+<div style="display:flex;justify-content:space-between"><span style="font-family:Barlow;font-size:12.5px">把提案的第三段寫完</span><span>✓</span></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.35);font:400 11px/2 ui-monospace;font-variant-numeric:tabular-nums">
+<div style="display:flex;justify-content:space-between"><span>剪副業影片　　副業</span><span>60:00</span></div>
+<div style="display:flex;justify-content:space-between"><span>提案第三段　　工作</span><span>45:00</span></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.35);font:400 11px/2 ui-monospace;font-variant-numeric:tabular-nums">
+<div style="display:flex;justify-content:space-between;font-weight:700"><span>已命名時間</span><span>01:45:00</span></div>
+<div style="display:flex;justify-content:space-between;color:rgba(29,31,32,.55)"><span>未命名時間</span><span>12:45:18</span></div>
+<div style="display:flex;justify-content:space-between;color:rgba(29,31,32,.55)"><span>今天還剩</span><span>34,182</span></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px dashed rgba(29,31,32,.35);font:400 11px/2 ui-monospace">
+<div style="display:flex;justify-content:space-between"><span>WORTH IT</span><span>很值得 ×1</span></div>
+<div style="display:flex;justify-content:flex-end;color:rgba(29,31,32,.55)"><span>還不錯 ×1</span></div>
+</div>
+<div style="padding:14px 0 4px">
+<div style="font:400 9.5px/1.6 ui-monospace;letter-spacing:.18em;color:rgba(29,31,32,.55)">BEST MOMENT</div>
+<div style="font:400 14px/1.65 Barlow;margin-top:6px">「剪片剪到忘記時間，抬頭已經九點。」</div>
+</div>
+<div style="text-align:center;font:400 9.5px/1.8 ui-monospace;letter-spacing:.1em;color:rgba(29,31,32,.5);border-top:1px dashed rgba(29,31,32,.35);margin-top:12px;padding-top:12px">未命名不代表浪費<br>只是今天沒有留下紀錄</div>
+</div>
+<div style="height:8px;background:radial-gradient(circle at 5px 0,transparent 5px,#fff 5.5px) 0 0/10px 8px"></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>Time Receipt B「規格表」— 收據的資訊結構，鋼藍深色場、反白字、定位標。像結案圖紙，晚上看最不刺眼。</div>
+<div style="width:402px;background:#1d2d3d;border:1px solid rgba(29,31,32,.3);padding:28px 24px 30px;font-family:Barlow;color:#f2f2f3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid rgba(242,242,243,.25);padding-bottom:12px">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.2em;color:#b5d9fd">TIME RECEIPT</div>
+<div style="font:400 10px/1 Barlow;letter-spacing:.06em;color:rgba(242,242,243,.55)">2026.07.31 五</div>
+</div>
+<div style="display:flex;align-items:flex-end;gap:10px;margin-top:18px">
+<div style="font:600 64px/.86 'Barlow Condensed';font-variant-numeric:tabular-nums">86,400</div>
+<div style="font:400 11px/1.4 Barlow;color:rgba(242,242,243,.55);padding-bottom:8px">秒<br>已收到</div>
+</div>
+<div style="display:flex;margin-top:22px;border-top:1px solid rgba(242,242,243,.18)">
+<div style="flex:1;padding:12px 0"><div style="font:600 22px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">01:45</div><div style="font:400 10px/1.5 Barlow;color:rgba(242,242,243,.55);margin-top:4px">已命名</div></div>
+<div style="flex:1;padding:12px 0 12px 14px;border-left:1px solid rgba(242,242,243,.18)"><div style="font:600 22px/1 'Barlow Condensed';font-variant-numeric:tabular-nums;color:rgba(242,242,243,.6)">12:45</div><div style="font:400 10px/1.5 Barlow;color:rgba(242,242,243,.45);margin-top:4px">未命名</div></div>
+<div style="flex:1;padding:12px 0 12px 14px;border-left:1px solid rgba(242,242,243,.18)"><div style="font:600 22px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">2</div><div style="font:400 10px/1.5 Barlow;color:rgba(242,242,243,.55);margin-top:4px">命名次數</div></div>
+</div>
+<div class="blueprint" style="margin-top:20px;padding:14px;border-color:rgba(242,242,243,.28)">
+<i class="corner tl" style="color:rgba(242,242,243,.5)"></i><i class="corner tr" style="color:rgba(242,242,243,.5)"></i><i class="corner bl" style="color:rgba(242,242,243,.5)"></i><i class="corner br" style="color:rgba(242,242,243,.5)"></i>
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.2em;color:#b5d9fd">TODAY ANCHOR</div>
+<div style="font:400 16px/1.5 Barlow;margin-top:8px">把提案的第三段寫完</div>
+<div style="font:400 10.5px/1.5 Barlow;color:rgba(242,242,243,.5);margin-top:5px">已完成 · 18:40</div>
+</div>
+<div style="margin-top:22px;font:600 9.5px/1 'Barlow Condensed';letter-spacing:.2em;color:#b5d9fd">時間去了哪裡</div>
+<div style="display:flex;height:12px;margin-top:10px">
+<div style="width:7%;background:#f2f2f3"></div><div style="width:5%;background:#b5d9fd"></div><div style="flex:1;background:rgba(242,242,243,.14)"></div>
+</div>
+<div style="margin-top:12px">
+<div style="display:flex;justify-content:space-between;font:400 11.5px/2 Barlow;font-variant-numeric:tabular-nums"><span>副業</span><span>1:00</span></div>
+<div style="display:flex;justify-content:space-between;font:400 11.5px/2 Barlow;font-variant-numeric:tabular-nums"><span>工作</span><span>0:45</span></div>
+<div style="display:flex;justify-content:space-between;font:400 11.5px/2 Barlow;font-variant-numeric:tabular-nums;color:rgba(242,242,243,.5)"><span>未命名</span><span>12:45</span></div>
+</div>
+<div style="margin-top:22px;border-top:1px solid rgba(242,242,243,.18);padding-top:16px">
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.2em;color:#b5d9fd">今天最值得的片刻</div>
+<div style="font:400 15px/1.7 Barlow;margin-top:8px">「剪片剪到忘記時間，<br>抬頭已經九點。」</div>
+</div>
+<div style="font:400 10.5px/1.8 Barlow;color:rgba(242,242,243,.45);margin-top:18px">未命名不代表浪費，只是今天沒有留下紀錄。</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1g">
+<div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>Time Receipt C「純資料」— 不用收據隱喻，只有一天的量與品質。適合每天看，長期最不會膩。</div>
+<div style="width:402px;background:#f2f2f3;border:1px solid rgba(29,31,32,.16);padding:26px 22px 28px;font-family:Barlow;color:#1d1f20">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 25px/1 'Barlow Condensed'">07.31 這一天</div>
+<div style="font:600 9px/1 'Barlow Condensed';letter-spacing:.16em;border:1px solid #5980a6;color:#416180;padding:4px 7px">已結算</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:18px">
+<div style="flex:1;border:1px solid rgba(29,31,32,.16);padding:14px"><div style="font:600 34px/1 'Barlow Condensed';font-variant-numeric:tabular-nums">1:45</div><div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.55);margin-top:5px">已命名時間</div></div>
+<div style="flex:1;border:1px solid rgba(29,31,32,.16);padding:14px"><div style="font:600 34px/1 'Barlow Condensed';font-variant-numeric:tabular-nums;color:rgba(29,31,32,.5)">12:45</div><div style="font:400 10.5px/1.5 Barlow;color:rgba(29,31,32,.45);margin-top:5px">未命名時間</div></div>
+</div>
+<div style="margin-top:24px;font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180">命名的時間，值得嗎</div>
+<div style="margin-top:12px">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(29,31,32,.1)"><div style="width:8px;height:8px;background:#416180"></div><div style="flex:1;font:400 12.5px Barlow">剪副業影片</div><div style="font:400 11px Barlow;color:#416180">很值得</div><div style="width:40px;text-align:right;font:600 12.5px 'Barlow Condensed';font-variant-numeric:tabular-nums">60′</div></div>
+<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(29,31,32,.1)"><div style="width:8px;height:8px;background:#1d2d3d"></div><div style="flex:1;font:400 12.5px Barlow">提案第三段</div><div style="font:400 11px Barlow;color:rgba(29,31,32,.5)">還不錯</div><div style="width:40px;text-align:right;font:600 12.5px 'Barlow Condensed';font-variant-numeric:tabular-nums">45′</div></div>
+</div>
+<div style="margin-top:22px;border-top:1px solid rgba(29,31,32,.16);padding-top:16px">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em;color:#416180">明天想多留一點時間給</div>
+<div style="font:400 15px/1.6 Barlow;margin-top:8px">關係 — 打電話回家，不邊做別的事。</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1h">
+<div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>鎖定畫面 — 倒數在鎖定畫面上只給分鐘級與最近刷新時間，不假裝逐秒。Anchor 文字可隱藏成「已設定」。</div>
+<div style="width:402px;height:820px;background:#16222e;color:#f2f2f3;font-family:Barlow;padding:76px 26px 40px;display:flex;flex-direction:column;border:1px solid rgba(29,31,32,.3)">
+<div style="text-align:center">
+<div style="font:400 13px/1.4 Barlow;letter-spacing:.08em;color:rgba(242,242,243,.6)">7月31日 星期五</div>
+<div style="font:600 92px/.94 'Barlow Condensed';font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:2px">21:14</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:26px">
+<div style="flex:1;border:1px solid rgba(242,242,243,.28);padding:11px 10px"><div style="font:600 9px/1 'Barlow Condensed';letter-spacing:.16em;color:#b5d9fd">剩下</div><div style="font:600 24px/1 'Barlow Condensed';font-variant-numeric:tabular-nums;margin-top:6px">9,960</div><div style="font:400 9px/1.4 Barlow;color:rgba(242,242,243,.5);margin-top:3px">2 小時 46 分</div></div>
+<div style="flex:1;border:1px solid rgba(242,242,243,.28);padding:11px 10px"><div style="font:600 9px/1 'Barlow Condensed';letter-spacing:.16em;color:#b5d9fd">ANCHOR</div><div style="font:400 12.5px/1.4 Barlow;margin-top:6px">已設定</div><div style="font:400 9px/1.4 Barlow;color:rgba(242,242,243,.5);margin-top:3px">內容已隱藏</div></div>
+<div style="flex:1;border:1px solid rgba(242,242,243,.28);padding:11px 10px"><div style="font:600 9px/1 'Barlow Condensed';letter-spacing:.16em;color:#b5d9fd">進行中</div><div style="font:400 12.5px/1.4 Barlow;margin-top:6px">剪片</div><div style="font:400 9px/1.4 Barlow;color:rgba(242,242,243,.5);margin-top:3px">21:40 結束</div></div>
+</div>
+<div style="border:1px solid rgba(242,242,243,.28);padding:15px;margin-top:14px">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.18em;color:#b5d9fd">86,400</div>
+<div style="font:400 9px/1 Barlow;color:rgba(242,242,243,.42)">21:14 更新</div>
+</div>
+<div style="display:flex;align-items:flex-end;gap:8px;margin-top:10px">
+<div style="font:600 42px/.86 'Barlow Condensed';font-variant-numeric:tabular-nums">9,960</div>
+<div style="font:400 10px/1.4 Barlow;color:rgba(242,242,243,.5);padding-bottom:5px">秒<br>今天剩下</div>
+</div>
+<div style="display:flex;gap:7px;margin-top:14px">
+<span style="flex:1;text-align:center;border:1px solid rgba(242,242,243,.3);padding:8px 0;font:600 12px 'Barlow Condensed'">15</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(242,242,243,.3);padding:8px 0;font:600 12px 'Barlow Condensed'">30</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(242,242,243,.3);padding:8px 0;font:600 12px 'Barlow Condensed'">60</span>
+<span style="flex:1.6;text-align:center;background:#f2f2f3;color:#16222e;padding:8px 0;font:600 11px 'Barlow Condensed';letter-spacing:.04em">看今日收據</span>
+</div>
+</div>
+<div style="flex:1"></div>
+<div style="text-align:center;font:400 11px/1.7 Barlow;color:rgba(242,242,243,.45)">時間沒有停下，但你可以從現在重新選擇。</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1i">
+<div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>Widget 組 — iOS 小／中尺寸與 Android 4×2。方角、線框，跟系統圓角桌面剛好對比。每個點擊都直接落到對應動作。</div>
+<div style="width:402px;background:#e9e9ea;border:1px solid rgba(29,31,32,.16);padding:24px;font-family:Barlow;display:flex;flex-direction:column;gap:22px">
+<div>
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.18em;color:rgba(29,31,32,.5);margin-bottom:10px">IOS · SMALL 2×2</div>
+<div style="display:flex;gap:14px">
+<div style="width:158px;height:158px;background:#f2f2f3;border:1px solid rgba(29,31,32,.18);padding:14px;display:flex;flex-direction:column">
+<div style="font:600 9px/1 'Barlow Condensed';letter-spacing:.16em;color:#416180">今天剩下</div>
+<div style="font:600 40px/.9 'Barlow Condensed';font-variant-numeric:tabular-nums;margin-top:8px">34,182</div>
+<div style="font:400 9.5px/1.4 Barlow;color:rgba(29,31,32,.5);margin-top:4px">9 小時 29 分</div>
+<div style="flex:1"></div>
+<div style="font:400 11px/1.4 Barlow;border-top:1px solid rgba(29,31,32,.14);padding-top:8px">把提案的第三段寫完</div>
+</div>
+<div style="width:158px;height:158px;background:#1d2d3d;color:#f2f2f3;border:1px solid rgba(29,31,32,.3);padding:14px;display:flex;flex-direction:column">
+<div style="font:600 9px/1 'Barlow Condensed';letter-spacing:.16em;color:#b5d9fd">進行中</div>
+<div style="font:400 13px/1.4 Barlow;margin-top:8px">剪副業影片</div>
+<div style="font:600 30px/1 'Barlow Condensed';font-variant-numeric:tabular-nums;margin-top:10px">1,540</div>
+<div style="font:400 9.5px/1.4 Barlow;color:rgba(242,242,243,.5);margin-top:4px">秒 · 21:40 結束</div>
+<div style="flex:1"></div>
+<div style="height:1px;background:rgba(242,242,243,.25);position:relative"><div style="position:absolute;left:0;top:0;height:1px;width:58%;background:#b5d9fd"></div></div>
+</div>
+</div>
+</div>
+<div>
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.18em;color:rgba(29,31,32,.5);margin-bottom:10px">IOS · MEDIUM 4×2</div>
+<div style="width:330px;height:158px;background:#f2f2f3;border:1px solid rgba(29,31,32,.18);padding:14px;display:flex;gap:14px">
+<div style="flex:1;display:flex;flex-direction:column">
+<div style="font:600 9px/1 'Barlow Condensed';letter-spacing:.16em;color:#416180">今天剩下</div>
+<div style="font:600 38px/.9 'Barlow Condensed';font-variant-numeric:tabular-nums;margin-top:8px">34,182</div>
+<div style="font:400 9.5px/1.4 Barlow;color:rgba(29,31,32,.5);margin-top:4px">已過 60.4% · 21:14 更新</div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:6px">
+<span style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.2);padding:7px 0;font:600 11px 'Barlow Condensed'">15</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.2);padding:7px 0;font:600 11px 'Barlow Condensed'">30</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.2);padding:7px 0;font:600 11px 'Barlow Condensed'">60</span>
+</div>
+</div>
+<div style="width:1px;background:rgba(29,31,32,.14)"></div>
+<div style="width:150px;display:flex;flex-direction:column">
+<div style="font:600 9px/1 'Barlow Condensed';letter-spacing:.16em;color:#416180">TODAY ANCHOR</div>
+<div style="font:400 12.5px/1.45 Barlow;margin-top:8px">把提案的第三段寫完</div>
+<div style="font:400 10px/1.45 Barlow;color:rgba(29,31,32,.5);margin-top:4px">進行中</div>
+<div style="flex:1"></div>
+<div style="font:400 10.5px/1.45 Barlow;color:rgba(29,31,32,.6)">已命名 1:45 · 未命名 12:45</div>
+</div>
+</div>
+</div>
+<div>
+<div style="font:600 9.5px/1 'Barlow Condensed';letter-spacing:.18em;color:rgba(29,31,32,.5);margin-bottom:10px">ANDROID · 主畫面 4×2</div>
+<div style="width:330px;background:#f2f2f3;border:1px solid rgba(29,31,32,.18);padding:16px">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:600 10px/1 'Barlow Condensed';letter-spacing:.18em">86,400</div>
+<div style="font:400 9px/1 Barlow;color:rgba(29,31,32,.45)">分鐘級更新 · 21:14</div>
+</div>
+<div style="display:flex;align-items:flex-end;gap:16px;margin-top:12px">
+<div><div style="font:600 44px/.88 'Barlow Condensed';font-variant-numeric:tabular-nums">34,180</div><div style="font:400 10px/1.4 Barlow;color:rgba(29,31,32,.5);margin-top:4px">秒 · 今天剩下</div></div>
+<div style="flex:1;border-left:1px solid rgba(29,31,32,.14);padding-left:14px"><div style="font:400 11px/1.5 Barlow;color:rgba(29,31,32,.5)">進行中</div><div style="font:400 13px/1.4 Barlow;margin-top:2px">剪副業影片</div><div style="font:400 10px/1.4 Barlow;color:rgba(29,31,32,.5);margin-top:2px">21:40 結束</div></div>
+</div>
+<div style="display:flex;gap:7px;margin-top:14px">
+<span style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.2);padding:9px 0;font:600 12px 'Barlow Condensed'">15 分</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.2);padding:9px 0;font:600 12px 'Barlow Condensed'">30 分</span>
+<span style="flex:1;text-align:center;border:1px solid rgba(29,31,32,.2);padding:9px 0;font:600 12px 'Barlow Condensed'">60 分</span>
+<span style="flex:1.4;text-align:center;background:#5980a6;color:#f2f2f3;padding:9px 0;font:600 11px 'Barlow Condensed'">今日收據</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">可以這樣回：「首頁固定用 <a class="dv-oid" href="#1d">1d</a> 的日課柱」·「<a class="dv-oid" href="#1f">1f</a> 改成淺色紙感」·「把午夜切換與昨日 Anchor 複製的流程也做出來」·「再給我三個更詩意、更少數字的方向」</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;zh&quot;,&quot;en&quot;],&quot;default&quot;:&quot;zh&quot;,&quot;tsType&quot;:&quot;'zh' | 'en'&quot;,&quot;section&quot;:&quot;語言&quot;},&quot;countdownStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pure&quot;,&quot;column&quot;],&quot;default&quot;:&quot;pure&quot;,&quot;tsType&quot;:&quot;'pure' | 'column'&quot;,&quot;section&quot;:&quot;倒數視覺&quot;},&quot;dispMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sec&quot;,&quot;hms&quot;,&quot;hm&quot;],&quot;default&quot;:&quot;sec&quot;,&quot;tsType&quot;:&quot;'sec' | 'hms' | 'hm'&quot;,&quot;section&quot;:&quot;倒數視覺&quot;},&quot;tickSeconds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;倒數視覺&quot;},&quot;showUnnamed&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;內容&quot;}}">
+class Component extends DCLogic {
+  componentDidMount() { this.sync(); }
+  componentDidUpdate() { this.sync(); }
+  sync() {
+    if (!window.translate86400) return;
+    const en = (this.props.lang || 'zh') === 'en';
+    document.querySelectorAll('.dv-opt > div:last-child').forEach(n => {
+      if (!n.querySelector('dc-import')) window.translate86400(n, en);
+    });
+  }
+
+  renderVals() {
+    return {
+      lang: this.props.lang || 'zh',
+      countdownStyle: this.props.countdownStyle === 'column' ? 'column' : 'pure',
+      dispMode: this.props.dispMode || 'sec',
+      tickSeconds: this.props.tickSeconds !== false,
+      showUnnamed: this.props.showUnnamed !== false
+    };
+  }
+}
+
+</script>
+</body>
+</html>
