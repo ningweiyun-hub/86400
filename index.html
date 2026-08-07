@@ -2410,9 +2410,9 @@ function render(){
     + '<button data-act="lang" data-v="en"'+(S.lang==='en'?' class="on"':'')+'>EN</button></div></div>'
     + '<div class="scroll" id="scroll">'+screen+'</div>'
     + '<div class="tabs">'
-    + tabBtn('today','<span class="ic ic-today"><i></i></span>', t('tab_today'))
-    + tabBtn('receipt','<span class="ic ic-receipt"><i></i><i></i><i></i></span>', t('tab_receipt'))
     + tabBtn('shop','<span class="ic ic-shop"><i></i><i></i><i></i></span>', t('tab_shop'))
+    + tabBtn('receipt','<span class="ic ic-receipt"><i></i><i></i><i></i></span>', t('tab_receipt'))
+    + tabBtn('today','<span class="ic ic-today"><i></i></span>', t('tab_today'))
     + tabBtn('insights','<span class="ic ic-insights"><i style="height:6px"></i><i style="height:13px"></i><i style="height:9px"></i></span>', t('tab_insights'))
     + tabBtn('settings','<span class="ic ic-settings"></span>', t('tab_settings'))
     + '</div>'
@@ -2724,7 +2724,13 @@ function pwaBits(){
   }catch(e){}
   // 極簡 SW：http(s) 下快取自身，file:// 會被瀏覽器拒絕所以略過
   if('serviceWorker' in navigator && location.protocol !== 'file:'){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    // 已有控制中的 SW 時，換成新版就重載一次（避免底部順序卡舊殼）
+    if(navigator.serviceWorker.controller){
+      navigator.serviceWorker.addEventListener('controllerchange', () => { location.reload(); });
+    }
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then(reg => { reg.update().catch(()=>{}); })
+      .catch(()=>{});
   }
 }
 
