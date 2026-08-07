@@ -1,5 +1,5 @@
 /* 86,400 — 極簡 Service Worker：快取殼層，讓 http(s) 重新整理也能離線開 */
-const CACHE = '86400-v3';
+const CACHE = '86400-v9';
 const ASSETS = ['./', './index.html', './sw.js'];
 
 self.addEventListener('install', event => {

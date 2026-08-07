@@ -57,7 +57,7 @@
 @keyframes n-flick{0%,92%,100%{opacity:1}94%{opacity:.55}96%{opacity:1}98%{opacity:.7}}
 @keyframes n-creep{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
 @keyframes n-spark{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}40%{transform:translate(-50%,-50%) scale(1.45);opacity:.75}70%{transform:translate(-50%,-50%) scale(.85);opacity:1}}
-@keyframes n-ember{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(14px,-11px) scale(.2);opacity:0}}
+@keyframes n-ember{0%{transform:translate(-50%,-50%) scale(1);opacity:.9}100%{transform:translate(calc(-50% + 14px),calc(-50% - 11px)) scale(.2);opacity:0}}
 @keyframes n-shake{0%,100%{transform:translate(0,0)}12%{transform:translate(-3px,2px)}25%{transform:translate(3px,-2px)}38%{transform:translate(-2px,-3px)}50%{transform:translate(2px,3px)}62%{transform:translate(-3px,-1px)}75%{transform:translate(3px,1px)}88%{transform:translate(-1px,3px)}}
 @keyframes n-rattle{0%,100%{transform:translate(0,0)}12%{transform:translate(-2.5px,1.5px)}25%{transform:translate(2.5px,-1.5px)}38%{transform:translate(-1.5px,-2.5px)}50%{transform:translate(1.5px,2.5px)}62%{transform:translate(-2.5px,-1px)}75%{transform:translate(2.5px,1px)}88%{transform:translate(-1px,2.5px)}}
 @keyframes n-flare{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}50%{transform:translate(-50%,-50%) scale(1.9);opacity:.25}}
@@ -68,6 +68,109 @@
 .scan{opacity:var(--scan-op);
   background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 3px)}
 .vig{background:var(--vignette)}
+
+/* 迷彩／野戰：全畫面斑塊、掃描線、角標、警戒條 */
+html[data-skin="camo"] body{
+  background-image:
+    radial-gradient(ellipse 58% 42% at 6% 10%, oklch(0.30 0.07 125 / .7), transparent 68%),
+    radial-gradient(ellipse 48% 52% at 94% 6%, oklch(0.20 0.055 70 / .65), transparent 70%),
+    radial-gradient(ellipse 62% 38% at 72% 92%, oklch(0.15 0.05 45 / .7), transparent 68%),
+    radial-gradient(ellipse 44% 34% at 18% 78%, oklch(0.26 0.06 110 / .55), transparent 68%),
+    radial-gradient(ellipse 36% 28% at 48% 42%, oklch(0.18 0.04 95 / .4), transparent 70%);
+}
+html[data-skin="camo"] .scan{
+  background:
+    repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.32) 3px 4px),
+    repeating-linear-gradient(90deg,transparent 0 18px,rgba(190,200,120,.12) 18px 19px),
+    repeating-linear-gradient(135deg,transparent 0 10px,rgba(0,0,0,.08) 10px 11px);
+}
+html[data-skin="camo"] .brand{
+  letter-spacing:.18em;text-shadow:none;font-weight:700;
+  border:1px solid rgba(190,200,120,.45);padding:4px 9px 3px;
+  background:rgba(0,0,0,.35);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);
+}
+html[data-skin="camo"] .brand::before{content:"◇ ";opacity:.75;letter-spacing:0}
+html[data-skin="camo"] .kicker,
+html[data-skin="camo"] .kicker-s{
+  letter-spacing:.32em;text-shadow:none;font-weight:700;
+}
+html[data-skin="camo"] .num{
+  letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;
+}
+html[data-skin="camo"] #hero{
+  background-color:var(--hero-bg);
+  background-image:
+    linear-gradient(90deg, rgba(190,200,120,.18) 0 2px, transparent 2px),
+    linear-gradient(0deg, rgba(190,200,120,.12) 0 1px, transparent 1px),
+    radial-gradient(ellipse 42% 36% at 12% 28%, oklch(0.32 0.07 125 / .7), transparent 70%),
+    radial-gradient(ellipse 38% 40% at 78% 18%, oklch(0.22 0.055 85 / .65), transparent 72%),
+    radial-gradient(ellipse 50% 34% at 58% 78%, oklch(0.17 0.045 55 / .7), transparent 70%),
+    radial-gradient(ellipse 30% 28% at 30% 70%, oklch(0.28 0.06 110 / .55), transparent 70%);
+  background-size:100% 100%, 100% 10px, auto, auto, auto, auto;
+  border-color:rgba(190,200,120,.28) !important;
+}
+html[data-skin="camo"] .tabs{
+  border-top-color:rgba(190,200,120,.35);
+  background:linear-gradient(180deg, oklch(0.15 0.035 100 / .95), oklch(0.11 0.03 90 / .98));
+}
+html[data-skin="camo"] .tabs button{
+  letter-spacing:.06em;font-weight:600;text-transform:uppercase;font-size:9.5px;
+}
+html[data-skin="camo"] .btn-fill{
+  background:linear-gradient(180deg, oklch(0.42 0.08 122), oklch(0.32 0.07 115));
+  border-color:rgba(190,200,120,.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 0 0 1px rgba(0,0,0,.35);
+}
+html[data-skin="camo"] .card,
+html[data-skin="camo"] .field,
+html[data-skin="camo"] .row{
+  border-color:rgba(190,200,120,.22);
+}
+.camo-hud{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;
+  margin-top:10px;padding:7px 8px;border:1px dashed rgba(190,200,120,.4);
+  background:rgba(0,0,0,.28);
+  font:600 9px/1 var(--fh);letter-spacing:.16em;color:var(--accent);text-transform:uppercase;
+}
+.camo-hud span{white-space:nowrap}
+.camo-brackets{position:relative}
+.camo-brackets::before,.camo-brackets::after{
+  content:"";position:absolute;width:16px;height:16px;border-color:var(--accent);border-style:solid;opacity:.8;z-index:3;pointer-events:none;
+}
+.camo-brackets::before{top:5px;left:5px;border-width:2px 0 0 2px}
+.camo-brackets::after{bottom:5px;right:5px;border-width:0 2px 2px 0}
+.camo-brackets .c-tr,.camo-brackets .c-bl{
+  position:absolute;width:16px;height:16px;border-color:var(--accent);border-style:solid;opacity:.8;z-index:3;pointer-events:none;display:block;
+}
+.camo-brackets .c-tr{top:5px;right:5px;border-width:2px 2px 0 0}
+.camo-brackets .c-bl{bottom:5px;left:5px;border-width:0 0 2px 2px}
+.camo-mark{
+  position:absolute;right:18px;top:52%;transform:translateY(-50%) rotate(-18deg);
+  font:700 42px/1 var(--fh);letter-spacing:.2em;color:var(--accent);opacity:.07;
+  pointer-events:none;z-index:0;white-space:nowrap;user-select:none;
+}
+.camo-reticle{
+  position:absolute;inset:16% 10% 26% 10%;pointer-events:none;opacity:.4;z-index:1;
+  background:
+    linear-gradient(var(--accent),var(--accent)) center/100% 1px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) center/1px 100% no-repeat;
+  mask-image:radial-gradient(circle at center, transparent 40%, #000 41% 56%, transparent 57%);
+  -webkit-mask-image:radial-gradient(circle at center, transparent 40%, #000 41% 56%, transparent 57%);
+}
+.camo-stripe{
+  height:4px;margin:0 -20px 12px;opacity:.9;
+  background:repeating-linear-gradient(135deg,
+    oklch(0.58 0.14 85) 0 9px, oklch(0.12 0.02 90) 9px 18px);
+}
+.camo-rank{
+  display:inline-flex;gap:3px;align-items:center;vertical-align:middle;margin-left:8px;
+}
+.camo-rank i{
+  display:block;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
+  border-bottom:6px solid var(--accent);opacity:.85;
+}
 
 /* 減少動態偏好：停在靜態，不閃不抖 */
 @media (prefers-reduced-motion:reduce){
@@ -117,6 +220,14 @@ input{border-radius:0}
 .ic-receipt i{height:1px;background:currentColor;display:block}
 .ic-insights{align-items:flex-end;gap:2px}
 .ic-insights i{background:currentColor;display:block;width:3px}
+.ic-shop{width:16px;height:14px;border:1.5px solid currentColor;border-top:none;position:relative;box-sizing:border-box}
+.ic-shop::before{
+  content:"";position:absolute;left:-2px;right:-2px;top:-5px;height:5px;
+  border:1.5px solid currentColor;border-bottom:none;
+  clip-path:polygon(0 100%, 12% 0, 88% 0, 100% 100%);
+  background:transparent;
+}
+.ic-shop i{display:none}
 .ic-settings{border:1px solid currentColor;border-radius:50%}
 
 /* ── primitives ──────────────────────────────────────────────────────── */
@@ -193,7 +304,7 @@ const T = {
   sec:             ['秒','sec'],
   anchor_q:        ['如果今天只能好好完成一件事，會是什麼？','If you could do one thing well today, what would it be?'],
   anchor_ph:       ['例如：把提案的第三段寫完','e.g. finish part three of the proposal'],
-  anchor_foot:     ['沒完成不會扣分，也不會中斷任何紀錄。','Not finishing costs you nothing. There is no streak to break.'],
+  anchor_foot:     ['午夜前若還停在「進行中」，引線上的牠會被炸掉。','If it is still in progress at midnight, whatever sits on the fuse gets blown up.'],
   anchor_save:     ['儲存','Save'],
   anchor_cancel:   ['取消','Cancel'],
   anchor_edit:     ['編輯','Edit'],
@@ -211,7 +322,7 @@ const T = {
   no_anchor:       ['沒有設定 Anchor','No Anchor set'],
   spend_label:     ['把一段時間留給……','Give a stretch of time to…'],
   custom:          ['自訂','Custom'],
-  spend_foot:      ['兩步之內就能開始，不需要先建立清單。','Two taps to start. No list to build first.'],
+  spend_foot:      ['兩步之內就能開始。開始了，就要對引線上的牠負責。','Two taps to start. Once it is running, you owe the one on the fuse.'],
   start_time:      ['什麼時候開始','When it starts'],
   now:             ['現在','Now'],
   pick_time:       ['指定時間','Pick a time'],
@@ -223,10 +334,10 @@ const T = {
   remove:          ['刪除','Remove'],
   waiting_prev:    ['等前一段結束後開始','Starts when the current one ends'],
   time_past:       ['那個時間已經過了，改成現在開始。','That time has passed — starting now instead.'],
-  upcoming_foot:   ['排定的時間到了就會自己開始；那時候如果還有一段在進行，會等它結束。','A scheduled stretch starts on its own. If something is still running, it waits for that to end.'],
+  upcoming_foot:   ['排定還沒開始的，午夜不會算你失敗；一旦開始，就必須收尾。','Scheduled-but-not-started will not fail you at midnight. Once it starts, you must finish it.'],
   named_today:     ['今日已命名時間','Named time today'],
   unnamed:         ['未命名時間','Unnamed time'],
-  unnamed_sub:     ['不代表浪費，只是今天沒有留下紀錄。','Not wasted — just not written down today.'],
+  unnamed_sub:     ['不代表浪費——但空白也不會救下引線上的牠。','Not wasted — and blank time will not save whoever is on the fuse.'],
   named_empty:     ['今天還沒有命名任何時間。','Nothing named yet today.'],
   end_early:       ['提前結束','End early'],
   extend15:        ['延長 15 分','+15 min'],
@@ -247,7 +358,7 @@ const T = {
   worth_again:     ['下次還想留時間給這件事',"I'd give time to this again"],
   save:            ['儲存','Save'],
   skip:            ['略過','Skip'],
-  worth_foot:      ['「不太值得」不扣分。休息與無所事事也可以是很值得。','"Not really" costs nothing. Rest and doing nothing can be very worth it.'],
+  worth_foot:      ['你可以老實說「不太值得」。評價很自由——但時段本身，午夜前仍要收完。','You can say "not really". The rating is free — finishing the stretch before midnight is not.'],
   receipt_today:   ['今日收據',"Today's receipt"],
   received_today:  ['今天收到','Received today'],
   elapsed_today:   ['今天已過','Elapsed today'],
@@ -291,11 +402,11 @@ const T = {
   cats_row:        ['時間類別','Categories'],
   cats_hint:       ['點一下增減，至少留一個。','Tap to add or remove. Keep at least one.'],
   notif:           ['通知','Notifications'],
-  notif_sub:       ['每天最多主動提醒三次，每一類都可以單獨關掉。','At most three prompts a day. Each kind can be turned off on its own.'],
-  notif_web:       ['網頁版只有在 App 開著的時候會提醒。','On the web, reminders only fire while the app is open.'],
-  n_wake:          ['起床後：設定 Today Anchor','On waking: set the Anchor'],
-  n_3h:            ['剩三小時：重新選擇今晚','3h left: choose tonight again'],
-  n_sleep:         ['睡前：查看 Time Receipt','Before bed: read the receipt'],
+  notif_sub:       ['每天最多三次提醒，可分別開關。','Up to three reminders a day. Toggle each one.'],
+  notif_web:       ['網頁版只有在 App 開著時才會提醒。','On the web, reminders only fire while the app is open.'],
+  n_wake:          ['起床：提醒設定 Today Anchor','Wake: set Today Anchor'],
+  n_3h:            ['剩三小時：提醒安排剩餘時間','3h left: plan remaining time'],
+  n_sleep:         ['睡前：提醒查看收據','Before bed: open Receipt'],
   privacy:         ['隱私與資料管理','Privacy & data'],
   privacy_v:       ['只存在這台裝置','Stays on this device'],
   export:          ['匯出備份（JSON）','Export a backup (JSON)'],
@@ -311,10 +422,11 @@ const T = {
   tab_today:       ['今天','Today'],
   tab_receipt:     ['收據','Receipt'],
   tab_insights:    ['洞察','Insights'],
+  tab_shop:        ['商店','Shop'],
   tab_settings:    ['設定','Settings'],
   ob_1:            ['你今天收到 86,400 秒。','You received 86,400 seconds today.'],
   ob_1b:           ['時間不能存起來，也帶不到明天。',"Time can't be saved, and it doesn't carry into tomorrow."],
-  ob_1c:           ['這個 App 不會要求你記錄每一秒，也不會判斷什麼是浪費。','This app never asks you to log every second, and never decides what counts as waste.'],
+  ob_1c:           ['這個 App 不會要求你記錄每一秒——但它會讓你對沒做完的事感到難受。','This app will not ask you to log every second — it will make unfinished work feel heavy.'],
   ob_2:            ['先確認你的一天從哪裡開始','Where does your day begin'],
   wake:            ['預計起床','Usually awake'],
   sleep:           ['預計睡眠','Usually asleep'],
@@ -330,20 +442,20 @@ const T = {
   auto:            ['自動','auto'],
   install_hint:    ['提示：用手機瀏覽器開啟後，選「加入主畫面」就會變成全螢幕 App。','Tip: open this in your phone browser and choose "Add to Home Screen" for a full-screen app.'],
   coins:           ['金幣','Coins'],
-  coins_sub:       ['完成今日 Anchor 與命名時段可獲得，用來在商店換寵物或套裝皮膚。','Earn by finishing today’s Anchor and named stretches. Spend them on pets or skin packs.'],
+  coins_sub:       ['完成任務換金幣；金幣換下一個綁住你的理由。','Finish tasks for coins. Coins buy the next reason that keeps you hostage.'],
   coin_earn_anchor:['Anchor 完成，+{n} 金幣','Anchor finished, +{n} coins'],
   coin_earn_block: ['時段完成，+{n} 金幣','Stretch finished, +{n} coins'],
   pet_cabinet:     ['寵物櫃','Pet cabinet'],
-  pet_cabinet_sub: ['更換引線上的角色。炸掉的寵物不會消失，會留下陪伴紀錄。','Change the character on the fuse. Fallen pets stay here with their companionship record.'],
+  pet_cabinet_sub: ['牠們在引線上等你收尾。炸掉之後還會在這裡瞪著你。','They wait on the fuse for you to finish. After they blow, they still stare from here.'],
   pet_shop:        ['商店','Shop'],
-  pet_shop_sub:    ['寵物與套裝皮膚都在這裡。用金幣購買，隨時更換。','Pets and skin packs live here. Buy with coins, switch anytime.'],
+  pet_shop_sub:    ['用金幣買下下一個會綁住你的理由。','Spend coins on the next reason that will keep you hostage.'],
   shop_tab_pets:   ['寵物','Pets'],
-  shop_tab_skins:  ['套裝皮膚','Skin packs'],
+  shop_tab_skins:  ['主題','Themes'],
   skin_equip:      ['套用','Apply'],
   skin_equipped:   ['使用中','In use'],
-  skin_bought:     ['皮膚已解鎖','Skin unlocked'],
-  skin_row:        ['目前皮膚','Current skin'],
-  skin_row_sub:    ['套裝會改變色票與首頁提示詞。','Packs change the palette and the home prompts.'],
+  skin_bought:     ['主題已解鎖','Theme unlocked'],
+  skin_row:        ['目前主題','Current theme'],
+  skin_row_sub:    ['主題會改變色票與首頁提示詞。','Themes change the palette and home prompts.'],
   pet_equip:       ['放上引線','Put on the fuse'],
   pet_equipped:    ['使用中','On the fuse'],
   pet_owned:       ['已擁有','Owned'],
@@ -354,25 +466,25 @@ const T = {
   pet_days:        ['陪伴 {n} 天','With you {n} days'],
   pet_days_short:  ['{n} 天','{n} d'],
   pet_fallen:      ['炸掉紀錄','Fallen records'],
-  pet_fallen_none: ['還沒有炸掉的紀錄。','No fallen records yet.'],
-  pet_fallen_title:['陪伴結束','Companionship ended'],
+  pet_fallen_none: ['還沒有炸掉的紀錄——先別鬆口氣。','No fallen records yet — do not relax.'],
+  pet_fallen_title:['因為你，結束了','Ended because of you'],
   pet_tasks:       ['陪伴期間完成的任務','Tasks finished while together'],
-  pet_tasks_none:  ['這段陪伴沒有留下任務。','No tasks were logged on this run.'],
-  pet_blown_note:  ['昨日任務未完成，{name} 被炸掉了。紀錄仍留在寵物櫃。','Yesterday’s tasks were unfinished — {name} was blown up. The record stays in your cabinet.'],
+  pet_tasks_none:  ['這段陪伴裡你什麼都沒幫牠做成。','You finished nothing for them on this run.'],
+  pet_blown_note:  ['你沒做完。{name} 被炸掉了。紀錄還在——別裝沒看到。','You did not finish. {name} was blown up. The record stays — do not pretend you missed it.'],
   pet_memo:        ['查看紀錄','View record'],
   pet_close:       ['關閉','Close'],
   pet_default:     ['預設','Default'],
   pet_price:       ['{n} 金幣','{n} coins'],
   // 新手引導／帳戶（本機；無雲端）
   guide_fuse_t:    ['引線與倒數','The fuse and the countdown'],
-  guide_fuse_b:    ['每天 86,400 秒從右往左燒完。引線左端的角色可以換成寵物。','86,400 seconds burn right to left each day. The character on the fuse can become a pet.'],
+  guide_fuse_b:    ['每天 86,400 秒從右往左燒完。越晚越紅、越抖。引線左端坐著會陪你——也會因你炸掉的角色。','86,400 seconds burn right to left. Later means redder, shakier. On the left sits a character that stays with you — and can die because of you.'],
   guide_task_t:    ['任務、金幣與寵物','Tasks, coins, and pets'],
-  guide_task_b:    ['完成 Today Anchor 與自己新增的時段會得到金幣。金幣可在商店換寵物；任務沒完成，寵物可能被炸掉，但紀錄會留在寵物櫃。','Finish the Anchor and your named stretches to earn coins. Spend them on pets. If tasks go unfinished, a pet may be blown up — the record stays in your cabinet.'],
-  guide_skin_t:    ['套裝皮膚','Skin packs'],
-  guide_skin_b:    ['預設是焦慮霓虹。商店還有文青簡約、科技、迷彩——每一套都有自己的色票與提示詞。','Default is Anxiety Neon. The shop also has Quiet Literati, Tech, and Camouflage — each with its own palette and prompts.'],
+  guide_task_b:    ['完成 Anchor 與已開始的時段才有金幣。午夜時：Anchor 還在進行中、或時段開了沒收尾——引線上的寵物會被炸掉。排定還沒開始的，不算你失敗。','Coins come from finishing the Anchor and stretches you started. At midnight: an unfinished Anchor, or a stretch you started but never closed, blows up the pet on the fuse. Scheduled-but-not-started does not count as failure.'],
+  guide_skin_t:    ['主題','Themes'],
+  guide_skin_b:    ['預設是焦慮霓虹。商店還有文青簡約、科技、迷彩——每一套都有自己的色票與催促語氣。','Default is Anxiety Neon. The shop also has Quiet Literati, Tech, and Camouflage — each with its own palette and pressure.'],
   guide_acct_t:    ['保存這份資料','Keep this save'],
   guide_acct_b:    ['建議建立本機帳戶並登入，讓資料綁在這個身分上。也可以用遊客身份直接開始——資料都只存在這台裝置，可隨時匯出備份。','We suggest a local account so this save is tied to you. Or continue as a guest. Either way, data stays on this device — export a backup anytime.'],
-  guide_acct_note: ['目前沒有雲端同步。帳戶密碼只用來保護這台裝置上的存檔。','There is no cloud sync yet. A password only protects the save on this device.'],
+  guide_acct_note: ['沒有雲端。密碼只是本機遮罩（擋隨手打開，不是真加密）；匯出備份可能含雜湊。','No cloud. The password is a local screen — it blocks casual opens, not real encryption. Exports may include the hash.'],
   acct_register:   ['建立帳戶','Create account'],
   acct_login:      ['登入','Log in'],
   acct_guest:      ['以遊客繼續','Continue as guest'],
@@ -389,10 +501,10 @@ const T = {
   acct_guest_ok:   ['已用遊客身份開始','Continuing as guest'],
   acct_welcome:    ['歡迎回來，{name}','Welcome back, {name}'],
   acct_logout:     ['登出本機帳戶','Log out'],
-  acct_logout_sub: ['登出後需再輸入密碼才能看資料。遊客不受影響。','After logout you will need the password again. Guests are unaffected.'],
+  acct_logout_sub: ['登出後需再輸入密碼才能看資料（仍可改本機存檔繞過）。遊客不受影響。','After logout you need the password again (local storage can still be edited). Guests are unaffected.'],
   acct_local:      ['本機帳戶','Local account'],
   acct_guest_lbl:  ['遊客','Guest'],
-  home_tip:        ['先設 Today Anchor，再留一段命名時間。完成會得到金幣；商店裡還有寵物與皮膚。','Set today’s Anchor, then name a stretch of time. Finishing earns coins — pets and skins wait in the shop.'],
+  home_tip:        ['先設 Anchor，再開始一段命名時間。做完有金幣；沒做完，引線上的牠會記住你。','Set an Anchor, then start a named stretch. Finish for coins. Leave it open — the one on the fuse will remember.'],
   home_tip_ok:     ['知道了','Got it']
 };
 
@@ -400,7 +512,7 @@ const T = {
 const PETS = [
   {id:'bomb',     emoji:'💣', price:0, free:true,  zh:'炸彈',     en:'Bomb'},
   {id:'tnt',      emoji:'🧨', price:0, free:true,  zh:'TNT',      en:'TNT'},
-  {id:'elephant', emoji:'🐘', price:0, free:true,  zh:'小人象',   en:'Little elephant'},
+  {id:'figure', emoji:'🧍', price:0, free:true,  zh:'小人像',   en:'Little figure'},
   {id:'cat',      emoji:'🐱', price:30, free:false, zh:'夜貓',     en:'Night cat'},
   {id:'dog',      emoji:'🐶', price:40, free:false, zh:'守夜犬',   en:'Night dog'},
   {id:'fox',      emoji:'🦊', price:50, free:false, zh:'琥珀狐',   en:'Amber fox'},
@@ -411,7 +523,7 @@ const COIN_ANCHOR = 15;
 const COIN_BLOCK  = 8;
 const FREE_PET_IDS = PETS.filter(p => p.free).map(p => p.id);
 
-/* 套裝皮膚：色票（OKLCH stops）+ 首頁提示詞。預設焦慮霓虹＝現行 After Hours。 */
+/* 主題：色票（OKLCH stops）+ 首頁提示詞。預設焦慮霓虹＝現行 After Hours。 */
 const SKINS = [
   {
     id:'neon', price:0, free:true, zh:'焦慮霓虹', en:'Anxiety Neon',
@@ -422,11 +534,11 @@ const SKINS = [
       { at:1,    bg:[0.12,0.100, 15], neon:[0.70,0.26, 20] }
     ],
     mood:{
-      fuse:  ['引線快燒完了。剩下的就是全部了。','The fuse is almost gone. Whatever is left is all there is.'],
-      early: ['今天還很寬。現在什麼都還來得及。','The day is still wide. Nothing is urgent yet.'],
-      mid:   ['一半以上已經過去了。剩下的要給誰？','More than half is spent. What gets the rest?'],
-      late:  ['天色在走了。下一段，刻意選一次。','The light is going. Choose the next stretch on purpose.'],
-      end:   ['今天不會結轉。剩下的就是全部了。','Today does not roll over. Whatever is left is all there is.']
+      fuse:  ['引線快燒完了。牠還在等你。剩下的就是全部了。','The fuse is almost gone. They are still waiting. Whatever is left is all there is.'],
+      early: ['今天還很寬——但寬不代表可以欠著。','The day is still wide — wide is not permission to owe.'],
+      mid:   ['一半以上已經過去了。引線上的牠還在看你。','More than half is spent. Whoever sits on the fuse is still watching.'],
+      late:  ['天色在走了。再不收尾，午夜會算帳。','The light is going. Finish now, or midnight will collect.'],
+      end:   ['今天不會結轉。沒做完的，會炸掉一個陪伴你的理由。','Today does not roll over. What you leave open can blow up a reason that stayed with you.']
     }
   },
   {
@@ -462,19 +574,20 @@ const SKINS = [
     }
   },
   {
-    id:'camo', price:50, free:false, zh:'迷彩', en:'Camouflage',
-    light:false, glow:0.4, scan:0.15,
+    id:'camo', price:50, free:false, zh:'迷彩', en:'Field Ops',
+    light:false, glow:0.35, scan:0.55,
+    military:true,
     stops:[
-      { at:0,    bg:[0.18,0.035,135], neon:[0.78,0.12,125] },
-      { at:0.55, bg:[0.16,0.045,110], neon:[0.72,0.13, 95] },
-      { at:1,    bg:[0.14,0.055, 80], neon:[0.68,0.14, 70] }
+      { at:0,    bg:[0.22,0.048,128], neon:[0.74,0.12,122] },  // OD 綠
+      { at:0.55, bg:[0.17,0.055, 92], neon:[0.70,0.13, 78] },  // 卡其／泥
+      { at:1,    bg:[0.13,0.062, 48], neon:[0.68,0.15, 62] }   // 夜戰褐
     ],
     mood:{
-      fuse:  ['天黑前最後一哩。帶得走的，只有現在。','Last mile before dark. What you can carry is now.'],
-      early: ['地圖還很寬。先偵察，再決定今晚的路線。','The map is still wide. Scout first, then choose tonight’s route.'],
-      mid:   ['過了半程。收斂目標，不要岔出去。','Halfway. Tighten the objective — don’t drift.'],
-      late:  ['能見度下降。只帶一件最重要的任務前進。','Visibility dropping. Advance with only the essential task.'],
-      end:   ['今日行動結束。沒帶上的，不進明日背包。','Today’s op ends. What you didn’t pack stays behind.']
+      fuse:  ['剩餘彈藥見底。目標未清，不准撤離。','Mag almost dry. Objective uncleared — no extract.'],
+      early: ['0600 簡報。先標定今日主目標，再出發。','0600 brief. Mark today’s primary objective, then move.'],
+      mid:   ['過半程。收斂火力，禁止岔線。','Past midpoint. Tighten fire — no side quests.'],
+      late:  ['能見度極差。單目標推進，其餘丟下。','Visibility critical. One objective only — drop the rest.'],
+      end:   ['今日行動截止。未回報的任務，視為失敗。','Op window closed. Unreported tasks count as failed.']
     }
   }
 ];
@@ -513,7 +626,7 @@ const DEFAULTS = {
   notif:{wake:true, three:true, sleep:false},
   demo:false,
   fired:{},             // 今天已經送過的提醒
-  coins:0,
+  coins:400,            // 測試用預設；方便開商店試寵物／主題
   ownedPets: FREE_PET_IDS.slice(),  // 免費角色預設擁有
   equippedPet:'bomb',
   // 目前引線上的陪伴：天數、期間完成的任務。炸掉後寫進 fallen，寵物仍留在櫃裡。
@@ -573,8 +686,8 @@ function secLeft(now){
 }
 function secPassed(now){ return 86400 - secLeft(now); }
 
-/* ── 壓力模型 × 套裝皮膚 ────────────────────────────────────────────────
-   顏色、光暈、動態都是 p 的函數；色票來自目前裝備的皮膚 stops。
+/* ── 壓力模型 × 主題 ────────────────────────────────────────────────────
+   顏色、光暈、動態都是 p 的函數；色票來自目前裝備的主題 stops。
    夜間強度關掉 → p 恆為 0（顏色／閃爍／抖動／文案全部回平靜）。
    ─────────────────────────────────────────────────────────────────────── */
 const lerp = (a,b,k) => a + (b-a)*k;
@@ -663,6 +776,7 @@ function applyPressure(){
   s.setProperty('--vignette', 'radial-gradient(120% 80% at 50% 0%, transparent 40%, ' + ok(r.bg, (p*0.55*(sk.light?0.35:1)).toFixed(2)) + ' 100%)');
   const tc = document.querySelector('meta[name=theme-color]');
   if(tc) tc.setAttribute('content', ok(r.bg));
+  document.documentElement.dataset.skin = sk.id || 'neon';
 }
 // 類別色從當下的霓虹色推出來：白天一組綠，深夜整組跟著轉紅
 function catTone(k){
@@ -889,9 +1003,18 @@ function migrateState(raw){
   }));
   if(s.active){ s.activeId = s.active.id; delete s.active; }
   if(typeof s.night !== 'boolean') s.night = true;
-  if(typeof s.coins !== 'number' || s.coins < 0) s.coins = 0;
+  if(typeof s.coins !== 'number' || s.coins < 0) s.coins = 400;
+  // 測試階段：既有存檔金幣低於預設時補到 400，方便開商店
+  if(s.coins < 400) s.coins = 400;
   if(!Array.isArray(s.ownedPets)) s.ownedPets = FREE_PET_IDS.slice();
+  // 舊 id「elephant／小人象」更正為人物「figure／小人像」
+  s.ownedPets = s.ownedPets.map(id => id === 'elephant' ? 'figure' : id);
+  if(s.equippedPet === 'elephant') s.equippedPet = 'figure';
+  if(s.companion && s.companion.petId === 'elephant') s.companion.petId = 'figure';
+  if(Array.isArray(s.fallen)) s.fallen.forEach(f => { if(f && f.petId === 'elephant') f.petId = 'figure'; });
   FREE_PET_IDS.forEach(id => { if(s.ownedPets.indexOf(id) < 0) s.ownedPets.push(id); });
+  // 去掉已廢棄的 elephant id
+  s.ownedPets = s.ownedPets.filter(id => id !== 'elephant');
   if(!PETS.some(p => p.id === s.equippedPet)) s.equippedPet = 'bomb';
   if(s.ownedPets.indexOf(s.equippedPet) < 0) s.equippedPet = 'bomb';
   if(!s.companion || typeof s.companion !== 'object'){
@@ -1012,8 +1135,10 @@ function dayTasksFailed(k){
   const day = dayOf(k);
   if(!day) return false;
   const a = day.anchor;
+  // Anchor 設了卻還停在進行中＝情緒勒索觸發點
   if(a && a.text && a.text.trim() && a.state === 'doing') return true;
-  return (day.blocks || []).some(b => !b.demo && !b.endedAt);
+  // 只有「已開始、未結束」算失敗；已排定但還沒開始的不算
+  return (day.blocks || []).some(b => !b.demo && b.startedAt && !b.endedAt);
 }
 function dayHadTasks(k){
   const day = dayOf(k);
@@ -1053,8 +1178,16 @@ function settlePetDay(k){
 /* 關掉 App 跨過午夜時，下次開啟要把漏掉的日子結算完 */
 function catchUpPetSettlement(){
   const todayK = dayKey();
+  // 先結算（未收尾的進行中＝失敗→炸掉），再清掉跨日殘留的 activeId
   Object.keys(S.days || {}).filter(k => k < todayK && !S.petSettled[k]).sort()
     .forEach(settlePetDay);
+  const act = activeBlock();
+  if(act && act.day && act.day < todayK){
+    if(!act.endedAt) act.endedAt = Math.min(Date.now(), act.endAt || Date.now());
+    S.activeId = null;
+  }else if(S.activeId && !activeBlock()){
+    S.activeId = null;
+  }
 }
 function buyPet(id){
   const p = petOf(id);
@@ -1069,11 +1202,12 @@ function buyPet(id){
 }
 function equipPet(id){
   if(S.ownedPets.indexOf(id) < 0) return;
-  if(S.equippedPet === id){ ui.sheet = null; render(); return; }
+  if(S.equippedPet === id){ if(ui.sheet){ ui.sheet = null; render(); } return; }
   setState(()=>{
     // 換角＝這段陪伴告一段落但不炸掉，開新的陪伴計數
     startCompanion(id, dayKey());
-    ui.sheet = null;
+    if(ui.sheet === 'shop') ui.sheet = null;
+    else if(ui.sheet === 'cabinet') ui.sheet = null;
   });
 }
 function buySkin(id){
@@ -1093,7 +1227,7 @@ function equipSkin(id){
     S.equippedSkin = id;
     lastSkin = '';
     applyPressure();
-    ui.sheet = null;
+    if(ui.sheet === 'shop') ui.sheet = null;
   });
 }
 
@@ -1219,6 +1353,8 @@ function fuseHtml(){
   // 夜間強度關掉 → p 為 0：火花／flare／ember 必須完全靜止（規則不可只關一半）
   const calm = p <= 0;
   const rem = (100 - pctToday()).toFixed(2) + '%';
+  // 錨點 #fusePin 只負責 left%；火花／光暈在錨點內以 0,0 為中心，避免 refresh 覆寫 animation transform
+  const tipPin = 'position:absolute;left:0;top:0;transform:translate(-50%,-50%);';
   const neon = ok(r.neon);
   const ember = calm ? '0' : (0.45 + p*0.5).toFixed(2);
   const shell = ok([Math.max(0.06, r.bg[0] - 0.04), r.bg[1], r.bg[2]]);
@@ -1227,51 +1363,76 @@ function fuseHtml(){
   const animFlare = calm ? 'none' : 'n-flare .9s ease-in-out infinite';
   const animSpark = calm ? 'none' : 'n-spark .32s ease-in-out infinite';
   const ink = skinOf().light ? '28,26,23' : '233,237,244';
+  const mil = !!skinOf().military;
+  const ropeH = mil ? 4 : 5;
+  const ropeTop = mil ? 2.5 : 2;
+  const ashTop = (ropeTop + (ropeH - 3) / 2).toFixed(1);
   const dot = (size, bg, delay, dur) =>
-    '<div style="position:absolute;top:50%;left:'+rem+';width:'+size+'px;height:'+size+'px;border-radius:50%;'
+    '<div style="'+tipPin+'width:'+size+'px;height:'+size+'px;border-radius:50%;'
     + 'background:'+bg+';opacity:'+ember+';animation:'
     + (calm ? 'none' : 'n-ember '+dur+'s ease-out '+delay+'s infinite')+'"></div>';
   return '<div style="display:flex;align-items:center;gap:6px;margin-top:22px">'
     + fuseBombVisual(p, out, r, tip, shell)
     // 引線
-    + '<div id="fuseTrack" style="flex:1;height:9px;position:relative">'
-    + '<div id="fuseRope" style="position:absolute;top:2px;left:0;height:5px;width:'+rem+';'
+    + '<div id="fuseTrack" style="flex:1;height:9px;position:relative;'
+    +   (mil ? 'background:repeating-linear-gradient(90deg,transparent 0 7px,rgba(190,200,120,.18) 7px 8px)' : '')+'">'
+    + '<div id="fuseRope" style="position:absolute;top:'+ropeTop+'px;left:0;height:'+ropeH+'px;width:'+rem+';'
     +   'background:repeating-linear-gradient(115deg, rgba('+ink+','+(0.16+p*0.1).toFixed(2)+') 0 3px, '
-    +   'rgba('+ink+','+(0.34+p*0.2).toFixed(2)+') 3px 6px)"></div>'
-    + '<div id="fuseAsh" style="position:absolute;top:3px;right:0;height:3px;width:'+pctToday().toFixed(2)+'%;'
+    +   'rgba('+ink+','+(0.34+p*0.2).toFixed(2)+') 3px 6px)'
+    +   (mil ? ';border-top:1px solid rgba(190,200,120,.25);border-bottom:1px solid rgba(0,0,0,.35)' : '')+'"></div>'
+    + '<div id="fuseAsh" style="position:absolute;top:'+ashTop+'px;right:0;height:3px;width:'+pctToday().toFixed(2)+'%;'
     +   'background:linear-gradient(to left, rgba('+ink+',.04), rgba('+ink+',.13))"></div>'
-    + '<div id="fuseFlare" style="position:absolute;top:50%;left:'+rem+';width:'+(22+p*26+(out?16:0)).toFixed(0)+'px;'
+    + '<div id="fusePin" style="position:absolute;left:'+rem+';top:50%;width:0;height:0;pointer-events:none">'
+    + '<div id="fuseFlare" style="'+tipPin+'width:'+(22+p*26+(out?16:0)).toFixed(0)+'px;'
     +   'height:'+(22+p*26+(out?16:0)).toFixed(0)+'px;border-radius:50%;'
     +   'background:radial-gradient(circle, '+ok(r.neon, calm ? '0.2' : '0.5')+' 0 30%, '+ok(r.neon,'0')+' 70%);'
     +   'animation:'+animFlare+'"></div>'
-    + '<div id="fuseSpark" style="position:absolute;top:50%;left:'+rem+';width:'+(9+p*8+(out?6:0)).toFixed(0)+'px;'
+    + '<div id="fuseSpark" style="'+tipPin+'width:'+(9+p*8+(out?6:0)).toFixed(0)+'px;'
     +   'height:'+(9+p*8+(out?6:0)).toFixed(0)+'px;border-radius:50%;'
-    +   'background:radial-gradient(circle, '+sparkCore+' 0 35%, '+neon+' 70%, '+ok(r.neon,'0')+' 100%);'
-    +   'box-shadow:0 0 '+(calm ? 0 : (18+p*34+(out?22:0))).toFixed(0)+'px '+(calm ? 0 : (6+p*8)).toFixed(0)+'px '+ok(r.neon,(0.65+p*0.35).toFixed(2))
-    +   (calm ? '' : ', 0 0 6px 2px rgba(255,255,255,.85)')+';animation:'+animSpark+'"></div>'
+    +   'background:radial-gradient(circle at 50% 50%, '+sparkCore+' 0 35%, '+neon+' 70%, '+ok(r.neon,'0')+' 100%);'
+    +   'box-shadow:0 0 '+(calm ? 0 : (10+p*18+(out?12:0))).toFixed(0)+'px '+(calm ? 0 : (3+p*4)).toFixed(0)+'px '+ok(r.neon,(0.55+p*0.35).toFixed(2))
+    +   (calm ? '' : ', 0 0 3px 1px rgba(255,255,255,.9)')+';animation:'+animSpark+'"></div>'
+    + '<div style="'+tipPin+'width:3px;height:3px;border-radius:50%;background:#fff;opacity:'+(calm?'.35':'.95')+';'
+    +   'box-shadow:0 0 4px 1px '+ok(r.neon,'0.9')+'"></div>'
     + (calm ? '' : dot(3,sparkCore,0,1.1) + dot(2,neon,0.35,1.5) + dot(2,sparkCore,0.8,1.9))
-    + '</div></div>';
+    + '</div></div></div>';
 }
 function heroHtml(){
   const left = secLeft(), p = pressure();
+  const sk = skinOf();
   const size = (92 + p*22).toFixed(0);
   const creep = p <= 0 ? 'none' : 'n-creep 5.5s linear infinite';
-  return '<div id="hero" style="margin:6px -20px 0;padding:26px 20px 24px;position:relative;overflow:hidden;'
+  const hud = sk.military
+    ? '<div class="camo-hud"><span>OBJ · PRIMARY</span><span>ZULU '+nowClock()+'</span><span>GRID '
+      + String(Math.floor(pctToday()*1.27)%100).padStart(2,'0')+'-'
+      + String(Math.floor(left/86.4)%100).padStart(2,'0')+'</span><span>'
+      + (EN()?'REMAIN ':'剩餘 ')+pctToday().toFixed(0)+'%</span></div>'
+    : '';
+  const rank = sk.military
+    ? '<span class="camo-rank" aria-hidden="true"><i></i><i></i><i></i></span>' : '';
+  const stripe = sk.military && p > 0.55
+    ? '<div class="camo-stripe" aria-hidden="true"></div>' : '';
+  return '<div id="hero" class="'+(sk.military?'camo-brackets':'')+'" style="margin:6px -20px 0;padding:26px 20px 24px;position:relative;overflow:hidden;'
     + 'background:var(--hero-bg);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)">'
+    + (sk.military ? '<i class="c-tr" aria-hidden="true"></i><i class="c-bl" aria-hidden="true"></i>'
+      + '<div class="camo-mark" aria-hidden="true">FIELD OPS</div>' : '')
+    + stripe
+    + (sk.military ? '<div class="camo-reticle" aria-hidden="true"></div>' : '')
     // 由上往下爬的一道微光
     + '<div style="position:absolute;left:0;right:0;top:0;height:60px;pointer-events:none;opacity:'+(p*0.9).toFixed(2)+';'
     +   'background:linear-gradient(to bottom, '+ok(ramp(p).neon,(0.06+p*0.22).toFixed(2))+', transparent);'
     +   'animation:'+creep+'"></div>'
-    + '<div style="position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
-    + '<div class="kicker">'+esc(t('left_today'))+'</div>' + clockHtml() + '</div>'
-    + '<div id="cdNum" class="num" style="position:relative;font:700 '+size+'px/.82 var(--fh);'
+    + '<div style="position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:10px;z-index:2">'
+    + '<div class="kicker">'+(sk.military ? (EN()?'T-MINUS':'剩餘秒數') : esc(t('left_today')))+rank+'</div>' + clockHtml() + '</div>'
+    + '<div id="cdNum" class="num" style="position:relative;z-index:2;font:700 '+size+'px/.82 var(--fh);'
     +   'letter-spacing:-.02em;margin-top:12px;color:'+(p > 0.45 ? 'var(--accent)' : 'var(--ink)')+';'
     +   'text-shadow:var(--glow-big);animation:'+heroAnim()+'">'+fmtDisp(left)+'</div>'
-    + '<div id="cdSub" style="position:relative;display:flex;justify-content:space-between;align-items:baseline;'
+    + '<div id="cdSub" style="position:relative;z-index:2;display:flex;justify-content:space-between;align-items:baseline;'
     +   'font:300 11.5px/1.5 var(--fb);color:var(--ink-55);margin-top:12px">'
     +   '<span>'+esc(humanLeft(left))+'</span><span>'+esc((EN()?'elapsed ':'已過 ')+pctToday().toFixed(1)+'%')+'</span></div>'
-    + fuseHtml()
-    + '<div id="cdMood" style="position:relative;font:400 11px/1.6 var(--fb);margin-top:16px;color:'
+    + '<div style="position:relative;z-index:2">'+fuseHtml()+'</div>'
+    + hud
+    + '<div id="cdMood" style="position:relative;z-index:2;font:400 11px/1.6 var(--fb);margin-top:16px;color:'
     +   (p > 0.6 ? ok(ramp(p).neon,'0.85') : 'var(--ink-55)')+'">'+esc(moodLine())+'</div>'
     + '</div>';
 }
@@ -1668,7 +1829,6 @@ function screenSettings(){
     '<button class="chip'+(S.cats.indexOf(c.k)>=0?' on':'')+'" data-act="cat-toggle" data-cat="'+c.k+'">'+esc(EN()?c.en:c.zh)+'</button>').join('');
   ensureCompanion();
   const pet = petOf(S.equippedPet);
-  const sk = skinOf();
   const acctLine = S.account.mode === 'local'
     ? (S.account.name || t('acct_local'))
     : t('acct_guest_lbl');
@@ -1699,13 +1859,6 @@ function screenSettings(){
     + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('pet_cabinet_sub'))+'</div>'
     + '<div style="font:400 11.5px/1.5 var(--fb);color:var(--accent-deep);margin-top:6px">'
     +   pet.emoji+' '+esc(petName(pet.id))+' · '+esc(tFill('pet_days',{n:S.companion.days|0}))+'</div></div>'
-    + '<span class="v">›</span></div>'
-
-    + '<div class="row" style="cursor:pointer;align-items:flex-start" data-act="open-shop">'
-    + '<div style="min-width:0"><div class="k">'+esc(t('pet_shop'))+'</div>'
-    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('pet_shop_sub'))+'</div>'
-    + '<div style="font:400 11.5px/1.5 var(--fb);color:var(--accent-deep);margin-top:6px">'
-    +   esc(t('skin_row'))+' · '+esc(skinName(sk.id))+'</div></div>'
     + '<span class="v">›</span></div>'
 
     + '<div style="padding:14px 0;border-top:1px solid rgba(233,237,244,.14)">'
@@ -1882,10 +2035,19 @@ function shopTabBtn(id, label){
 }
 function skinSwatch(sk){
   const a = sk.stops[0].neon, b = sk.stops[2].bg;
+  if(sk.military){
+    return '<div style="width:42px;height:42px;flex:none;border:1px solid var(--hair);position:relative;overflow:hidden;'
+      + 'background:'+ok(b)+'">'
+      + '<div style="position:absolute;inset:0;background:'
+      +   'radial-gradient(ellipse 55% 45% at 20% 30%,'+ok(a)+'cc,transparent 70%),'
+      +   'radial-gradient(ellipse 50% 55% at 75% 65%,oklch(0.22 0.04 85 /.9),transparent 70%),'
+      +   'radial-gradient(ellipse 40% 35% at 60% 20%,oklch(0.30 0.05 125 /.7),transparent 70%)"></div>'
+      + '<div style="position:absolute;left:3px;top:3px;right:3px;bottom:3px;border:1px dashed '+ok(a,'0.45')+'"></div></div>';
+  }
   return '<div style="width:42px;height:42px;flex:none;border:1px solid var(--hair);'
     + 'background:linear-gradient(135deg,'+ok(a)+','+ok(b)+')"></div>';
 }
-function sheetShop(){
+function shopListsHtml(){
   const petRows = PETS.map(p => {
     const owned = S.ownedPets.indexOf(p.id) >= 0;
     const price = p.free ? t('pet_free') : tFill('pet_price',{n:p.price});
@@ -1926,13 +2088,35 @@ function sheetShop(){
       + skinSwatch(sk)
       + '<div style="flex:1;min-width:0"><div style="font:500 14px/1.4 var(--fb)">'+esc(skinName(sk.id))
       + (sk.id==='neon'?' · '+esc(t('pet_default')):'')
+      + (sk.military?' · '+esc(EN()?'Field':'野戰'):'')
       + (on?' · <span style="color:var(--accent-deep)">'+esc(t('skin_equipped'))+'</span>':'')+'</div>'
       + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'+esc(price)+'</div></div>'
       + action + '</div>'
       + '<div style="font:400 11.5px/1.55 var(--fb);color:var(--ink-55);margin-top:10px;padding-left:54px">「'+esc(sample)+'」</div>'
       + '</div>';
   }).join('');
-
+  return { petRows, skinRows };
+}
+function screenShop(){
+  const { petRows, skinRows } = shopListsHtml();
+  ensureCompanion();
+  const pet = petOf(S.equippedPet);
+  return '<div style="padding:16px 0 4px;display:flex;justify-content:space-between;align-items:baseline;gap:12px">'
+    + '<div class="h-screen">'+esc(t('pet_shop'))+'</div>'
+    + '<div class="num" style="font:600 22px/1 var(--fh);color:var(--accent-deep)">'+comma(S.coins|0)
+    + '<span style="font:400 11px/1 var(--fb);color:var(--ink-55);margin-left:6px">'+esc(t('coins'))+'</span></div></div>'
+    + '<div class="foot" style="margin-top:6px">'+esc(t('pet_shop_sub'))+'</div>'
+    + '<button class="btn btn-wide" data-act="open-cabinet" style="margin-top:14px;justify-content:space-between;padding:12px 14px">'
+    + '<span style="text-align:left"><span style="font:600 12px var(--fh);letter-spacing:.08em">'+esc(t('pet_cabinet'))+'</span>'
+    + '<span style="display:block;font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:4px;font-family:var(--fb);letter-spacing:0;font-weight:400">'
+    +   pet.emoji+' '+esc(petName(pet.id))+' · '+esc(tFill('pet_days',{n:S.companion.days|0}))+'</span></span>'
+    + '<span style="color:var(--ink-42)">›</span></button>'
+    + '<div style="display:flex;gap:8px;margin-top:18px">'+shopTabBtn('pets',t('shop_tab_pets'))+shopTabBtn('skins',t('shop_tab_skins'))+'</div>'
+    + '<div style="margin-top:4px">'+(ui.shopTab==='skins' ? skinRows : petRows)+'</div>';
+}
+function sheetShop(){
+  // 相容：若還有 sheet 入口，轉成與分頁相同內容
+  const { petRows, skinRows } = shopListsHtml();
   return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">SHOP</div>'
@@ -2168,13 +2352,9 @@ function refreshHero(){
 
   const rope = document.getElementById('fuseRope'); if(rope) rope.style.width = rem;
   const ash  = document.getElementById('fuseAsh');  if(ash)  ash.style.width = pct.toFixed(2) + '%';
-  ['fuseFlare','fuseSpark'].forEach(id => {
-    const el = document.getElementById(id); if(el) el.style.left = rem;
-  });
-  const track = document.getElementById('fuseTrack');
-  if(track) Array.prototype.forEach.call(track.children, el => {
-    if(el.style.animationName === 'n-ember' || /n-ember/.test(el.style.animation)) el.style.left = rem;
-  });
+  // 只移錨點，不碰火花／光暈的 transform（避免跟 animation 搶）
+  const pin = document.getElementById('fusePin');
+  if(pin){ pin.style.left = rem; pin.style.top = '50%'; }
 
   // 階段換了才動字級/動態，避免每秒重設 animation
   const calm = p <= 0;
@@ -2198,9 +2378,9 @@ function refreshHero(){
     if(flare) flare.style.animation = calm ? 'none' : 'n-flare .9s ease-in-out infinite';
     const spark = document.getElementById('fuseSpark');
     if(spark) spark.style.animation = calm ? 'none' : 'n-spark .32s ease-in-out infinite';
-    const track = document.getElementById('fuseTrack');
-    if(track && calm){
-      Array.prototype.forEach.call(track.children, el => {
+    const pinEl = document.getElementById('fusePin');
+    if(pinEl && calm){
+      Array.prototype.forEach.call(pinEl.children, el => {
         if(/n-ember/.test(el.style.animation || '')) el.style.animation = 'none';
       });
     }
@@ -2219,6 +2399,7 @@ function render(){
 
   const screen = S.tab === 'today' ? screenToday()
                : S.tab === 'receipt' ? screenReceipt()
+               : S.tab === 'shop' ? screenShop()
                : S.tab === 'insights' ? screenInsights() : screenSettings();
 
   app.innerHTML =
@@ -2231,6 +2412,7 @@ function render(){
     + '<div class="tabs">'
     + tabBtn('today','<span class="ic ic-today"><i></i></span>', t('tab_today'))
     + tabBtn('receipt','<span class="ic ic-receipt"><i></i><i></i><i></i></span>', t('tab_receipt'))
+    + tabBtn('shop','<span class="ic ic-shop"><i></i><i></i><i></i></span>', t('tab_shop'))
     + tabBtn('insights','<span class="ic ic-insights"><i style="height:6px"></i><i style="height:13px"></i><i style="height:9px"></i></span>', t('tab_insights'))
     + tabBtn('settings','<span class="ic ic-settings"></span>', t('tab_settings'))
     + '</div>'
@@ -2331,7 +2513,7 @@ document.addEventListener('click', e => {
     case 'wipe':   if(confirm(t('confirm_delete'))){ localStorage.removeItem(KEY);
                      S = migrateState({}); resetUiState(); lastSkin = '';
                      save(); applyPressure(); render(); } break;
-    case 'open-shop': ui.shopTab = 'pets'; ui.sheet = 'shop'; render(); break;
+    case 'open-shop': ui.shopTab = 'pets'; setState(()=>{ S.tab = 'shop'; ui.sheet = null; }); break;
     case 'open-cabinet': ui.sheet = 'cabinet'; render(); break;
     case 'shop-tab': ui.shopTab = el.dataset.v; render(); break;
     case 'buy-pet': buyPet(el.dataset.id); break;
@@ -2443,12 +2625,19 @@ function heartbeat(){
   applyPressure();
   if(!S.onboarded) return;
 
-  if(dayKey() !== lastDay){            // 跨過本地午夜 → 結算寵物，換新的一天
+  if(dayKey() !== lastDay){            // 跨過本地午夜 → 先收尾進行中，再結算寵物
     const prev = lastDay;
+    const a0 = activeBlock();
+    if(a0){
+      // 必須在 settle 之前結束，否則「進行中」會被誤判為失敗而炸掉
+      a0.endedAt = Math.min(Date.now(), a0.endAt || Date.now());
+      S.activeId = null;
+      rewardBlockDone(a0);
+      ui.worth = { blockId:a0.id, pick:null, note:'', again:false };
+      ui.sheet = 'worth';
+    }
     settlePetDay(prev);
     lastDay = dayKey(); S.fired = {}; ui.anchorDraft = null; ui.anchorEdit = false;
-    const a0 = activeBlock();
-    if(a0){ endBlock(); return; }      // 走完整結束流程，打開 Worth It
     save(); render(); return;
   }
   const act = activeBlock();
@@ -2495,9 +2684,9 @@ function checkNotif(left){
   if(S.notif.wake && hm === S.wake)
     fire('wake', EN()?'Set today’s Anchor.':'設定今天的 Today Anchor。');
   if(S.notif.three && left <= 10800 && left > 10740)
-    fire('three', EN()?'3 hours left. You can choose again, from here.':'今天剩三小時，你可以從現在重新選擇。');
+    fire('three', EN()?'3 hours left. Plan the rest of today.':'今天剩三小時，請安排剩餘時間。');
   if(S.notif.sleep && hm === S.sleep)
-    fire('sleep', EN()?'Read today’s Time Receipt.':'看一下今天的 Time Receipt。');
+    fire('sleep', EN()?'Open today’s Receipt.':'查看今天的收據。');
 }
 setInterval(heartbeat, 1000);
 document.addEventListener('visibilitychange', () => {
