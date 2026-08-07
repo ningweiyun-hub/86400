@@ -84,13 +84,14 @@ html[data-skin="camo"] .scan{
     repeating-linear-gradient(90deg,transparent 0 18px,rgba(190,200,120,.12) 18px 19px),
     repeating-linear-gradient(135deg,transparent 0 10px,rgba(0,0,0,.08) 10px 11px);
 }
-html[data-skin="camo"] .brand{
+/* 商店分頁有獨立 chrome（.on-shop），迷彩邊框／底欄不要蓋過去 */
+html[data-skin="camo"] .app:not(.on-shop) .brand{
   letter-spacing:.18em;text-shadow:none;font-weight:700;
   border:1px solid rgba(190,200,120,.45);padding:4px 9px 3px;
   background:rgba(0,0,0,.35);
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);
 }
-html[data-skin="camo"] .brand::before{content:"◇ ";opacity:.75;letter-spacing:0}
+html[data-skin="camo"] .app:not(.on-shop) .brand::before{content:"◇ ";opacity:.75;letter-spacing:0}
 html[data-skin="camo"] .kicker,
 html[data-skin="camo"] .kicker-s{
   letter-spacing:.32em;text-shadow:none;font-weight:700;
@@ -111,11 +112,11 @@ html[data-skin="camo"] #hero{
   background-size:100% 100%, 100% 10px, auto, auto, auto, auto;
   border-color:rgba(190,200,120,.28) !important;
 }
-html[data-skin="camo"] .tabs{
+html[data-skin="camo"] .app:not(.on-shop) .tabs{
   border-top-color:rgba(190,200,120,.35);
   background:linear-gradient(180deg, oklch(0.15 0.035 100 / .95), oklch(0.11 0.03 90 / .98));
 }
-html[data-skin="camo"] .tabs button{
+html[data-skin="camo"] .app:not(.on-shop) .tabs button{
   letter-spacing:.06em;font-weight:600;text-transform:uppercase;font-size:9.5px;
 }
 html[data-skin="camo"] .btn-fill{
@@ -213,6 +214,32 @@ input{border-radius:0}
 }
 .tabs button.on{color:var(--accent);text-shadow:var(--glow-sm)}
 .tabs .lbl{font:500 9.5px/1 var(--fb);letter-spacing:.06em}
+/* 英文拉丁字在同樣 px 會顯得更小；放寬字級、收斂字距 */
+html[data-lang="en"] .tabs .lbl{font-size:11.5px;letter-spacing:.02em;font-weight:600}
+html[data-lang="en"] .kicker{font-size:11px;letter-spacing:.12em}
+html[data-lang="en"] .kicker-s{font-size:10.5px;letter-spacing:.1em}
+html[data-lang="en"] .foot{font-size:12px;line-height:1.65}
+html[data-lang="en"] .date{font-size:11.5px}
+html[data-lang="en"] .h-screen{font-size:20px}
+html[data-lang="en"] body{font-size:16px}
+html[data-lang="en"] .chip{font-size:12.5px}
+html[data-lang="en"] .btn{font-size:14px}
+html[data-lang="en"] .shop-head .t{font-size:15px}
+html[data-lang="en"] .shop-head .t span{font-size:11.5px;letter-spacing:.06em}
+html[data-lang="en"] .shop .mono{letter-spacing:.06em}
+html[data-lang="en"] .shop-wallet .mono{font-size:12.5px !important;letter-spacing:.08em !important}
+html[data-lang="en"] .shop-earn{font-size:12.5px !important}
+html[data-lang="en"] .shop-title-sub{font-size:13px !important;letter-spacing:.08em !important}
+html[data-lang="en"] .shop-pet .nm{font-size:13px}
+html[data-lang="en"] .shop-skin > div:nth-child(2){font-size:13px !important}
+html[data-lang="en"] .shop-pet .pr,html[data-lang="en"] .shop-skin .pr{font-size:12.5px}
+html[data-lang="en"] .shop-btn{font-size:13.5px}
+html[data-lang="en"] .shop-consum{font-size:14px}
+html[data-lang="en"] .app.on-shop .tabs button{font-size:11.5px;font-weight:600}
+html[data-lang="en"] .camo-hud{font-size:10.5px;letter-spacing:.1em}
+html[data-lang="en"] .seg button{font-size:13px}
+html[data-lang="en"] .row .k{font-size:14.5px}
+html[data-lang="en"] .row .v{font-size:13.5px}
 .ic{width:13px;height:13px;display:flex}
 .ic-today{border:1px solid currentColor;align-items:flex-end;padding:1px}
 .ic-today i{width:4px;height:4px;background:currentColor;display:block}
@@ -276,7 +303,8 @@ input{border-radius:0}
 
 
 /* ── 商店（貨架佈局）───────────────────────────────────────────────────
-   只有這一頁用這組色票與圓角，刻意跟主畫面的壓力色階分開。 */
+   例外：這一頁用固定貨架色票（不跟 applyPressure 跑），刻意跟主畫面壓力色階分開。
+   「夜間強度」關掉時仍會拿掉 chrome／錢包光暈（.night-off），不全開壓力升溫。 */
 .shop{--s-bg:#07090B;--s-panel:#0E1316;--s-neon:#35F0A0;--s-gold:#FFC24B;
   --s-ink:#EAF2EE;--s-dim:rgba(234,242,238,.45);--s-line:rgba(255,255,255,.08);
   font-family:'Noto Sans TC',system-ui,sans-serif;color:var(--s-ink);
@@ -287,10 +315,24 @@ input{border-radius:0}
 .shop-wallet{border-radius:20px;padding:16px 18px;margin-bottom:24px;position:relative;overflow:hidden;
   background:linear-gradient(135deg,#0F2019,#0A1113);border:1px solid rgba(53,240,160,.24)}
 .shop-wallet::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;
-  border-radius:999px;background:radial-gradient(circle,rgba(53,240,160,.22),transparent 70%)}
-.shop-rail{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding:0 18px 22px;
-  -webkit-overflow-scrolling:touch;scrollbar-width:none}
+  border-radius:999px;background:radial-gradient(circle,rgba(53,240,160,.22),transparent 70%);pointer-events:none}
+/* 貨架：外層捲動、內層 track 撐出寬度；觸控走原生橫滑，不被 button 的 manipulation 吃掉 */
+.shop-rail{
+  overflow-x:scroll;overflow-y:hidden;margin:0 0 8px;padding:0 0 14px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  touch-action:pan-x;overscroll-behavior-x:contain;cursor:grab;
+}
+.shop-rail:active{cursor:grabbing}
 .shop-rail::-webkit-scrollbar{display:none}
+.shop-rail-track{
+  display:flex;gap:12px;width:max-content;min-width:100%;
+  padding:0 18px;box-sizing:border-box;
+}
+.shop-rail .shop-pet,
+.shop-rail .shop-skin{
+  flex:none;cursor:pointer;-webkit-user-select:none;user-select:none;
+}
+.app.on-shop .scroll{overflow-x:hidden}
 .shop-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 18px;margin-bottom:10px}
 .shop-head .t{font-size:14px;font-weight:700}
 .shop-head .t span{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(234,242,238,.56)}
@@ -298,37 +340,68 @@ input{border-radius:0}
 .shop-btn{border-radius:12px;padding:10px;font-size:12.5px;font-weight:700;text-align:center;
   border:1px solid transparent;background:var(--s-neon);color:var(--s-bg)}
 .shop-btn.ghost{background:transparent;border-color:rgba(53,240,160,.3);color:var(--s-neon);font-weight:600}
-.shop-pet{flex:none;width:118px;background:transparent;border:none;padding:0;text-align:left}
+.shop-pet{flex:none;width:118px;background:transparent;border:none;padding:0;text-align:left;color:inherit;display:block}
 .shop-pet .art{width:118px;height:118px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
   background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 6px,transparent 6px 12px),#0E1316;
   display:grid;place-items:center;font-size:46px;margin-bottom:8px}
 .shop-pet.own .art{border-color:rgba(53,240,160,.4)}
 .shop-pet .nm{font-size:12px;font-weight:600}
 .shop-pet .pr{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--s-neon);margin-top:3px}
-.shop-skin{width:172px;text-align:left}
+.shop-pet.cant .art,.shop-skin.cant{opacity:.7}
+.shop-pet.cant .pr,.shop-skin.cant .pr{color:var(--s-dim)}
+.shop-skin{width:172px;text-align:left;color:inherit;display:block;box-sizing:border-box}
 .shop-skin .prev{width:100%;height:92px;border-radius:11px;display:flex;align-items:flex-end;
   padding:11px;margin-bottom:9px;box-sizing:border-box}
+.shop-skin .pr{font-family:'JetBrains Mono',monospace;font-size:11.5px;margin-top:3px;color:var(--s-neon)}
 .shop-consum{display:flex;align-items:center;gap:13px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
-  background:var(--s-panel);padding:14px;margin:0 18px 26px}
-
+  background:var(--s-panel);padding:14px;margin:0 18px 26px;width:calc(100% - 36px);box-sizing:border-box;
+  cursor:pointer;color:inherit;text-align:left}
 
 /* 停在商店分頁時，上下導覽列也跟著換成商店的色，不要跟主畫面的壓力色打架 */
 .app.on-shop{background:#07090B}
 .app.on-shop .bar{background:#07090B}
-.app.on-shop .brand{color:#35F0A0;text-shadow:0 0 18px rgba(53,240,160,.45)}
+.app.on-shop .brand{color:#35F0A0;text-shadow:0 0 18px rgba(53,240,160,.45);border:none;padding:0;background:transparent;box-shadow:none}
+.app.on-shop .brand::before{content:none}
 .app.on-shop .date{color:rgba(234,242,238,.42)}
 .app.on-shop .langsw{border-color:rgba(255,255,255,.14)}
 .app.on-shop .langsw button.on{background:#35F0A0;color:#07090B}
 .app.on-shop .tabs{background:rgba(7,9,11,.92);border-top-color:rgba(255,255,255,.07)}
-.app.on-shop .tabs button{color:rgba(234,242,238,.38)}
+.app.on-shop .tabs button{color:rgba(234,242,238,.38);letter-spacing:.06em;text-transform:none;font-size:9.5px;font-weight:500}
 .app.on-shop .tabs button.on{color:#35F0A0;text-shadow:0 0 12px rgba(53,240,160,.4)}
+.app.on-shop .scan{opacity:.25}
+/* 夜間強度關掉：拿掉商店 chrome／錢包光暈，貨架底色仍固定 */
+.app.on-shop.night-off .brand,.app.on-shop.night-off .tabs button.on{text-shadow:none;color:#9ec9b4}
+.app.on-shop.night-off .langsw button.on{background:#9ec9b4;color:#07090B}
+.app.on-shop.night-off .shop-wallet{border-color:rgba(255,255,255,.1)}
+.app.on-shop.night-off .shop-wallet::after{opacity:0}
+.app.on-shop.night-off .shop{--s-neon:#9ec9b4}
 
 /* ── sheets ──────────────────────────────────────────────────────────── */
 .scrim{position:fixed;inset:0;z-index:80;background:rgba(29,45,61,.45);display:flex;align-items:flex-end}
-.sheet{width:100%;background:var(--bg);border-top:1px solid rgba(233,237,244,.25);
+.sheet{width:100%;background:var(--bg);border-top:1px solid var(--hair-2);
+  color:var(--ink);
   padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 40px);
   max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;
   animation:up .22s ease-out}
+.sheet-x{border:none;background:transparent;font:400 11px var(--fb);color:var(--ink-42)}
+/* 商店開的彈層跟貨架同一套深色，不要跟 litérati 等主題的 --bg 打架 */
+.app.on-shop .scrim{background:rgba(0,0,0,.62)}
+.app.on-shop .sheet{
+  background:#0E1316;color:#EAF2EE;border-top-color:rgba(255,255,255,.12);
+  --bg:#0E1316;--ink:#EAF2EE;
+  --ink-55:rgba(234,242,238,.55);--ink-48:rgba(234,242,238,.48);--ink-42:rgba(234,242,238,.42);
+  --hair:rgba(255,255,255,.10);--hair-2:rgba(255,255,255,.16);--hair-3:rgba(255,255,255,.08);
+  --fill:rgba(255,255,255,.06);
+  --accent:#35F0A0;--accent-deep:#35F0A0;--accent-tint:rgba(53,240,160,.14);
+  --on-accent:#07090B;--glow-sm:0 0 12px rgba(53,240,160,.35);--glow:0 0 22px rgba(53,240,160,.4);
+}
+.app.on-shop.night-off .sheet{
+  --accent:#9ec9b4;--accent-deep:#9ec9b4;--accent-tint:rgba(158,201,180,.14);
+  --glow-sm:none;--glow:none;
+}
+html[data-skin="camo"] .app.on-shop .sheet .btn-fill{
+  background:var(--accent);border:none;box-shadow:none;color:var(--on-accent);
+}
 @keyframes up{from{transform:translateY(14px)}to{transform:translateY(0)}}
 .full{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;flex-direction:column;
   padding:calc(env(safe-area-inset-top,0px) + 40px) 24px calc(env(safe-area-inset-bottom,0px) + 28px)}
@@ -500,6 +573,11 @@ const T = {
   pet_shop_sub:    ['用金幣買下下一個會綁住你的理由。','Spend coins on the next reason that will keep you hostage.'],
   shop_tab_pets:   ['寵物','Pets'],
   shop_tab_skins:  ['主題','Themes'],
+  shop_balance:    ['秒幣餘額 · SEC BALANCE','SEC BALANCE'],
+  shop_earn_anchor:['完成今日 Anchor','Anchor finished'],
+  shop_earn_block: ['完成一個時段','Stretch finished'],
+  shop_rail_pets:  ['PETS','PETS'],
+  shop_rail_themes:['THEMES','THEMES'],
   skin_equip:      ['套用','Apply'],
   skin_equipped:   ['使用中','In use'],
   skin_bought:     ['主題已解鎖','Theme unlocked'],
@@ -699,12 +777,12 @@ function dayStart(d){ d = d ? new Date(d) : new Date(); d.setHours(0,0,0,0); ret
 function dayEnd(d){ return dayStart(d) + 86400000; }
 
 let S = load();
-let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
+let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
            anchorDraft:null, anchorEdit:false, anchorCancelling:false,
            spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
                   when:'now',at:'',warn:false},
            worth:{blockId:null,pick:null,note:'',again:false},
-           petToast:null, petMemoId:null, shopTab:'pets',
+           petToast:null, petMemoId:null,
            auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 
 function load(){
@@ -740,7 +818,9 @@ function secPassed(now){ return 86400 - secLeft(now); }
    夜間強度關掉 → p 恆為 0（顏色／閃爍／抖動／文案全部回平靜）。
    ─────────────────────────────────────────────────────────────────────── */
 const lerp = (a,b,k) => a + (b-a)*k;
-function skinOf(id){ return SKINS.find(x => x.id === (id || S.equippedSkin)) || SKINS[0]; }
+function skinOf(id){
+  return SKINS.find(x => x.id === (id || PREVIEW_THEME || S.equippedSkin)) || SKINS[0];
+}
 function skinName(id){ const x = skinOf(id); return EN() ? x.en : x.zh; }
 function activeStops(){ return skinOf().stops; }
 function ramp(p){
@@ -755,12 +835,16 @@ function ramp(p){
 const ok = (c,alpha) => 'oklch(' + c[0].toFixed(3) + ' ' + c[1].toFixed(3) + ' ' + c[2].toFixed(1)
   + (alpha === undefined ? '' : ' / ' + alpha) + ')';
 
-// 只在驗收/預覽時用：?preview=23:40 會把時鐘固定在那個時刻。
-// 不是產品功能，UI 上沒有入口（handoff 註明 DEMO 列不可上線）。
+// 只在驗收/預覽時用（UI 無入口；handoff 註明 DEMO 列不可上線）：
+//   ?preview=23:40     固定時鐘
+//   ?theme=camo        暫時套用主題（不寫入存檔）
 let PREVIEW = null;
+let PREVIEW_THEME = null;
 (function(){
   const m = /[?&]preview=(\d{1,2}):(\d{2})/.exec(location.search);
   if(m) PREVIEW = (+m[1])*3600 + (+m[2])*60;
+  const tm = /[?&]theme=([a-z]+)/i.exec(location.search);
+  if(tm && SKINS.some(s => s.id === tm[1].toLowerCase())) PREVIEW_THEME = tm[1].toLowerCase();
 })();
 function elapsedToday(){
   if(PREVIEW !== null) return PREVIEW;
@@ -782,7 +866,7 @@ let lastSkin = '';
 function applyPressure(){
   const sk = skinOf();
   const p = pressure(), r = ramp(p);
-  const key = (S.equippedSkin||'neon') + '|' + p.toFixed(3) + (S.night ? '1' : '0');
+  const key = (PREVIEW_THEME || S.equippedSkin || 'neon') + '|' + p.toFixed(3) + (S.night ? '1' : '0');
   if(key === lastSkin) return;
   lastSkin = key;
   const s = document.documentElement.style;
@@ -826,6 +910,8 @@ function applyPressure(){
   const tc = document.querySelector('meta[name=theme-color]');
   if(tc) tc.setAttribute('content', ok(r.bg));
   document.documentElement.dataset.skin = sk.id || 'neon';
+  document.documentElement.dataset.lang = S.lang === 'en' ? 'en' : 'zh';
+  document.documentElement.lang = S.lang === 'en' ? 'en' : 'zh-Hant';
 }
 // 類別色從當下的霓虹色推出來：白天一組綠，深夜整組跟著轉紅
 function catTone(k){
@@ -1255,8 +1341,7 @@ function equipPet(id){
   setState(()=>{
     // 換角＝這段陪伴告一段落但不炸掉，開新的陪伴計數
     startCompanion(id, dayKey());
-    if(ui.sheet === 'shop') ui.sheet = null;
-    else if(ui.sheet === 'cabinet') ui.sheet = null;
+    if(ui.sheet === 'cabinet') ui.sheet = null;
   });
 }
 function buySkin(id){
@@ -1276,7 +1361,6 @@ function equipSkin(id){
     S.equippedSkin = id;
     lastSkin = '';
     applyPressure();
-    if(ui.sheet === 'shop') ui.sheet = null;
   });
 }
 
@@ -1330,12 +1414,12 @@ function logoutLocalAccount(){
   setState(()=>{ S.account.session = false; ui.sheet = null; });
 }
 function resetUiState(){
-  ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
+  ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
          anchorDraft:null, anchorEdit:false, anchorCancelling:false,
          spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
                 when:'now',at:'',warn:false},
          worth:{blockId:null,pick:null,note:'',again:false},
-         petToast:null, petMemoId:null, shopTab:'pets',
+         petToast:null, petMemoId:null,
          auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 }
 
@@ -1939,14 +2023,20 @@ function screenSettings(){
         + swHtml(S.notif[k],'notif:'+k) + '</div>').join('')
     + '</div>'
 
-    + '<div class="row"><span class="k">'+esc(t('privacy'))+'</span><span class="v">'+esc(t('privacy_v'))+'</span></div>'
-
-    + '<button class="btn btn-wide" data-act="export" style="margin-top:18px">'+esc(t('export'))+'</button>'
-    + '<button class="btn btn-wide" data-act="import" style="margin-top:8px">'+esc(t('import'))+'</button>'
-    + '<input id="importFile" type="file" accept="application/json,.json" hidden>'
-    + '<button class="btn btn-wide" data-act="demo" style="margin-top:8px">'+esc(S.demo ? t('demo_off') : t('demo_on'))+'</button>'
-    + '<button class="btn btn-wide" data-act="redo-ob" style="margin-top:8px">'+esc(t('redo_ob'))+'</button>'
-    + '<button class="btn btn-wide btn-ghost" data-act="wipe" style="margin-top:8px;color:rgba(233,237,244,.5)">'+esc(t('delete_all'))+'</button>'
+    + '<div class="row" style="cursor:pointer" data-act="privacy-open">'
+    + '<div><div class="k">'+esc(t('privacy'))+'</div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('privacy_v'))+'</div></div>'
+    + '<span class="v">'+(ui.privacyOpen?'▾':'›')+'</span></div>'
+    + (ui.privacyOpen
+        ? '<div style="padding:0 0 8px">'
+          + '<button class="btn btn-wide" data-act="export">'+esc(t('export'))+'</button>'
+          + '<button class="btn btn-wide" data-act="import" style="margin-top:8px">'+esc(t('import'))+'</button>'
+          + '<input id="importFile" type="file" accept="application/json,.json" hidden>'
+          + '<button class="btn btn-wide" data-act="demo" style="margin-top:8px">'+esc(S.demo ? t('demo_off') : t('demo_on'))+'</button>'
+          + '<button class="btn btn-wide" data-act="redo-ob" style="margin-top:8px">'+esc(t('redo_ob'))+'</button>'
+          + '<button class="btn btn-wide btn-ghost" data-act="wipe" style="margin-top:8px;color:rgba(233,237,244,.5)">'+esc(t('delete_all'))+'</button>'
+          + '</div>'
+        : '')
     + '<div class="foot" style="margin-top:18px">'+esc(t('install_hint'))+'</div>';
 }
 
@@ -1996,7 +2086,7 @@ function sheetSpend(){
   return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">SPEND THE NEXT</div>'
-    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('cancel'))+'</button></div>'
+    + '<button data-act="close-sheet" class="sheet-x">'+esc(t('cancel'))+'</button></div>'
     + '<div style="font:400 17px/1.5 var(--fb);margin-top:10px">'+esc(t('spend_title'))+'</div>'
     + '<div style="display:flex;gap:7px;margin-top:16px">'
     +   durBtn(15,'15',1)+durBtn(30,'30',1)+durBtn(60,'60',1)+customBtn+'</div>'
@@ -2076,12 +2166,6 @@ function petToastHtml(){
     + 'background:var(--sheet-bg);border:1px solid var(--hair-2);box-shadow:var(--glow-box);padding:12px 16px;'
     + 'font:400 12.5px/1.55 var(--fb);color:var(--ink);pointer-events:none">'+esc(ui.petToast)+'</div>';
 }
-function shopTabBtn(id, label){
-  const on = ui.shopTab === id;
-  return '<button data-act="shop-tab" data-v="'+id+'" style="flex:1;padding:10px 0;font:600 12px var(--fh);letter-spacing:.04em;'
-    + 'border:1px solid '+(on?'var(--accent)':'var(--hair-2)')+';background:'+(on?'var(--accent-tint)':'transparent')+';'
-    + 'color:'+(on?'var(--accent-deep)':'var(--ink)')+'">'+esc(label)+'</button>';
-}
 function skinSwatch(sk){
   const a = sk.stops[0].neon, b = sk.stops[2].bg;
   if(sk.military){
@@ -2096,60 +2180,9 @@ function skinSwatch(sk){
   return '<div style="width:42px;height:42px;flex:none;border:1px solid var(--hair);'
     + 'background:linear-gradient(135deg,'+ok(a)+','+ok(b)+')"></div>';
 }
-function shopListsHtml(){
-  const petRows = PETS.map(p => {
-    const owned = S.ownedPets.indexOf(p.id) >= 0;
-    const price = p.free ? t('pet_free') : tFill('pet_price',{n:p.price});
-    let action;
-    if(owned){
-      action = S.equippedPet === p.id
-        ? '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('pet_equipped'))+'</span>'
-        : '<button class="btn" data-act="equip-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('pet_equip'))+'</button>';
-    }else{
-      action = '<button class="btn'+(p.free||S.coins>=p.price?' btn-fill':'')+'" data-act="buy-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'
-        + esc(p.free ? t('pet_free') : t('pet_buy'))+'</button>';
-    }
-    return '<div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--hair-3)">'
-      + '<div style="width:42px;height:42px;flex:none;display:flex;align-items:center;justify-content:center;font-size:28px;'
-      +   'border:1px solid var(--hair);background:var(--fill)">'+p.emoji+'</div>'
-      + '<div style="flex:1;min-width:0"><div style="font:500 14px/1.4 var(--fb)">'+esc(petName(p.id))
-      + (p.id==='bomb'?' · '+esc(t('pet_default')):'')+'</div>'
-      + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'+esc(price)+'</div></div>'
-      + action + '</div>';
-  }).join('');
-
-  const skinRows = SKINS.map(sk => {
-    const owned = S.ownedSkins.indexOf(sk.id) >= 0;
-    const on = S.equippedSkin === sk.id;
-    const price = sk.free ? t('pet_free') : tFill('pet_price',{n:sk.price});
-    const sample = sk.mood.early[EN()?1:0];
-    let action;
-    if(owned){
-      action = on
-        ? '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('skin_equipped'))+'</span>'
-        : '<button class="btn btn-fill" data-act="equip-skin" data-id="'+sk.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('skin_equip'))+'</button>';
-    }else{
-      action = '<button class="btn'+(S.coins>=sk.price?' btn-fill':'')+'" data-act="buy-skin" data-id="'+sk.id+'" style="padding:8px 12px;font-size:12px">'
-        + esc(t('pet_buy'))+'</button>';
-    }
-    return '<div style="padding:14px 0;border-bottom:1px solid var(--hair-3)">'
-      + '<div style="display:flex;align-items:center;gap:12px">'
-      + skinSwatch(sk)
-      + '<div style="flex:1;min-width:0"><div style="font:500 14px/1.4 var(--fb)">'+esc(skinName(sk.id))
-      + (sk.id==='neon'?' · '+esc(t('pet_default')):'')
-      + (sk.military?' · '+esc(EN()?'Field':'野戰'):'')
-      + (on?' · <span style="color:var(--accent-deep)">'+esc(t('skin_equipped'))+'</span>':'')+'</div>'
-      + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'+esc(price)+'</div></div>'
-      + action + '</div>'
-      + '<div style="font:400 11.5px/1.55 var(--fb);color:var(--ink-55);margin-top:10px;padding-left:54px">「'+esc(sample)+'」</div>'
-      + '</div>';
-  }).join('');
-  return { petRows, skinRows };
-}
-/* 主題預覽：用該主題自己的色票畫一格倒數，讓人買之前就看得到 */
+/* 主題預覽：固定示範數字，不跟 heartbeat 搶；只展示該主題色票 */
 function skinPreview(sk){
   const a = sk.stops[0].neon, b = sk.stops[0].bg, hot = sk.stops[2].neon;
-  const num = comma(secLeft());
   let bgCss, ink = ok(a), extra = '';
   if(sk.military){
     bgCss = 'radial-gradient(40px 27px at 18% 28%,'+ok([b[0]+0.10,b[1]+0.02,95])+' 0 99%,transparent 100%),'
@@ -2165,89 +2198,76 @@ function skinPreview(sk){
           + 'repeating-linear-gradient(90deg,'+ok(a,'0.13')+' 0 1px,transparent 1px 13px),'+ok(b);
   }
   return '<div class="prev" style="border:1px solid '+ok(a,'0.30')+';background:'+bgCss+'">'
-    + '<span class="mono" style="font-size:18px;font-weight:700;color:'+ink+';'+extra+'">'+num+'</span></div>';
+    + '<span class="mono" style="font-size:18px;font-weight:700;color:'+ink+';'+extra+'">86,400</span></div>';
 }
-function shopRail(titleZh, titleEn, cards){
-  return '<div class="shop-head"><div class="t">'+esc(titleZh)+' <span>'+titleEn+'</span></div></div>'
-    + '<div class="shop-rail">'+cards+'</div>';
+function shopRail(title, enKey, cards){
+  return '<div class="shop-head"><div class="t">'+esc(title)+' <span>'+esc(t(enKey))+'</span></div></div>'
+    + '<div class="shop-rail"><div class="shop-rail-track">'+cards+'</div></div>';
 }
 function screenShop(){
   ensureCompanion();
   const pet = petOf(S.equippedPet);
 
-  // 錢包
   const wallet = '<div class="shop-pad"><div class="shop-wallet">'
-    + '<div class="mono" style="position:relative;font-size:10.5px;letter-spacing:.2em;color:rgba(53,240,160,.7);margin-bottom:6px">'
-    +   esc(EN()?'SEC BALANCE':'秒幣餘額 · SEC BALANCE')+'</div>'
+    + '<div class="mono" style="position:relative;font-size:10.5px;letter-spacing:.2em;color:var(--s-neon);opacity:.75;margin-bottom:6px">'
+    +   esc(t('shop_balance'))+'</div>'
     + '<div style="position:relative;display:flex;align-items:flex-end;gap:8px;margin-bottom:14px">'
     + '<span class="mono" style="font-size:38px;font-weight:700;line-height:1;color:var(--s-neon);'
-    +   'text-shadow:0 0 24px rgba(53,240,160,.4)">◎ '+comma(S.coins|0)+'</span></div>'
+    +   'text-shadow:0 0 24px rgba(53,240,160,.35)">◎ '+comma(S.coins|0)+'</span></div>'
     + '<div style="position:relative;display:flex;gap:8px">'
     + '<button class="shop-btn" data-act="open-cabinet" style="flex:1">'+esc(t('pet_cabinet'))+'</button></div>'
-    + '<div style="position:relative;margin-top:12px;font-size:11px;color:var(--s-dim)">'
-    +   esc(EN()?'Anchor finished ':'完成今日 Anchor ')+'<span style="color:var(--s-neon)">+'+COIN_ANCHOR+' ◎</span> · '
-    +   esc(EN()?'stretch finished ':'完成一個時段 ')+'<span style="color:var(--s-neon)">+'+COIN_BLOCK+' ◎</span></div>'
+    + '<div class="shop-earn" style="position:relative;margin-top:12px;font-size:11px;color:var(--s-dim)">'
+    +   esc(t('shop_earn_anchor'))+' <span style="color:var(--s-neon)">+'+COIN_ANCHOR+' ◎</span> · '
+    +   esc(t('shop_earn_block'))+' <span style="color:var(--s-neon)">+'+COIN_BLOCK+' ◎</span></div>'
     + '</div></div>';
 
-  // 寵物貨架
   const petCards = PETS.map(p => {
     const owned = S.ownedPets.indexOf(p.id) >= 0;
     const on = S.equippedPet === p.id;
+    const canBuy = p.free || S.coins >= p.price;
     const act = owned ? (on ? '' : 'equip-pet') : 'buy-pet';
     const label = on ? t('pet_equipped')
                 : owned ? t('pet_equip')
                 : p.free ? t('pet_free') : '◎ ' + p.price;
-    return '<button class="shop-pet'+(owned?' own':'')+'"'+(act?' data-act="'+act+'" data-id="'+p.id+'"':'')+'>'
+    // 用 div 而非 button：避免全域 touch-action:manipulation 讓橫滑／點擊互搶
+    return '<div class="shop-pet'+(owned?' own':'')+(!owned && !canBuy?' cant':'')+'" role="button" tabindex="0"'
+      + (act?' data-act="'+act+'" data-id="'+p.id+'"':'')+'>'
       + '<div class="art">'+p.emoji+'</div>'
       + '<div class="nm">'+esc(petName(p.id))+'</div>'
-      + '<div class="pr"'+(on?' style="color:var(--s-gold)"':'')+'>'+esc(label)+'</div></button>';
+      + '<div class="pr"'+(on?' style="color:var(--s-gold)"':'')+'>'+esc(label)+'</div></div>';
   }).join('');
 
-  // 主題貨架
   const skinCards = SKINS.map(sk => {
     const owned = S.ownedSkins.indexOf(sk.id) >= 0;
     const on = S.equippedSkin === sk.id;
+    const canBuy = sk.free || S.coins >= sk.price;
     const act = owned ? (on ? '' : 'equip-skin') : 'buy-skin';
-    const label = on ? (EN()?'In use':'使用中')
+    const label = on ? t('skin_equipped')
                 : owned ? t('skin_equip')
                 : sk.free ? t('pet_free') : '◎ ' + sk.price;
-    return '<button class="shop-card shop-skin"'+(act?' data-act="'+act+'" data-id="'+sk.id+'"':'')+'>'
+    return '<div class="shop-card shop-skin'+(!owned && !canBuy?' cant':'')+'" role="button" tabindex="0"'
+      + (act?' data-act="'+act+'" data-id="'+sk.id+'"':'')+'>'
       + skinPreview(sk)
       + '<div style="font-size:12px;font-weight:600">'+esc(skinName(sk.id))+'</div>'
-      + '<div class="mono" style="font-size:11.5px;margin-top:3px;color:'+(on?'var(--s-gold)':'var(--s-neon)')+'">'
-      +   esc(label)+'</div></button>';
+      + '<div class="pr"'+(on?' style="color:var(--s-gold)"':'')+'>'+esc(label)+'</div></div>';
   }).join('');
 
   return '<div class="shop">'
     + '<div class="shop-pad" style="padding-top:16px">'
     + '<div class="pix" style="font-size:22px;letter-spacing:.06em;margin-bottom:16px">SHOP '
-    +   '<span style="font-family:\'Noto Sans TC\';font-size:12px;letter-spacing:.2em;color:rgba(234,242,238,.4)">'
+    +   '<span class="shop-title-sub" style="font-family:\'Noto Sans TC\',system-ui,sans-serif;font-size:12px;letter-spacing:.2em;color:rgba(234,242,238,.4)">'
     +   esc(t('pet_shop'))+'</span></div></div>'
     + wallet
-    + shopRail(t('shop_tab_pets'), 'PETS', petCards)
-    + shopRail(t('shop_tab_skins'), 'THEMES', skinCards)
-    + '<div class="shop-consum">'
+    + shopRail(t('shop_tab_pets'), 'shop_rail_pets', petCards)
+    + shopRail(t('shop_tab_skins'), 'shop_rail_themes', skinCards)
+    + '<button class="shop-consum" data-act="open-cabinet">'
     + '<div style="flex:none;width:42px;height:42px;border-radius:12px;background:rgba(94,170,255,.12);'
     +   'border:1px solid rgba(94,170,255,.3);display:grid;place-items:center;font-size:22px">'+pet.emoji+'</div>'
     + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">'+esc(petName(pet.id))+'</div>'
     + '<div style="font-size:11px;color:rgba(234,242,238,.48);margin-top:2px">'
     +   esc(tFill('pet_days',{n:S.companion.days|0}))+'</div></div>'
-    + '<div style="font-size:18px;color:var(--s-dim)">›</div></div>'
+    + '<div style="font-size:18px;color:var(--s-dim)">›</div></button>'
     + '</div>';
-}
-function sheetShop(){
-  // 相容：若還有 sheet 入口，轉成與分頁相同內容
-  const { petRows, skinRows } = shopListsHtml();
-  return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
-    + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
-    + '<div class="kicker">SHOP</div>'
-    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:var(--ink-42)">'+esc(t('pet_close'))+'</button></div>'
-    + '<div style="font:400 18px/1.45 var(--fb);margin-top:10px">'+esc(t('pet_shop'))+'</div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px">'
-    + '<div class="foot">'+esc(t('pet_shop_sub'))+'</div>'
-    + '<div class="num" style="font:600 16px/1 var(--fh);color:var(--accent-deep);flex:none;margin-left:12px">'+comma(S.coins|0)+'</div></div>'
-    + '<div style="display:flex;gap:8px;margin-top:14px">'+shopTabBtn('pets',t('shop_tab_pets'))+shopTabBtn('skins',t('shop_tab_skins'))+'</div>'
-    + '<div style="margin-top:8px">'+(ui.shopTab==='skins' ? skinRows : petRows)+'</div></div></div>';
 }
 function sheetCabinet(){
   ensureCompanion();
@@ -2287,7 +2307,7 @@ function sheetCabinet(){
   return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">CABINET</div>'
-    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('pet_close'))+'</button></div>'
+    + '<button data-act="close-sheet" class="sheet-x">'+esc(t('pet_close'))+'</button></div>'
     + '<div style="font:400 18px/1.45 var(--fb);margin-top:10px">'+esc(t('pet_cabinet'))+'</div>'
     + '<div class="foot" style="margin-top:6px">'+esc(t('pet_cabinet_sub'))+'</div>'
     + '<div style="margin-top:8px">'+rows+'</div>'
@@ -2323,7 +2343,7 @@ function sheetPetMemo(){
   return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">MEMO</div>'
-    + '<button data-act="close-memo" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('pet_close'))+'</button></div>'
+    + '<button data-act="close-memo" class="sheet-x">'+esc(t('pet_close'))+'</button></div>'
     + '<div style="display:flex;align-items:center;gap:12px;margin-top:14px">'
     + '<div style="font-size:36px">'+petOf(f.petId).emoji+'</div>'
     + '<div><div style="font:500 18px/1.35 var(--fb)">'+esc(petName(f.petId))+'</div>'
@@ -2523,7 +2543,9 @@ function render(){
                : S.tab === 'shop' ? screenShop()
                : S.tab === 'insights' ? screenInsights() : screenSettings();
 
-  app.className = 'app' + (S.tab === 'shop' ? ' on-shop' : '');
+  app.className = 'app'
+    + (S.tab === 'shop' ? ' on-shop' : '')
+    + (S.night ? '' : ' night-off');
   app.innerHTML =
       '<div class="bar">'
     + '<div style="display:flex;align-items:baseline;gap:9px;min-width:0">'
@@ -2540,7 +2562,6 @@ function render(){
     + '</div>'
     + (ui.sheet === 'spend' ? sheetSpend() : '')
     + (ui.sheet === 'worth' ? sheetWorth() : '')
-    + (ui.sheet === 'shop' ? sheetShop() : '')
     + (ui.sheet === 'cabinet' ? sheetCabinet() : '')
     + (ui.sheet === 'pet-memo' ? sheetPetMemo() : '')
     + petToastHtml()
@@ -2548,6 +2569,42 @@ function render(){
 
   const sn = document.getElementById('spendName');
   if(sn && ui.focusSpend){ sn.focus(); ui.focusSpend = false; }
+  bindShopRails();
+}
+
+/* 商店貨架：觸控＝原生橫滑＋可點；滑鼠＝拖曳捲動，拖過才擋一次 click */
+function bindShopRails(){
+  document.querySelectorAll('.shop-rail').forEach(rail => {
+    let x0 = 0, left0 = 0, moved = false, pid = null, blockClick = false;
+    rail.addEventListener('click', e => {
+      if(!blockClick) return;
+      blockClick = false;
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+    rail.addEventListener('pointerdown', e => {
+      if(e.pointerType === 'touch') return; // 觸控不攔，保留原生滑＋點
+      pid = e.pointerId; x0 = e.clientX; left0 = rail.scrollLeft; moved = false;
+      try{ rail.setPointerCapture(pid); }catch(err){}
+    });
+    rail.addEventListener('pointermove', e => {
+      if(pid === null || e.pointerId !== pid) return;
+      const dx = e.clientX - x0;
+      if(Math.abs(dx) > 6) moved = true;
+      if(moved) rail.scrollLeft = left0 - dx;
+    });
+    const end = e => {
+      if(pid === null || e.pointerId !== pid) return;
+      if(moved){
+        blockClick = true;
+        // 若瀏覽器沒送 click，勿讓 blockClick 永遠卡住
+        setTimeout(()=>{ blockClick = false; }, 80);
+      }
+      pid = null; moved = false;
+    };
+    rail.addEventListener('pointerup', end);
+    rail.addEventListener('pointercancel', end);
+  });
 }
 
 /* ── 7. 事件 ─────────────────────────────────────────────────────────── */
@@ -2618,6 +2675,7 @@ document.addEventListener('click', e => {
     case 'night': setState(()=>{ S.night = !S.night; lastSkin = ''; lastStage = null; applyPressure(); }); break;
     case 'tick':  setState(()=>{ S.tick = !S.tick; }); break;
     case 'cats-open': ui.catsOpen = !ui.catsOpen; render(); break;
+    case 'privacy-open': ui.privacyOpen = !ui.privacyOpen; render(); break;
     case 'cat-toggle': setState(()=>{ const c = el.dataset.cat, i = S.cats.indexOf(c);
                          if(i>=0){ if(S.cats.length>1) S.cats.splice(i,1); } else S.cats.push(c); }); break;
     case 'export': exportBackup(); break;
@@ -2635,9 +2693,8 @@ document.addEventListener('click', e => {
     case 'wipe':   if(confirm(t('confirm_delete'))){ localStorage.removeItem(KEY);
                      S = migrateState({}); resetUiState(); lastSkin = '';
                      save(); applyPressure(); render(); } break;
-    case 'open-shop': ui.shopTab = 'pets'; setState(()=>{ S.tab = 'shop'; ui.sheet = null; }); break;
+    case 'open-shop': setState(()=>{ S.tab = 'shop'; ui.sheet = null; }); break;
     case 'open-cabinet': ui.sheet = 'cabinet'; render(); break;
-    case 'shop-tab': ui.shopTab = el.dataset.v; render(); break;
     case 'buy-pet': buyPet(el.dataset.id); break;
     case 'equip-pet': equipPet(el.dataset.id); break;
     case 'buy-skin': buySkin(el.dataset.id); break;
@@ -2857,6 +2914,11 @@ function pwaBits(){
 }
 
 /* ── 10. 啟動 ────────────────────────────────────────────────────────── */
+(function(){
+  const tb = /[?&]tab=([a-z]+)/i.exec(location.search);
+  if(tb && ['today','receipt','shop','insights','settings'].indexOf(tb[1].toLowerCase()) >= 0)
+    S.tab = tb[1].toLowerCase();
+})();
 catchUpPetSettlement();
 applyPressure();
 render();
