@@ -12,7 +12,7 @@
 <title>86,400</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=Noto+Sans+TC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
 <style>
 /* ── After Hours tokens ──────────────────────────────────────────────────
    配色不是固定的：--bg / --accent 這些每一拍由 JS 依「今天過掉多少」
@@ -84,13 +84,14 @@ html[data-skin="camo"] .scan{
     repeating-linear-gradient(90deg,transparent 0 18px,rgba(190,200,120,.12) 18px 19px),
     repeating-linear-gradient(135deg,transparent 0 10px,rgba(0,0,0,.08) 10px 11px);
 }
-html[data-skin="camo"] .brand{
+/* 商店分頁有獨立 chrome（.on-shop），迷彩邊框／底欄不要蓋過去 */
+html[data-skin="camo"] .app:not(.on-shop) .brand{
   letter-spacing:.18em;text-shadow:none;font-weight:700;
   border:1px solid rgba(190,200,120,.45);padding:4px 9px 3px;
   background:rgba(0,0,0,.35);
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);
 }
-html[data-skin="camo"] .brand::before{content:"◇ ";opacity:.75;letter-spacing:0}
+html[data-skin="camo"] .app:not(.on-shop) .brand::before{content:"◇ ";opacity:.75;letter-spacing:0}
 html[data-skin="camo"] .kicker,
 html[data-skin="camo"] .kicker-s{
   letter-spacing:.32em;text-shadow:none;font-weight:700;
@@ -111,11 +112,11 @@ html[data-skin="camo"] #hero{
   background-size:100% 100%, 100% 10px, auto, auto, auto, auto;
   border-color:rgba(190,200,120,.28) !important;
 }
-html[data-skin="camo"] .tabs{
+html[data-skin="camo"] .app:not(.on-shop) .tabs{
   border-top-color:rgba(190,200,120,.35);
   background:linear-gradient(180deg, oklch(0.15 0.035 100 / .95), oklch(0.11 0.03 90 / .98));
 }
-html[data-skin="camo"] .tabs button{
+html[data-skin="camo"] .app:not(.on-shop) .tabs button{
   letter-spacing:.06em;font-weight:600;text-transform:uppercase;font-size:9.5px;
 }
 html[data-skin="camo"] .btn-fill{
@@ -213,6 +214,32 @@ input{border-radius:0}
 }
 .tabs button.on{color:var(--accent);text-shadow:var(--glow-sm)}
 .tabs .lbl{font:500 9.5px/1 var(--fb);letter-spacing:.06em}
+/* 英文拉丁字在同樣 px 會顯得更小；放寬字級、收斂字距 */
+html[data-lang="en"] .tabs .lbl{font-size:11.5px;letter-spacing:.02em;font-weight:600}
+html[data-lang="en"] .kicker{font-size:11px;letter-spacing:.12em}
+html[data-lang="en"] .kicker-s{font-size:10.5px;letter-spacing:.1em}
+html[data-lang="en"] .foot{font-size:12px;line-height:1.65}
+html[data-lang="en"] .date{font-size:11.5px}
+html[data-lang="en"] .h-screen{font-size:20px}
+html[data-lang="en"] body{font-size:16px}
+html[data-lang="en"] .chip{font-size:12.5px}
+html[data-lang="en"] .btn{font-size:14px}
+html[data-lang="en"] .shop-head .t{font-size:15px}
+html[data-lang="en"] .shop-head .t span{font-size:11.5px;letter-spacing:.06em}
+html[data-lang="en"] .shop .mono{letter-spacing:.06em}
+html[data-lang="en"] .shop-wallet .mono{font-size:12.5px !important;letter-spacing:.08em !important}
+html[data-lang="en"] .shop-earn{font-size:12.5px !important}
+html[data-lang="en"] .shop-title-sub{font-size:13px !important;letter-spacing:.08em !important}
+html[data-lang="en"] .shop-pet .nm{font-size:13px}
+html[data-lang="en"] .shop-skin > div:nth-child(2){font-size:13px !important}
+html[data-lang="en"] .shop-pet .pr,html[data-lang="en"] .shop-skin .pr{font-size:12.5px}
+html[data-lang="en"] .shop-btn{font-size:13.5px}
+html[data-lang="en"] .shop-consum{font-size:14px}
+html[data-lang="en"] .app.on-shop .tabs button{font-size:11.5px;font-weight:600}
+html[data-lang="en"] .camo-hud{font-size:10.5px;letter-spacing:.1em}
+html[data-lang="en"] .seg button{font-size:13px}
+html[data-lang="en"] .row .k{font-size:14.5px}
+html[data-lang="en"] .row .v{font-size:13.5px}
 .ic{width:13px;height:13px;display:flex}
 .ic-today{border:1px solid currentColor;align-items:flex-end;padding:1px}
 .ic-today i{width:4px;height:4px;background:currentColor;display:block}
@@ -274,12 +301,135 @@ input{border-radius:0}
 .sechead{display:flex;justify-content:space-between;align-items:baseline;
   padding-bottom:8px;border-bottom:1px solid var(--hair-2)}
 
+
+/* ── 商店（貨架佈局）───────────────────────────────────────────────────
+   例外：這一頁用固定貨架色票（不跟 applyPressure 跑），刻意跟主畫面壓力色階分開。
+   「夜間強度」關掉時仍會拿掉 chrome／錢包光暈（.night-off），不全開壓力升溫。 */
+.shop{--s-bg:#07090B;--s-panel:#0E1316;--s-neon:#35F0A0;--s-gold:#FFC24B;
+  --s-ink:#EAF2EE;--s-dim:rgba(234,242,238,.45);--s-line:rgba(255,255,255,.08);
+  font-family:'Noto Sans TC',system-ui,sans-serif;color:var(--s-ink);
+  margin:0 -20px;padding:0 0 8px;background:var(--s-bg);min-height:100%}
+.shop .mono{font-family:'JetBrains Mono',monospace}
+.shop .pix{font-family:Silkscreen,monospace}
+.shop-pad{padding:0 18px}
+.shop-wallet{border-radius:20px;padding:16px 18px;margin-bottom:24px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#0F2019,#0A1113);border:1px solid rgba(53,240,160,.24)}
+.shop-wallet::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;
+  border-radius:999px;background:radial-gradient(circle,rgba(53,240,160,.22),transparent 70%);pointer-events:none}
+/* 貨架：外層捲動、內層 track 撐出寬度；觸控走原生橫滑，不被 button 的 manipulation 吃掉 */
+.shop-rail{
+  overflow-x:scroll;overflow-y:hidden;margin:0 0 8px;padding:0 0 14px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  touch-action:pan-x;overscroll-behavior-x:contain;cursor:grab;
+}
+.shop-rail:active{cursor:grabbing}
+.shop-rail::-webkit-scrollbar{display:none}
+.shop-rail-track{
+  display:flex;gap:12px;width:max-content;min-width:100%;
+  padding:0 18px;box-sizing:border-box;
+}
+.shop-rail .shop-pet,
+.shop-rail .shop-skin{
+  flex:none;cursor:pointer;-webkit-user-select:none;user-select:none;
+}
+.app.on-shop .scroll{overflow-x:hidden}
+.shop-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 18px;margin-bottom:10px}
+.shop-head .t{font-size:14px;font-weight:700}
+.shop-head .t span{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(234,242,238,.56)}
+.shop-card{flex:none;background:var(--s-panel);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:10px}
+.shop-btn{border-radius:12px;padding:10px;font-size:12.5px;font-weight:700;text-align:center;
+  border:1px solid transparent;background:var(--s-neon);color:var(--s-bg)}
+.shop-btn.ghost{background:transparent;border-color:rgba(53,240,160,.3);color:var(--s-neon);font-weight:600}
+.shop-pet{flex:none;width:118px;background:transparent;border:none;padding:0;text-align:left;color:inherit;display:block}
+.shop-pet .art{width:118px;height:118px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 6px,transparent 6px 12px),#0E1316;
+  display:grid;place-items:center;font-size:46px;margin-bottom:8px}
+.shop-pet.own .art{border-color:rgba(53,240,160,.4)}
+.shop-pet .nm{font-size:12px;font-weight:600}
+.shop-pet .pr{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--s-neon);margin-top:3px}
+.shop-pet.cant .art,.shop-skin.cant{opacity:.7}
+.shop-pet.cant .pr,.shop-skin.cant .pr{color:var(--s-dim)}
+.shop-skin{width:172px;text-align:left;color:inherit;display:block;box-sizing:border-box}
+.shop-skin .prev{width:100%;height:92px;border-radius:11px;display:flex;align-items:flex-end;
+  padding:11px;margin-bottom:9px;box-sizing:border-box}
+.shop-skin .pr{font-family:'JetBrains Mono',monospace;font-size:11.5px;margin-top:3px;color:var(--s-neon)}
+.shop-consum{display:flex;align-items:center;gap:13px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
+  background:var(--s-panel);padding:14px;margin:0 18px 26px;width:calc(100% - 36px);box-sizing:border-box;
+  cursor:pointer;color:inherit;text-align:left}
+
+/* 停在商店分頁時，上下導覽列也跟著換成商店的色，不要跟主畫面的壓力色打架 */
+.app.on-shop{background:#07090B}
+.app.on-shop .bar{background:#07090B}
+.app.on-shop .brand{color:#35F0A0;text-shadow:0 0 18px rgba(53,240,160,.45);border:none;padding:0;background:transparent;box-shadow:none}
+.app.on-shop .brand::before{content:none}
+.app.on-shop .date{color:rgba(234,242,238,.42)}
+.app.on-shop .langsw{border-color:rgba(255,255,255,.14)}
+.app.on-shop .langsw button.on{background:#35F0A0;color:#07090B}
+.app.on-shop .tabs{background:rgba(7,9,11,.92);border-top-color:rgba(255,255,255,.07)}
+.app.on-shop .tabs button{color:rgba(234,242,238,.38);letter-spacing:.06em;text-transform:none;font-size:9.5px;font-weight:500}
+.app.on-shop .tabs button.on{color:#35F0A0;text-shadow:0 0 12px rgba(53,240,160,.4)}
+.app.on-shop .scan{opacity:.25}
+/* 夜間強度關掉：拿掉商店 chrome／錢包光暈，貨架底色仍固定 */
+.app.on-shop.night-off .brand,.app.on-shop.night-off .tabs button.on{text-shadow:none;color:#9ec9b4}
+.app.on-shop.night-off .langsw button.on{background:#9ec9b4;color:#07090B}
+.app.on-shop.night-off .shop-wallet{border-color:rgba(255,255,255,.1)}
+.app.on-shop.night-off .shop-wallet::after{opacity:0}
+.app.on-shop.night-off .shop{--s-neon:#9ec9b4}
+
 /* ── sheets ──────────────────────────────────────────────────────────── */
 .scrim{position:fixed;inset:0;z-index:80;background:rgba(29,45,61,.45);display:flex;align-items:flex-end}
-.sheet{width:100%;background:var(--bg);border-top:1px solid rgba(233,237,244,.25);
+.sheet{width:100%;background:var(--bg);border-top:1px solid var(--hair-2);
+  color:var(--ink);
   padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 40px);
   max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;
   animation:up .22s ease-out}
+.sheet-x{border:none;background:transparent;font:400 11px var(--fb);color:var(--ink-42)}
+/* 商店開的彈層跟貨架同一套深色，不要跟 litérati 等主題的 --bg 打架 */
+.app.on-shop .scrim{background:rgba(0,0,0,.62)}
+.app.on-shop .sheet{
+  background:#0E1316;color:#EAF2EE;border-top-color:rgba(255,255,255,.12);
+  --bg:#0E1316;--ink:#EAF2EE;
+  --ink-55:rgba(234,242,238,.55);--ink-48:rgba(234,242,238,.48);--ink-42:rgba(234,242,238,.42);
+  --hair:rgba(255,255,255,.10);--hair-2:rgba(255,255,255,.16);--hair-3:rgba(255,255,255,.08);
+  --fill:rgba(255,255,255,.06);
+  --accent:#35F0A0;--accent-deep:#35F0A0;--accent-tint:rgba(53,240,160,.14);
+  --on-accent:#07090B;--glow-sm:0 0 12px rgba(53,240,160,.35);--glow:0 0 22px rgba(53,240,160,.4);
+}
+.app.on-shop.night-off .sheet{
+  --accent:#9ec9b4;--accent-deep:#9ec9b4;--accent-tint:rgba(158,201,180,.14);
+  --glow-sm:none;--glow:none;
+}
+html[data-skin="camo"] .app.on-shop .sheet .btn-fill{
+  background:var(--accent);border:none;box-shadow:none;color:var(--on-accent);
+}
+/* 紀念：ash / earth / bone，不跟壓力霓虹跑 */
+.full.memorial,.sheet.memorial{
+  background:#0B0B0A;color:#E6E3DC;border-top-color:rgba(230,227,220,.12);
+  --bg:#0B0B0A;--ink:#E6E3DC;
+  --ink-55:rgba(230,227,220,.55);--ink-48:rgba(230,227,220,.48);--ink-42:rgba(230,227,220,.42);
+  --hair:rgba(230,227,220,.12);--hair-2:rgba(230,227,220,.16);--hair-3:rgba(230,227,220,.08);
+  --fill:rgba(230,227,220,.06);
+  --accent:#C4B8A5;--accent-deep:#C4B8A5;--accent-tint:rgba(196,184,165,.14);
+  --on-accent:#0B0B0A;--glow-sm:none;--glow:none;
+}
+.scrim.memorial{background:rgba(0,0,0,.72)}
+.mem-art{
+  background:repeating-linear-gradient(135deg,rgba(230,227,220,.09) 0 5px,transparent 5px 10px),#2A2724;
+  border:1px solid rgba(230,227,220,.18);
+  color:rgba(230,227,220,.55);
+  display:grid;place-items:center;text-align:center;
+  font-family:var(--fh);font-size:9px;line-height:1.5;letter-spacing:.04em;
+}
+.mem-art.pot{width:148px;height:76px;border-radius:74px 74px 10px 10px}
+.mem-art.urn{width:112px;height:148px;border-radius:56px 56px 20px 20px}
+.mem-art.stone{width:132px;height:118px;border-radius:8px 8px 4px 4px}
+.mem-film{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mem-film .cell{height:52px;border-radius:9px;display:flex;align-items:center;gap:4px;padding:0 7px;
+  background:#12100E;border:1px solid rgba(230,227,220,.12)}
+.mem-film .lbl{text-align:center;font-family:var(--fh);font-size:8.5px;color:rgba(230,227,220,.45);margin-top:6px}
+.mem-revive{display:flex;gap:6px;margin-top:10px}
+.mem-revive i{flex:1;height:8px;border-radius:99px;background:rgba(230,227,220,.12);display:block}
+.mem-revive i.on{background:#C4B8A5}
 @keyframes up{from{transform:translateY(14px)}to{transform:translateY(0)}}
 .full{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;flex-direction:column;
   padding:calc(env(safe-area-inset-top,0px) + 40px) 24px calc(env(safe-area-inset-bottom,0px) + 28px)}
@@ -451,6 +601,11 @@ const T = {
   pet_shop_sub:    ['用金幣買下下一個會綁住你的理由。','Spend coins on the next reason that will keep you hostage.'],
   shop_tab_pets:   ['寵物','Pets'],
   shop_tab_skins:  ['主題','Themes'],
+  shop_balance:    ['秒幣餘額 · SEC BALANCE','SEC BALANCE'],
+  shop_earn_anchor:['完成今日 Anchor','Anchor finished'],
+  shop_earn_block: ['完成一個時段','Stretch finished'],
+  shop_rail_pets:  ['PETS','PETS'],
+  shop_rail_themes:['THEMES','THEMES'],
   skin_equip:      ['套用','Apply'],
   skin_equipped:   ['使用中','In use'],
   skin_bought:     ['主題已解鎖','Theme unlocked'],
@@ -475,6 +630,35 @@ const T = {
   pet_close:       ['關閉','Close'],
   pet_default:     ['預設','Default'],
   pet_price:       ['{n} 金幣','{n} coins'],
+  mem_form:        ['紀念方式','Memorial form'],
+  mem_form_sub:    ['下一次安放時用這個形態。已安放的不會跟著改。','Used the next time you enshrine. Already placed memorials stay as they are.'],
+  mem_form_pot:    ['盆栽','Pot'],
+  mem_form_urn:    ['骨灰罈','Urn'],
+  mem_form_stone:  ['墓碑','Headstone'],
+  mem_form_none:   ['不要紀念','No memorial'],
+  mem_morning_k:   ['00:00 已過 · YESTERDAY CLOSED','00:00 PASSED · YESTERDAY CLOSED'],
+  mem_morning_title:['{name} 沒撐過昨天。','{name} didn’t make it through yesterday.'],
+  mem_morning_sub: ['牠留下一捧土。你可以把它安放起來，或者就這樣放著——土不會消失。','They left a handful of earth. You can enshrine it, or leave it — the earth does not vanish.'],
+  mem_unfinished:  ['昨天未完成 · UNFINISHED','YESTERDAY · UNFINISHED'],
+  mem_together:    ['相處了','Together'],
+  mem_create:      ['建立紀念','Create memorial'],
+  mem_later:       ['稍後再說','Not now'],
+  mem_placed:      ['已安放','Enshrined'],
+  mem_pending:     ['待安放','Awaiting'],
+  mem_skipped:     ['未紀念','Skipped'],
+  mem_revived:     ['已復活','Revived'],
+  mem_revive:      ['復活進度','Revival'],
+  mem_revive_need: ['連續 {n} 天完成 Anchor','{n} days of Anchors in a row'],
+  mem_revive_note: ['秒幣買不到。只有你把 Anchor 做完，牠才回得來。','Coins cannot buy this. Only finishing Anchors brings them back.'],
+  mem_locked:      ['還沒回來','Not back yet'],
+  mem_locked_toast:['{name} 還在紀念裡。連續完成 Anchor 才能再放上引線。','{name} is still in memorial. Finish Anchors in a row to put them on the fuse again.'],
+  mem_revived_toast:['{name} 回來了。別再搞砸。','{name} is back. Do not blow it again.'],
+  mem_detail:      ['紀念','Memorial'],
+  mem_hall:        ['紀念','Memorials'],
+  mem_hall_none:   ['還沒有紀念——先別鬆口氣。','No memorials yet — do not relax.'],
+  mem_place_cta:   ['安放','Enshrine'],
+  mem_anchors:     ['完成的 Anchor','Anchors finished'],
+  mem_film_earth:  ['一捧土','Earth'],
   // 新手引導／帳戶（本機；無雲端）
   guide_fuse_t:    ['引線與倒數','The fuse and the countdown'],
   guide_fuse_b:    ['每天 86,400 秒從右往左燒完。越晚越紅、越抖。引線左端坐著會陪你——也會因你炸掉的角色。','86,400 seconds burn right to left. Later means redder, shakier. On the left sits a character that stays with you — and can die because of you.'],
@@ -617,7 +801,7 @@ const WD_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 /* ── 2. 狀態 ─────────────────────────────────────────────────────────── */
 const KEY = '86400.v1';
 const DEFAULTS = {
-  lang:'zh', tab:'today', disp:'sec', tick:true, night:true,
+  lang:'en', tab:'today', disp:'sec', tick:true, night:true,
   onboarded:false, wake:'07:00', sleep:'23:30',
   cats:['work','side','rest','learn','people','play'],
   days:{},              // 'YYYY-MM-DD' -> { anchor:{text,state}, blocks:[], tomorrow:[] }
@@ -631,15 +815,21 @@ const DEFAULTS = {
   equippedPet:'bomb',
   // 目前引線上的陪伴：天數、期間完成的任務。炸掉後寫進 fallen，寵物仍留在櫃裡。
   companion:{ petId:'bomb', startedOn:null, days:1, tasks:[] },
-  fallen:[],            // {id,petId,startedOn,endedOn,days,tasks[]}
+  fallen:[],            // {id,petId,startedOn,endedOn,days,tasks[],memorial?}
   coinLog:{},           // 'YYYY-MM-DD' -> { anchor?:bool, blocks:{id:true} }
   petSettled:{},        // 已結算過寵物存亡的日期
   ownedSkins: FREE_SKIN_IDS.slice(),
   equippedSkin:'neon',
+  // 紀念：形態設定、待顯示過場、各寵物復活閘
+  memorialForm:'pot',   // pot | urn | headstone | none
+  pendingMemorialId:null,
+  revive:{},            // petId -> { needed, progress, lastAnchorDay, fallenId }
   // 本機帳戶（無雲端）。guest＝遊客；local＋session 控制是否需登入閘門
   account:{ mode:'guest', name:'', passHash:'', salt:'', session:true },
   homeTip:true          // 進首頁後的一次功能提示
 };
+const MEM_FORMS = ['pot','urn','headstone','none'];
+const REVIVE_NEEDED = 3;
 const p2 = n => String(n).padStart(2,'0');
 const comma = n => Math.max(0, Math.round(n)).toLocaleString('en-US');
 const catOf = k => CATS.find(c => c.k === k) || CATS[0];
@@ -650,12 +840,12 @@ function dayStart(d){ d = d ? new Date(d) : new Date(); d.setHours(0,0,0,0); ret
 function dayEnd(d){ return dayStart(d) + 86400000; }
 
 let S = load();
-let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
+let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
            anchorDraft:null, anchorEdit:false, anchorCancelling:false,
            spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
                   when:'now',at:'',warn:false},
            worth:{blockId:null,pick:null,note:'',again:false},
-           petToast:null, petMemoId:null, shopTab:'pets',
+           petToast:null, petMemoId:null,
            auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 
 function load(){
@@ -691,7 +881,9 @@ function secPassed(now){ return 86400 - secLeft(now); }
    夜間強度關掉 → p 恆為 0（顏色／閃爍／抖動／文案全部回平靜）。
    ─────────────────────────────────────────────────────────────────────── */
 const lerp = (a,b,k) => a + (b-a)*k;
-function skinOf(id){ return SKINS.find(x => x.id === (id || S.equippedSkin)) || SKINS[0]; }
+function skinOf(id){
+  return SKINS.find(x => x.id === (id || PREVIEW_THEME || S.equippedSkin)) || SKINS[0];
+}
 function skinName(id){ const x = skinOf(id); return EN() ? x.en : x.zh; }
 function activeStops(){ return skinOf().stops; }
 function ramp(p){
@@ -706,12 +898,19 @@ function ramp(p){
 const ok = (c,alpha) => 'oklch(' + c[0].toFixed(3) + ' ' + c[1].toFixed(3) + ' ' + c[2].toFixed(1)
   + (alpha === undefined ? '' : ' / ' + alpha) + ')';
 
-// 只在驗收/預覽時用：?preview=23:40 會把時鐘固定在那個時刻。
-// 不是產品功能，UI 上沒有入口（handoff 註明 DEMO 列不可上線）。
+// 只在驗收/預覽時用（UI 無入口；handoff 註明 DEMO 列不可上線）：
+//   ?preview=23:40     固定時鐘
+//   ?theme=camo        暫時套用主題（不寫入存檔）
+//   ?memorial=1        打開隔天紀念過場（DEMO）
 let PREVIEW = null;
+let PREVIEW_THEME = null;
+let PREVIEW_MEMORIAL = false;
 (function(){
   const m = /[?&]preview=(\d{1,2}):(\d{2})/.exec(location.search);
   if(m) PREVIEW = (+m[1])*3600 + (+m[2])*60;
+  const tm = /[?&]theme=([a-z]+)/i.exec(location.search);
+  if(tm && SKINS.some(s => s.id === tm[1].toLowerCase())) PREVIEW_THEME = tm[1].toLowerCase();
+  if(/[?&]memorial=1\b/.test(location.search)) PREVIEW_MEMORIAL = true;
 })();
 function elapsedToday(){
   if(PREVIEW !== null) return PREVIEW;
@@ -733,7 +932,7 @@ let lastSkin = '';
 function applyPressure(){
   const sk = skinOf();
   const p = pressure(), r = ramp(p);
-  const key = (S.equippedSkin||'neon') + '|' + p.toFixed(3) + (S.night ? '1' : '0');
+  const key = (PREVIEW_THEME || S.equippedSkin || 'neon') + '|' + p.toFixed(3) + (S.night ? '1' : '0');
   if(key === lastSkin) return;
   lastSkin = key;
   const s = document.documentElement.style;
@@ -777,6 +976,8 @@ function applyPressure(){
   const tc = document.querySelector('meta[name=theme-color]');
   if(tc) tc.setAttribute('content', ok(r.bg));
   document.documentElement.dataset.skin = sk.id || 'neon';
+  document.documentElement.dataset.lang = S.lang === 'en' ? 'en' : 'zh';
+  document.documentElement.lang = S.lang === 'en' ? 'en' : 'zh-Hant';
 }
 // 類別色從當下的霓虹色推出來：白天一組綠，深夜整組跟著轉紅
 function catTone(k){
@@ -1042,6 +1243,36 @@ function migrateState(raw){
     if(typeof s.account.salt !== 'string') s.account.salt = '';
   }
   if(typeof s.homeTip !== 'boolean') s.homeTip = false; // 舊使用者不重噴首頁提示
+  if(MEM_FORMS.indexOf(s.memorialForm) < 0) s.memorialForm = 'pot';
+  if(s.pendingMemorialId !== null && typeof s.pendingMemorialId !== 'string') s.pendingMemorialId = null;
+  if(!s.revive || typeof s.revive !== 'object' || Array.isArray(s.revive)) s.revive = {};
+  Object.keys(s.revive).forEach(pid => {
+    const r = s.revive[pid];
+    if(!r || typeof r !== 'object'){ delete s.revive[pid]; return; }
+    if(typeof r.needed !== 'number' || r.needed < 1) r.needed = REVIVE_NEEDED;
+    if(typeof r.progress !== 'number' || r.progress < 0) r.progress = 0;
+    if(r.progress > r.needed) r.progress = r.needed;
+    if(r.lastAnchorDay != null && typeof r.lastAnchorDay !== 'string') r.lastAnchorDay = null;
+    if(r.fallenId != null && typeof r.fallenId !== 'string') r.fallenId = null;
+  });
+  s.fallen = (s.fallen || []).map(f => {
+    if(!f || typeof f !== 'object') return f;
+    if(!f.memorial || typeof f.memorial !== 'object'){
+      f.memorial = { status:'placed', form:'pot', placedOn:f.endedOn || null, unfinished:[] };
+    }else{
+      const st = f.memorial.status;
+      if(['pending','placed','skipped','revived'].indexOf(st) < 0) f.memorial.status = 'placed';
+      if(f.memorial.form != null && ['pot','urn','headstone'].indexOf(f.memorial.form) < 0)
+        f.memorial.form = 'pot';
+      if(f.memorial.placedOn != null && typeof f.memorial.placedOn !== 'string') f.memorial.placedOn = null;
+      if(!Array.isArray(f.memorial.unfinished)) f.memorial.unfinished = [];
+    }
+    return f;
+  });
+  if(s.pendingMemorialId){
+    const pend = s.fallen.find(f => f && f.id === s.pendingMemorialId);
+    if(!pend || !pend.memorial || pend.memorial.status !== 'pending') s.pendingMemorialId = null;
+  }
   return s;
 }
 function importBackup(file){
@@ -1108,6 +1339,7 @@ function rewardAnchorDone(){
   log.anchor = true;
   awardCoins(COIN_ANCHOR, tFill('coin_earn_anchor', {n:COIN_ANCHOR}));
   logCompanionTask('anchor', today().anchor.text);
+  tickReviveOnAnchor(dayKey());
 }
 function undoAnchorReward(){
   const log = coinDayLog();
@@ -1122,6 +1354,7 @@ function undoAnchorReward(){
       if(x.kind === 'anchor' && x.day === k){ S.companion.tasks.splice(i,1); break; }
     }
   }
+  untickReviveOnUndo(k);
 }
 function rewardBlockDone(b){
   if(!b || b.demo) return;
@@ -1146,6 +1379,111 @@ function dayHadTasks(k){
   if(day.anchor && day.anchor.text && day.anchor.text.trim()) return true;
   return (day.blocks || []).some(b => !b.demo);
 }
+function unfinishedAtDeath(k){
+  const day = dayOf(k);
+  const out = [];
+  if(!day) return out;
+  const a = day.anchor;
+  if(a && a.text && a.text.trim() && a.state === 'doing'){
+    out.push({ kind:'anchor', name:a.text, at:a.setAt || null });
+  }
+  (day.blocks || []).forEach(b => {
+    if(!b.demo && b.startedAt && !b.endedAt)
+      out.push({ kind:'block', name:b.name || '', at:b.startedAt || null });
+  });
+  return out;
+}
+function fallenOf(id){ return (S.fallen || []).find(f => f && f.id === id) || null; }
+function petNeedsRevive(petId){
+  const r = S.revive && S.revive[petId];
+  return !!(r && (r.progress|0) < (r.needed || REVIVE_NEEDED));
+}
+function reviveProgress(petId){
+  const r = S.revive && S.revive[petId];
+  if(!r) return null;
+  return { progress:r.progress|0, needed:r.needed || REVIVE_NEEDED, fallenId:r.fallenId || null };
+}
+function memorialStatusLabel(st){
+  if(st === 'pending') return t('mem_pending');
+  if(st === 'placed') return t('mem_placed');
+  if(st === 'skipped') return t('mem_skipped');
+  if(st === 'revived') return t('mem_revived');
+  return t('mem_pending');
+}
+function formLabel(form){
+  if(form === 'urn') return t('mem_form_urn');
+  if(form === 'headstone') return t('mem_form_stone');
+  if(form === 'none') return t('mem_form_none');
+  return t('mem_form_pot');
+}
+function openReviveGate(petId, fallenId){
+  if(!S.revive || typeof S.revive !== 'object') S.revive = {};
+  S.revive[petId] = {
+    needed:REVIVE_NEEDED, progress:0, lastAnchorDay:null, fallenId:fallenId || null
+  };
+}
+function clearReviveGate(petId){
+  if(S.revive && S.revive[petId]) delete S.revive[petId];
+}
+function tickReviveOnAnchor(day){
+  day = day || dayKey();
+  if(!S.revive) return;
+  let any = false;
+  Object.keys(S.revive).forEach(pid => {
+    const r = S.revive[pid];
+    if(!r) return;
+    if(r.lastAnchorDay === day) return; // 今日已計
+    r.progress = Math.min(r.needed || REVIVE_NEEDED, (r.progress|0) + 1);
+    r.lastAnchorDay = day;
+    any = true;
+    if((r.progress|0) >= (r.needed || REVIVE_NEEDED)){
+      const fid = r.fallenId;
+      clearReviveGate(pid);
+      const f = fallenOf(fid) || (S.fallen || []).find(x => x && x.petId === pid
+        && x.memorial && x.memorial.status !== 'revived');
+      if(f && f.memorial) f.memorial.status = 'revived';
+      showPetToast(tFill('mem_revived_toast', {name:petName(pid)}));
+    }
+  });
+  return any;
+}
+function untickReviveOnUndo(day){
+  day = day || dayKey();
+  if(!S.revive) return;
+  Object.keys(S.revive).forEach(pid => {
+    const r = S.revive[pid];
+    if(!r || r.lastAnchorDay !== day) return;
+    r.progress = Math.max(0, (r.progress|0) - 1);
+    r.lastAnchorDay = null;
+  });
+}
+/* 結算完一天後：當天有設 Anchor 卻沒完成 → 斷掉進行中的復活 streak（安靜日不傷） */
+function checkReviveStreakBreak(k){
+  if(!S.revive || !k) return;
+  const day = dayOf(k);
+  const hasAnchor = !!(day.anchor && day.anchor.text && day.anchor.text.trim());
+  if(!hasAnchor) return;
+  Object.keys(S.revive).forEach(pid => {
+    const r = S.revive[pid];
+    if(!r || (r.progress|0) <= 0) return;
+    if(r.lastAnchorDay === k) return;
+    r.progress = 0;
+    r.lastAnchorDay = null;
+  });
+}
+function placeMemorial(fallenId){
+  const f = fallenOf(fallenId);
+  if(!f || !f.memorial) return;
+  if(f.memorial.status !== 'pending') return;
+  const form = S.memorialForm === 'none' ? 'pot' : S.memorialForm;
+  f.memorial.status = 'placed';
+  f.memorial.form = form;
+  f.memorial.placedOn = dayKey();
+  if(S.pendingMemorialId === fallenId) S.pendingMemorialId = null;
+}
+function deferMemorial(){
+  S.pendingMemorialId = null;
+}
 function startCompanion(petId, onDay){
   S.equippedPet = petId;
   S.companion = { petId, startedOn: onDay || dayKey(), days:1, tasks:[] };
@@ -1154,12 +1492,27 @@ function explodeCompanion(endedOn){
   ensureCompanion();
   const c = S.companion;
   const name = petName(c.petId);
-  S.fallen.unshift({
+  const endK = endedOn || dayKey();
+  const skipUi = S.memorialForm === 'none';
+  const entry = {
     id:'f'+Date.now()+Math.floor(Math.random()*1000),
-    petId:c.petId, startedOn:c.startedOn, endedOn:endedOn || dayKey(),
-    days: Math.max(1, c.days|0), tasks:(c.tasks || []).slice()
-  });
-  // 寵物仍在 ownedPets；引線回到預設炸彈，開新的陪伴
+    petId:c.petId, startedOn:c.startedOn, endedOn:endK,
+    days: Math.max(1, c.days|0), tasks:(c.tasks || []).slice(),
+    memorial:{
+      status: skipUi ? 'skipped' : 'pending',
+      form: skipUi ? null : null,
+      placedOn: null,
+      unfinished: unfinishedAtDeath(endK)
+    }
+  };
+  S.fallen.unshift(entry);
+  openReviveGate(c.petId, entry.id);
+  if(skipUi){
+    if(S.pendingMemorialId === entry.id) S.pendingMemorialId = null;
+  }else{
+    S.pendingMemorialId = entry.id;
+  }
+  // 寵物仍在 ownedPets；引線回到預設炸彈（強制，不受復活閘限制）
   startCompanion('bomb', dayKey());
   showPetToast(tFill('pet_blown_note', {name}));
 }
@@ -1168,12 +1521,16 @@ function settlePetDay(k){
   S.petSettled[k] = true;
   ensureCompanion();
   // 當天完全沒有任務 → 不炸，也不強制加天（安靜的一天）
-  if(!dayHadTasks(k)) return;
+  if(!dayHadTasks(k)){
+    checkReviveStreakBreak(k);
+    return;
+  }
   if(dayTasksFailed(k)){
     explodeCompanion(k);
   }else{
     S.companion.days = Math.max(1, (S.companion.days|0) + 1);
   }
+  checkReviveStreakBreak(k);
 }
 /* 關掉 App 跨過午夜時，下次開啟要把漏掉的日子結算完 */
 function catchUpPetSettlement(){
@@ -1203,12 +1560,43 @@ function buyPet(id){
 function equipPet(id){
   if(S.ownedPets.indexOf(id) < 0) return;
   if(S.equippedPet === id){ if(ui.sheet){ ui.sheet = null; render(); } return; }
+  if(petNeedsRevive(id)){
+    showPetToast(tFill('mem_locked_toast', {name:petName(id)}));
+    render();
+    return;
+  }
   setState(()=>{
     // 換角＝這段陪伴告一段落但不炸掉，開新的陪伴計數
     startCompanion(id, dayKey());
-    if(ui.sheet === 'shop') ui.sheet = null;
-    else if(ui.sheet === 'cabinet') ui.sheet = null;
+    if(ui.sheet === 'cabinet') ui.sheet = null;
   });
+}
+function ensureDemoMemorial(){
+  if(!PREVIEW_MEMORIAL) return;
+  PREVIEW_MEMORIAL = false; // 只在啟動跑一次
+  if(S.memorialForm === 'none') S.memorialForm = 'pot';
+  let f = (S.fallen || []).find(x => x && x.memorial && x.memorial.status === 'pending');
+  if(!f){
+    const petId = S.equippedPet === 'bomb' ? 'figure' : (S.equippedPet || 'figure');
+    if(S.ownedPets.indexOf(petId) < 0) S.ownedPets.push(petId);
+    f = {
+      id:'fdemo'+Date.now(),
+      petId, startedOn:dayKey(), endedOn:dayKey(),
+      days: Math.max(1, ((S.companion && S.companion.days)|0) || 12),
+      tasks:(S.companion && S.companion.tasks ? S.companion.tasks.slice() : []),
+      memorial:{
+        status:'pending', form:null, placedOn:null,
+        unfinished:[{ kind:'anchor', name: EN()?'Finish the draft':'寫完提案初稿', at:null }]
+      }
+    };
+    S.fallen.unshift(f);
+    openReviveGate(petId, f.id);
+    startCompanion('bomb', dayKey());
+  }
+  S.pendingMemorialId = f.id;
+  S.onboarded = true;
+  if(S.account) S.account.session = true;
+  save();
 }
 function buySkin(id){
   const sk = skinOf(id);
@@ -1227,7 +1615,6 @@ function equipSkin(id){
     S.equippedSkin = id;
     lastSkin = '';
     applyPressure();
-    if(ui.sheet === 'shop') ui.sheet = null;
   });
 }
 
@@ -1281,12 +1668,12 @@ function logoutLocalAccount(){
   setState(()=>{ S.account.session = false; ui.sheet = null; });
 }
 function resetUiState(){
-  ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false,
+  ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
          anchorDraft:null, anchorEdit:false, anchorCancelling:false,
          spend:{min:15,custom:30,isCustom:false,name:'',cat:null,link:false,
                 when:'now',at:'',warn:false},
          worth:{blockId:null,pick:null,note:'',again:false},
-         petToast:null, petMemoId:null, shopTab:'pets',
+         petToast:null, petMemoId:null,
          auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 }
 
@@ -1861,6 +2248,14 @@ function screenSettings(){
     +   pet.emoji+' '+esc(petName(pet.id))+' · '+esc(tFill('pet_days',{n:S.companion.days|0}))+'</div></div>'
     + '<span class="v">›</span></div>'
 
+    + '<div style="padding:14px 0;border-top:1px solid var(--hair)">'
+    + '<div class="k">'+esc(t('mem_form'))+'</div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px;margin-bottom:10px">'+esc(t('mem_form_sub'))+'</div>'
+    + '<div style="display:flex;gap:7px;flex-wrap:wrap">'
+    + [['pot','mem_form_pot'],['urn','mem_form_urn'],['headstone','mem_form_stone'],['none','mem_form_none']].map(([id,lbl]) =>
+        '<button class="chip'+(S.memorialForm===id?' on':'')+'" data-act="mem-form" data-v="'+id+'">'+esc(t(lbl))+'</button>').join('')
+    + '</div></div>'
+
     + '<div style="padding:14px 0;border-top:1px solid rgba(233,237,244,.14)">'
     + '<div style="font:400 13.5px/1.5 var(--fb);margin-bottom:10px">'+esc(t('display'))+'</div>'
     + '<div class="seg">'
@@ -1890,14 +2285,20 @@ function screenSettings(){
         + swHtml(S.notif[k],'notif:'+k) + '</div>').join('')
     + '</div>'
 
-    + '<div class="row"><span class="k">'+esc(t('privacy'))+'</span><span class="v">'+esc(t('privacy_v'))+'</span></div>'
-
-    + '<button class="btn btn-wide" data-act="export" style="margin-top:18px">'+esc(t('export'))+'</button>'
-    + '<button class="btn btn-wide" data-act="import" style="margin-top:8px">'+esc(t('import'))+'</button>'
-    + '<input id="importFile" type="file" accept="application/json,.json" hidden>'
-    + '<button class="btn btn-wide" data-act="demo" style="margin-top:8px">'+esc(S.demo ? t('demo_off') : t('demo_on'))+'</button>'
-    + '<button class="btn btn-wide" data-act="redo-ob" style="margin-top:8px">'+esc(t('redo_ob'))+'</button>'
-    + '<button class="btn btn-wide btn-ghost" data-act="wipe" style="margin-top:8px;color:rgba(233,237,244,.5)">'+esc(t('delete_all'))+'</button>'
+    + '<div class="row" style="cursor:pointer" data-act="privacy-open">'
+    + '<div><div class="k">'+esc(t('privacy'))+'</div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'+esc(t('privacy_v'))+'</div></div>'
+    + '<span class="v">'+(ui.privacyOpen?'▾':'›')+'</span></div>'
+    + (ui.privacyOpen
+        ? '<div style="padding:0 0 8px">'
+          + '<button class="btn btn-wide" data-act="export">'+esc(t('export'))+'</button>'
+          + '<button class="btn btn-wide" data-act="import" style="margin-top:8px">'+esc(t('import'))+'</button>'
+          + '<input id="importFile" type="file" accept="application/json,.json" hidden>'
+          + '<button class="btn btn-wide" data-act="demo" style="margin-top:8px">'+esc(S.demo ? t('demo_off') : t('demo_on'))+'</button>'
+          + '<button class="btn btn-wide" data-act="redo-ob" style="margin-top:8px">'+esc(t('redo_ob'))+'</button>'
+          + '<button class="btn btn-wide btn-ghost" data-act="wipe" style="margin-top:8px;color:rgba(233,237,244,.5)">'+esc(t('delete_all'))+'</button>'
+          + '</div>'
+        : '')
     + '<div class="foot" style="margin-top:18px">'+esc(t('install_hint'))+'</div>';
 }
 
@@ -1947,7 +2348,7 @@ function sheetSpend(){
   return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">SPEND THE NEXT</div>'
-    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('cancel'))+'</button></div>'
+    + '<button data-act="close-sheet" class="sheet-x">'+esc(t('cancel'))+'</button></div>'
     + '<div style="font:400 17px/1.5 var(--fb);margin-top:10px">'+esc(t('spend_title'))+'</div>'
     + '<div style="display:flex;gap:7px;margin-top:16px">'
     +   durBtn(15,'15',1)+durBtn(30,'30',1)+durBtn(60,'60',1)+customBtn+'</div>'
@@ -2027,12 +2428,6 @@ function petToastHtml(){
     + 'background:var(--sheet-bg);border:1px solid var(--hair-2);box-shadow:var(--glow-box);padding:12px 16px;'
     + 'font:400 12.5px/1.55 var(--fb);color:var(--ink);pointer-events:none">'+esc(ui.petToast)+'</div>';
 }
-function shopTabBtn(id, label){
-  const on = ui.shopTab === id;
-  return '<button data-act="shop-tab" data-v="'+id+'" style="flex:1;padding:10px 0;font:600 12px var(--fh);letter-spacing:.04em;'
-    + 'border:1px solid '+(on?'var(--accent)':'var(--hair-2)')+';background:'+(on?'var(--accent-tint)':'transparent')+';'
-    + 'color:'+(on?'var(--accent-deep)':'var(--ink)')+'">'+esc(label)+'</button>';
-}
 function skinSwatch(sk){
   const a = sk.stops[0].neon, b = sk.stops[2].bg;
   if(sk.military){
@@ -2047,151 +2442,254 @@ function skinSwatch(sk){
   return '<div style="width:42px;height:42px;flex:none;border:1px solid var(--hair);'
     + 'background:linear-gradient(135deg,'+ok(a)+','+ok(b)+')"></div>';
 }
-function shopListsHtml(){
-  const petRows = PETS.map(p => {
-    const owned = S.ownedPets.indexOf(p.id) >= 0;
-    const price = p.free ? t('pet_free') : tFill('pet_price',{n:p.price});
-    let action;
-    if(owned){
-      action = S.equippedPet === p.id
-        ? '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('pet_equipped'))+'</span>'
-        : '<button class="btn" data-act="equip-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('pet_equip'))+'</button>';
-    }else{
-      action = '<button class="btn'+(p.free||S.coins>=p.price?' btn-fill':'')+'" data-act="buy-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'
-        + esc(p.free ? t('pet_free') : t('pet_buy'))+'</button>';
-    }
-    return '<div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--hair-3)">'
-      + '<div style="width:42px;height:42px;flex:none;display:flex;align-items:center;justify-content:center;font-size:28px;'
-      +   'border:1px solid var(--hair);background:var(--fill)">'+p.emoji+'</div>'
-      + '<div style="flex:1;min-width:0"><div style="font:500 14px/1.4 var(--fb)">'+esc(petName(p.id))
-      + (p.id==='bomb'?' · '+esc(t('pet_default')):'')+'</div>'
-      + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'+esc(price)+'</div></div>'
-      + action + '</div>';
-  }).join('');
-
-  const skinRows = SKINS.map(sk => {
-    const owned = S.ownedSkins.indexOf(sk.id) >= 0;
-    const on = S.equippedSkin === sk.id;
-    const price = sk.free ? t('pet_free') : tFill('pet_price',{n:sk.price});
-    const sample = sk.mood.early[EN()?1:0];
-    let action;
-    if(owned){
-      action = on
-        ? '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('skin_equipped'))+'</span>'
-        : '<button class="btn btn-fill" data-act="equip-skin" data-id="'+sk.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('skin_equip'))+'</button>';
-    }else{
-      action = '<button class="btn'+(S.coins>=sk.price?' btn-fill':'')+'" data-act="buy-skin" data-id="'+sk.id+'" style="padding:8px 12px;font-size:12px">'
-        + esc(t('pet_buy'))+'</button>';
-    }
-    return '<div style="padding:14px 0;border-bottom:1px solid var(--hair-3)">'
-      + '<div style="display:flex;align-items:center;gap:12px">'
-      + skinSwatch(sk)
-      + '<div style="flex:1;min-width:0"><div style="font:500 14px/1.4 var(--fb)">'+esc(skinName(sk.id))
-      + (sk.id==='neon'?' · '+esc(t('pet_default')):'')
-      + (sk.military?' · '+esc(EN()?'Field':'野戰'):'')
-      + (on?' · <span style="color:var(--accent-deep)">'+esc(t('skin_equipped'))+'</span>':'')+'</div>'
-      + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'+esc(price)+'</div></div>'
-      + action + '</div>'
-      + '<div style="font:400 11.5px/1.55 var(--fb);color:var(--ink-55);margin-top:10px;padding-left:54px">「'+esc(sample)+'」</div>'
-      + '</div>';
-  }).join('');
-  return { petRows, skinRows };
+/* 主題預覽：固定示範數字，不跟 heartbeat 搶；只展示該主題色票 */
+function skinPreview(sk){
+  const a = sk.stops[0].neon, b = sk.stops[0].bg, hot = sk.stops[2].neon;
+  let bgCss, ink = ok(a), extra = '';
+  if(sk.military){
+    bgCss = 'radial-gradient(40px 27px at 18% 28%,'+ok([b[0]+0.10,b[1]+0.02,95])+' 0 99%,transparent 100%),'
+          + 'radial-gradient(34px 22px at 68% 20%,'+ok([b[0]+0.03,b[1],110])+' 0 99%,transparent 100%),'
+          + 'radial-gradient(32px 25px at 46% 80%,'+ok([b[0]+0.16,b[1]+0.03,100])+' 0 99%,transparent 100%),'
+          + ok([b[0]+0.08,b[1]+0.02,105]);
+    ink = '#EDE9D6'; extra = 'text-shadow:0 1px 3px rgba(0,0,0,.5);';
+  }else if(sk.light){
+    bgCss = 'repeating-linear-gradient(0deg,transparent 0 15px,'+ok(a,'0.22')+' 15px 16px),'+ok(b);
+    ink = ok(hot);
+  }else{
+    bgCss = 'repeating-linear-gradient(0deg,'+ok(a,'0.13')+' 0 1px,transparent 1px 13px),'
+          + 'repeating-linear-gradient(90deg,'+ok(a,'0.13')+' 0 1px,transparent 1px 13px),'+ok(b);
+  }
+  return '<div class="prev" style="border:1px solid '+ok(a,'0.30')+';background:'+bgCss+'">'
+    + '<span class="mono" style="font-size:18px;font-weight:700;color:'+ink+';'+extra+'">86,400</span></div>';
+}
+function shopRail(title, enKey, cards){
+  return '<div class="shop-head"><div class="t">'+esc(title)+' <span>'+esc(t(enKey))+'</span></div></div>'
+    + '<div class="shop-rail"><div class="shop-rail-track">'+cards+'</div></div>';
 }
 function screenShop(){
-  const { petRows, skinRows } = shopListsHtml();
   ensureCompanion();
   const pet = petOf(S.equippedPet);
-  return '<div style="padding:16px 0 4px;display:flex;justify-content:space-between;align-items:baseline;gap:12px">'
-    + '<div class="h-screen">'+esc(t('pet_shop'))+'</div>'
-    + '<div class="num" style="font:600 22px/1 var(--fh);color:var(--accent-deep)">'+comma(S.coins|0)
-    + '<span style="font:400 11px/1 var(--fb);color:var(--ink-55);margin-left:6px">'+esc(t('coins'))+'</span></div></div>'
-    + '<div class="foot" style="margin-top:6px">'+esc(t('pet_shop_sub'))+'</div>'
-    + '<button class="btn btn-wide" data-act="open-cabinet" style="margin-top:14px;justify-content:space-between;padding:12px 14px">'
-    + '<span style="text-align:left"><span style="font:600 12px var(--fh);letter-spacing:.08em">'+esc(t('pet_cabinet'))+'</span>'
-    + '<span style="display:block;font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:4px;font-family:var(--fb);letter-spacing:0;font-weight:400">'
-    +   pet.emoji+' '+esc(petName(pet.id))+' · '+esc(tFill('pet_days',{n:S.companion.days|0}))+'</span></span>'
-    + '<span style="color:var(--ink-42)">›</span></button>'
-    + '<div style="display:flex;gap:8px;margin-top:18px">'+shopTabBtn('pets',t('shop_tab_pets'))+shopTabBtn('skins',t('shop_tab_skins'))+'</div>'
-    + '<div style="margin-top:4px">'+(ui.shopTab==='skins' ? skinRows : petRows)+'</div>';
+
+  const wallet = '<div class="shop-pad"><div class="shop-wallet">'
+    + '<div class="mono" style="position:relative;font-size:10.5px;letter-spacing:.2em;color:var(--s-neon);opacity:.75;margin-bottom:6px">'
+    +   esc(t('shop_balance'))+'</div>'
+    + '<div style="position:relative;display:flex;align-items:flex-end;gap:8px;margin-bottom:14px">'
+    + '<span class="mono" style="font-size:38px;font-weight:700;line-height:1;color:var(--s-neon);'
+    +   'text-shadow:0 0 24px rgba(53,240,160,.35)">◎ '+comma(S.coins|0)+'</span></div>'
+    + '<div style="position:relative;display:flex;gap:8px">'
+    + '<button class="shop-btn" data-act="open-cabinet" style="flex:1">'+esc(t('pet_cabinet'))+'</button></div>'
+    + '<div class="shop-earn" style="position:relative;margin-top:12px;font-size:11px;color:var(--s-dim)">'
+    +   esc(t('shop_earn_anchor'))+' <span style="color:var(--s-neon)">+'+COIN_ANCHOR+' ◎</span> · '
+    +   esc(t('shop_earn_block'))+' <span style="color:var(--s-neon)">+'+COIN_BLOCK+' ◎</span></div>'
+    + '</div></div>';
+
+  const petCards = PETS.map(p => {
+    const owned = S.ownedPets.indexOf(p.id) >= 0;
+    const on = S.equippedPet === p.id;
+    const locked = owned && petNeedsRevive(p.id);
+    const canBuy = p.free || S.coins >= p.price;
+    const rp = locked ? reviveProgress(p.id) : null;
+    const act = !owned ? 'buy-pet' : on ? '' : locked ? 'open-cabinet' : 'equip-pet';
+    const label = on ? t('pet_equipped')
+                : locked ? t('mem_locked')+' · '+(rp?rp.progress:0)+'/'+(rp?rp.needed:REVIVE_NEEDED)
+                : owned ? t('pet_equip')
+                : p.free ? t('pet_free') : '◎ ' + p.price;
+    // 用 div 而非 button：避免全域 touch-action:manipulation 讓橫滑／點擊互搶
+    return '<div class="shop-pet'+(owned?' own':'')+((!owned && !canBuy)||locked?' cant':'')+'" role="button" tabindex="0"'
+      + (act?' data-act="'+act+'"'+(act==='buy-pet'||act==='equip-pet'?' data-id="'+p.id+'"':'')+'':'')+'>'
+      + '<div class="art">'+p.emoji+'</div>'
+      + '<div class="nm">'+esc(petName(p.id))+'</div>'
+      + '<div class="pr"'+(on?' style="color:var(--s-gold)"':(locked?' style="color:var(--s-dim)"':''))+'>'+esc(label)+'</div></div>';
+  }).join('');
+
+  const skinCards = SKINS.map(sk => {
+    const owned = S.ownedSkins.indexOf(sk.id) >= 0;
+    const on = S.equippedSkin === sk.id;
+    const canBuy = sk.free || S.coins >= sk.price;
+    const act = owned ? (on ? '' : 'equip-skin') : 'buy-skin';
+    const label = on ? t('skin_equipped')
+                : owned ? t('skin_equip')
+                : sk.free ? t('pet_free') : '◎ ' + sk.price;
+    return '<div class="shop-card shop-skin'+(!owned && !canBuy?' cant':'')+'" role="button" tabindex="0"'
+      + (act?' data-act="'+act+'" data-id="'+sk.id+'"':'')+'>'
+      + skinPreview(sk)
+      + '<div style="font-size:12px;font-weight:600">'+esc(skinName(sk.id))+'</div>'
+      + '<div class="pr"'+(on?' style="color:var(--s-gold)"':'')+'>'+esc(label)+'</div></div>';
+  }).join('');
+
+  return '<div class="shop">'
+    + '<div class="shop-pad" style="padding-top:16px">'
+    + '<div class="pix" style="font-size:22px;letter-spacing:.06em;margin-bottom:16px">SHOP '
+    +   '<span class="shop-title-sub" style="font-family:\'Noto Sans TC\',system-ui,sans-serif;font-size:12px;letter-spacing:.2em;color:rgba(234,242,238,.4)">'
+    +   esc(t('pet_shop'))+'</span></div></div>'
+    + wallet
+    + shopRail(t('shop_tab_pets'), 'shop_rail_pets', petCards)
+    + shopRail(t('shop_tab_skins'), 'shop_rail_themes', skinCards)
+    + '<button class="shop-consum" data-act="open-cabinet">'
+    + '<div style="flex:none;width:42px;height:42px;border-radius:12px;background:rgba(94,170,255,.12);'
+    +   'border:1px solid rgba(94,170,255,.3);display:grid;place-items:center;font-size:22px">'+pet.emoji+'</div>'
+    + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">'+esc(petName(pet.id))+'</div>'
+    + '<div style="font-size:11px;color:rgba(234,242,238,.48);margin-top:2px">'
+    +   esc(tFill('pet_days',{n:S.companion.days|0}))+'</div></div>'
+    + '<div style="font-size:18px;color:var(--s-dim)">›</div></button>'
+    + '</div>';
 }
-function sheetShop(){
-  // 相容：若還有 sheet 入口，轉成與分頁相同內容
-  const { petRows, skinRows } = shopListsHtml();
-  return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
-    + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
-    + '<div class="kicker">SHOP</div>'
-    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:var(--ink-42)">'+esc(t('pet_close'))+'</button></div>'
-    + '<div style="font:400 18px/1.45 var(--fb);margin-top:10px">'+esc(t('pet_shop'))+'</div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px">'
-    + '<div class="foot">'+esc(t('pet_shop_sub'))+'</div>'
-    + '<div class="num" style="font:600 16px/1 var(--fh);color:var(--accent-deep);flex:none;margin-left:12px">'+comma(S.coins|0)+'</div></div>'
-    + '<div style="display:flex;gap:8px;margin-top:14px">'+shopTabBtn('pets',t('shop_tab_pets'))+shopTabBtn('skins',t('shop_tab_skins'))+'</div>'
-    + '<div style="margin-top:8px">'+(ui.shopTab==='skins' ? skinRows : petRows)+'</div></div></div>';
+function memorialArtHtml(form, big){
+  const f = form === 'urn' ? 'urn' : form === 'headstone' ? 'stone' : 'pot';
+  const label = f === 'urn' ? t('mem_form_urn') : f === 'stone' ? t('mem_form_stone') : t('mem_form_pot');
+  return '<div class="mem-art '+f+'"'+(big?'':' style="width:56px;height:56px;border-radius:12px;font-size:8px"')+'>'
+    + esc(label)+'</div>';
+}
+function reviveBarHtml(progress, needed){
+  const n = needed || REVIVE_NEEDED;
+  const p = Math.max(0, Math.min(n, progress|0));
+  let cells = '';
+  for(let i = 0; i < n; i++) cells += '<i class="'+(i < p ? 'on' : '')+'"></i>';
+  return '<div class="mem-revive">'+cells+'</div>'
+    + '<div class="foot" style="margin-top:8px">'+esc(tFill('mem_revive_need',{n:n}))
+    + ' · '+p+'/'+n+'</div>';
+}
+function filmstripHtml(){
+  const cells = [
+    { border:'rgba(53,240,160,.22)', dot:'#35F0A0', line:'rgba(53,240,160,.7)', t:'23:00' },
+    { border:'rgba(255,194,75,.28)', dot:'#FFC24B', line:'rgba(255,194,75,.7)', t:'23:40' },
+    { border:'rgba(255,77,94,.4)', glow:true, t:'23:59' },
+    { earth:true, t:'00:00' }
+  ];
+  return '<div class="mem-film">'+cells.map(c => {
+    let inner;
+    if(c.earth){
+      inner = '<div class="cell" style="display:grid;place-items:center"><span style="width:26px;height:13px;border-radius:26px 26px 3px 3px;background:#3A2E24"></span></div>';
+    }else if(c.glow){
+      inner = '<div class="cell" style="border-color:'+c.border+';background:#1A0C0E;display:grid;place-items:center">'
+        + '<span style="width:16px;height:16px;border-radius:99px;background:#FF4D5E;box-shadow:0 0 14px rgba(255,77,94,.8)"></span></div>';
+    }else{
+      inner = '<div class="cell" style="border-color:'+c.border+'">'
+        + '<span style="flex:none;width:9px;height:9px;border-radius:99px;background:'+c.dot+'"></span>'
+        + '<span style="flex:1;height:2px;background:repeating-linear-gradient(90deg,'+c.line+' 0 4px,transparent 4px 8px)"></span></div>';
+    }
+    return '<div>'+inner+'<div class="lbl">'+c.t+'</div></div>';
+  }).join('')+'</div>';
+}
+function screenMemorialMorning(){
+  const f = fallenOf(S.pendingMemorialId);
+  if(!f){ S.pendingMemorialId = null; return ''; }
+  const unfinished = (f.memorial && f.memorial.unfinished) || [];
+  const uRows = unfinished.length
+    ? unfinished.map(u =>
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid rgba(230,227,220,.08)">'
+        + '<span style="font-size:13px">'+esc(u.name || (u.kind==='anchor'?'Anchor':t('named_time')))+'</span>'
+        + '<span style="font-size:11.5px;color:rgba(230,227,220,.45)">'
+        + esc(u.kind==='anchor'?'Anchor':t('named_time'))+'</span></div>').join('')
+    : '<div class="foot" style="margin-top:8px">'+esc(t('pet_tasks_none'))+'</div>';
+  const anchorN = (f.tasks || []).filter(x => x.kind === 'anchor').length;
+  return '<div class="full memorial" style="padding:0">'
+    + '<div style="flex:1;overflow:auto;padding:62px 20px 20px">'
+    + '<div style="font-family:var(--fh);font-size:10px;letter-spacing:.22em;color:rgba(230,227,220,.5);margin-bottom:22px">'
+    +   esc(t('mem_morning_k'))+'</div>'
+    + filmstripHtml()
+    + '<div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:28px">'
+    + memorialArtHtml('pot', true)
+    + '<div style="width:180px;height:1px;background:rgba(230,227,220,.12);margin-top:2px"></div>'
+    + '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:26px">'
+    +   esc(tFill('mem_morning_title',{name:petName(f.petId)}))+'</div>'
+    + '<p style="font-size:13.5px;line-height:1.75;color:rgba(230,227,220,.66);margin:20px 0 0;max-width:290px">'
+    +   esc(t('mem_morning_sub'))+'</p></div>'
+    + '<div style="margin-top:26px;border-radius:15px;border:1px solid rgba(230,227,220,.1);background:#111110;padding:14px 16px">'
+    + '<div style="font-family:var(--fh);font-size:9.5px;letter-spacing:.18em;color:rgba(230,227,220,.5);margin-bottom:4px">'
+    +   esc(t('mem_unfinished'))+'</div>'
+    + uRows
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid rgba(230,227,220,.08)">'
+    + '<span style="font-size:12.5px;color:rgba(230,227,220,.6)">'+esc(t('mem_together'))+'</span>'
+    + '<span style="font-family:var(--fh);font-size:13px;font-weight:700">'
+    +   esc(tFill('pet_days_short',{n:f.days}))+' · '+anchorN+' Anchor</span></div></div></div>'
+    + '<div style="flex:none;padding:14px 20px 34px;border-top:1px solid rgba(230,227,220,.1);background:#0B0B0A">'
+    + '<button class="btn btn-wide" data-act="mem-create" data-id="'+f.id+'" style="background:#E6E3DC;color:#0B0B0A;border:none">'
+    +   esc(t('mem_create'))+'</button>'
+    + '<button data-act="mem-later" style="display:block;width:100%;margin-top:13px;border:none;background:transparent;'
+    +   'font:400 12px var(--fb);color:rgba(230,227,220,.45)">'+esc(t('mem_later'))+'</button></div></div>';
 }
 function sheetCabinet(){
   ensureCompanion();
   const owned = PETS.filter(p => S.ownedPets.indexOf(p.id) >= 0);
   const rows = owned.map(p => {
     const on = S.equippedPet === p.id;
+    const locked = petNeedsRevive(p.id);
+    const rp = reviveProgress(p.id);
     const falls = (S.fallen||[]).filter(f => f.petId === p.id);
     const days = on ? (S.companion.days|0) : null;
+    let action;
+    if(on){
+      action = '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('pet_equipped'))+'</span>';
+    }else if(locked){
+      action = '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('mem_locked'))
+        + '<br>'+(rp?rp.progress:0)+'/'+(rp?rp.needed:REVIVE_NEEDED)+'</span>';
+    }else{
+      action = '<button class="btn btn-fill" data-act="equip-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('pet_equip'))+'</button>';
+    }
     return '<div style="padding:14px 0;border-bottom:1px solid var(--hair-3)">'
       + '<div style="display:flex;align-items:center;gap:12px">'
       + '<div style="width:42px;height:42px;flex:none;display:flex;align-items:center;justify-content:center;font-size:28px;'
       +   'border:1px solid '+(on?'var(--accent)':'var(--hair)')+';background:'+(on?'var(--accent-tint)':'var(--fill)')+'">'
       +   (p.id==='bomb' && on ? '💣' : p.emoji)+'</div>'
       + '<div style="flex:1;min-width:0"><div style="font:500 14px/1.4 var(--fb)">'+esc(petName(p.id))
-      + (on ? ' · <span style="color:var(--accent-deep)">'+esc(t('pet_equipped'))+'</span>' : '')+'</div>'
+      + (on ? ' · <span style="color:var(--accent-deep)">'+esc(t('pet_equipped'))+'</span>' : '')
+      + (locked && !on ? ' · <span style="color:var(--ink-42)">'+esc(t('mem_locked'))+'</span>' : '')+'</div>'
       + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'
       +   (on ? esc(tFill('pet_days',{n:days})) : esc(t('pet_owned')))
-      +   (falls.length ? ' · '+esc(t('pet_fallen'))+' '+falls.length : '')
+      +   (falls.length ? ' · '+esc(t('mem_hall'))+' '+falls.length : '')
       + '</div></div>'
-      + (on
-          ? '<span style="font:400 11px/1 var(--fb);color:var(--ink-42)">'+esc(t('pet_equipped'))+'</span>'
-          : '<button class="btn btn-fill" data-act="equip-pet" data-id="'+p.id+'" style="padding:8px 12px;font-size:12px">'+esc(t('pet_equip'))+'</button>')
-      + '</div>'
-      + (falls.length
-          ? '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">'
-            + falls.slice(0,3).map(f =>
-                '<button data-act="pet-memo" data-id="'+f.id+'" style="text-align:left;padding:10px 12px;border:1px solid var(--hair);'
-                + 'background:transparent;color:var(--ink);font:400 11.5px/1.5 var(--fb)">'
-                + esc(t('pet_fallen_title'))+' · '+esc(tFill('pet_days_short',{n:f.days}))
-                + ' · '+esc((f.startedOn||'')+' → '+(f.endedOn||''))+' ›</button>').join('')
-            + (falls.length > 3 ? '<div class="foot">+'+ (falls.length-3) +'</div>' : '')
-            + '</div>'
-          : '')
-      + '</div>';
+      + action
+      + '</div></div>';
   }).join('');
   const allFallen = (S.fallen||[]);
   return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">CABINET</div>'
-    + '<button data-act="close-sheet" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('pet_close'))+'</button></div>'
+    + '<button data-act="close-sheet" class="sheet-x">'+esc(t('pet_close'))+'</button></div>'
     + '<div style="font:400 18px/1.45 var(--fb);margin-top:10px">'+esc(t('pet_cabinet'))+'</div>'
     + '<div class="foot" style="margin-top:6px">'+esc(t('pet_cabinet_sub'))+'</div>'
     + '<div style="margin-top:8px">'+rows+'</div>'
-    + '<div class="kicker" style="margin-top:22px">'+esc(t('pet_fallen'))+'</div>'
+    + '<div class="kicker" style="margin-top:22px">'+esc(t('mem_hall'))+'</div>'
     + (allFallen.length
-        ? '<div style="margin-top:8px">'+allFallen.map(f =>
-            '<button data-act="pet-memo" data-id="'+f.id+'" style="display:flex;width:100%;text-align:left;gap:10px;padding:12px 0;'
-            + 'border:none;border-bottom:1px solid var(--hair-3);background:transparent;color:var(--ink)">'
-            + '<span style="font-size:22px;flex:none">'+petOf(f.petId).emoji+'</span>'
-            + '<span style="flex:1;min-width:0;font:400 12.5px/1.5 var(--fb)">'
-            + esc(petName(f.petId))+' · '+esc(tFill('pet_days',{n:f.days}))
-            + '<br><span style="color:var(--ink-42);font-size:11px">'
-            + esc((f.startedOn||'')+' → '+(f.endedOn||''))+'</span></span><span style="color:var(--ink-42)">›</span></button>').join('')
-          + '</div>'
-        : '<div class="foot" style="margin-top:10px">'+esc(t('pet_fallen_none'))+'</div>')
+        ? '<div style="margin-top:8px">'+allFallen.map(f => {
+            const st = (f.memorial && f.memorial.status) || 'placed';
+            const form = (f.memorial && f.memorial.form) || 'pot';
+            const rp = petNeedsRevive(f.petId) ? reviveProgress(f.petId) : null;
+            return '<div style="padding:12px 0;border-bottom:1px solid var(--hair-3)">'
+              + '<button data-act="pet-memo" data-id="'+f.id+'" style="display:flex;width:100%;text-align:left;gap:10px;'
+              + 'border:none;background:transparent;color:var(--ink);padding:0;align-items:center">'
+              + (st === 'pending' || st === 'skipped'
+                  ? '<span style="font-size:22px;flex:none">'+petOf(f.petId).emoji+'</span>'
+                  : '<span style="flex:none">'+memorialArtHtml(form, false)+'</span>')
+              + '<span style="flex:1;min-width:0;font:400 12.5px/1.5 var(--fb)">'
+              + esc(petName(f.petId))+' · '+esc(memorialStatusLabel(st))
+              + '<br><span style="color:var(--ink-42);font-size:11px">'
+              + esc(tFill('pet_days_short',{n:f.days}))+' · '+esc((f.startedOn||'')+' → '+(f.endedOn||''))
+              + (rp ? ' · '+(rp.progress)+'/'+rp.needed : '')
+              + '</span></span><span style="color:var(--ink-42)">›</span></button>'
+              + (st === 'pending'
+                  ? '<button class="btn btn-fill" data-act="mem-create" data-id="'+f.id+'" style="margin-top:10px;padding:8px 12px;font-size:12px">'
+                    + esc(t('mem_place_cta'))+'</button>'
+                  : '')
+              + '</div>';
+          }).join('')+'</div>'
+        : '<div class="foot" style="margin-top:10px">'+esc(t('mem_hall_none'))+'</div>')
     + '</div></div>';
 }
 function sheetPetMemo(){
-  const f = (S.fallen||[]).find(x => x.id === ui.petMemoId);
+  const f = fallenOf(ui.petMemoId);
   if(!f){
-    return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1">'
-      + '<div class="foot">'+esc(t('pet_fallen_none'))+'</div>'
+    return '<div class="scrim memorial" data-act="close-sheet"><div class="sheet memorial" data-stop="1">'
+      + '<div class="foot">'+esc(t('mem_hall_none'))+'</div>'
       + '<button class="btn btn-wide" data-act="close-memo" style="margin-top:16px">'+esc(t('pet_close'))+'</button></div></div>';
   }
+  const mem = f.memorial || { status:'placed', form:'pot', unfinished:[] };
+  const form = mem.form || (S.memorialForm === 'none' ? 'pot' : S.memorialForm) || 'pot';
+  const rp = reviveProgress(f.petId);
+  const unfinished = mem.unfinished || [];
   const tasks = f.tasks || [];
+  const anchors = tasks.filter(x => x.kind === 'anchor').length;
   const taskRows = tasks.length
     ? tasks.map(x =>
         '<div style="padding:10px 0;border-bottom:1px solid var(--hair-3)">'
@@ -2199,18 +2697,40 @@ function sheetPetMemo(){
         + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'
         + esc(x.day||'')+' · '+(x.kind==='anchor'?'Anchor':t('named_time'))+'</div></div>').join('')
     : '<div class="foot" style="padding:12px 0">'+esc(t('pet_tasks_none'))+'</div>';
-  return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
+  const uRows = unfinished.length
+    ? unfinished.map(u =>
+        '<div style="padding:8px 0;border-bottom:1px solid var(--hair-3);font:400 12.5px/1.5 var(--fb)">'
+        + esc(u.name || (u.kind==='anchor'?'Anchor':t('named_time')))+'</div>').join('')
+    : '';
+  return '<div class="scrim memorial" data-act="close-sheet"><div class="sheet memorial" data-stop="1" style="max-height:88vh;overflow:auto">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
-    + '<div class="kicker">MEMO</div>'
-    + '<button data-act="close-memo" style="border:none;background:transparent;font:400 11px var(--fb);color:rgba(233,237,244,.5)">'+esc(t('pet_close'))+'</button></div>'
-    + '<div style="display:flex;align-items:center;gap:12px;margin-top:14px">'
-    + '<div style="font-size:36px">'+petOf(f.petId).emoji+'</div>'
-    + '<div><div style="font:500 18px/1.35 var(--fb)">'+esc(petName(f.petId))+'</div>'
-    + '<div style="font:400 12px/1.5 var(--fb);color:var(--ink-55);margin-top:4px">'+esc(t('pet_fallen_title'))+'</div></div></div>'
+    + '<div class="kicker">'+esc(t('mem_detail'))+'</div>'
+    + '<button data-act="close-memo" class="sheet-x">'+esc(t('pet_close'))+'</button></div>'
+    + '<div style="display:flex;flex-direction:column;align-items:center;margin-top:18px">'
+    + memorialArtHtml(form, true)
+    + '<div style="font:500 18px/1.35 var(--fb);margin-top:16px">'+esc(petName(f.petId))+'</div>'
+    + '<div style="font:400 12px/1.5 var(--fb);color:var(--ink-55);margin-top:4px">'
+    +   esc(memorialStatusLabel(mem.status))
+    +   (mem.form ? ' · '+esc(formLabel(mem.form)) : '')+'</div></div>'
     + '<div style="margin-top:16px;padding:12px 14px;border:1px solid var(--hair)">'
     + '<div class="num" style="font:600 28px/1 var(--fh)">'+esc(tFill('pet_days_short',{n:f.days}))+'</div>'
     + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:6px">'
-    +   esc((f.startedOn||'')+' → '+(f.endedOn||''))+'</div></div>'
+    +   esc((f.startedOn||'')+' → '+(f.endedOn||''))+'</div>'
+    + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-42);margin-top:8px">'
+    +   esc(t('mem_anchors'))+' · '+anchors+'</div></div>'
+    + (mem.status === 'pending'
+        ? '<button class="btn btn-wide btn-fill" data-act="mem-create" data-id="'+f.id+'" style="margin-top:16px">'
+          + esc(t('mem_create'))+'</button>'
+        : '')
+    + '<div class="kicker" style="margin-top:22px">'+esc(t('mem_revive'))+'</div>'
+    + (rp
+        ? reviveBarHtml(rp.progress, rp.needed)
+          + '<div class="foot" style="margin-top:6px">'+esc(t('mem_revive_note'))+'</div>'
+        : '<div class="foot" style="margin-top:8px">'
+          + esc(mem.status === 'revived' ? t('mem_revived') : t('mem_revive_note'))+'</div>')
+    + (uRows
+        ? '<div class="kicker" style="margin-top:22px">'+esc(t('mem_unfinished'))+'</div><div style="margin-top:4px">'+uRows+'</div>'
+        : '')
     + '<div class="kicker" style="margin-top:22px">'+esc(t('pet_tasks'))+'</div>'
     + '<div style="margin-top:4px">'+taskRows+'</div></div></div>';
 }
@@ -2397,11 +2917,23 @@ function render(){
   if(!S.onboarded){ app.innerHTML = sheetOnboarding() + petToastHtml(); return; }
   if(needsLogin()){ app.innerHTML = sheetLogin() + petToastHtml(); return; }
 
+  // 隔天紀念過場蓋過一般分頁（ash／bone，無霓虹）
+  if(S.pendingMemorialId && fallenOf(S.pendingMemorialId)
+      && fallenOf(S.pendingMemorialId).memorial
+      && fallenOf(S.pendingMemorialId).memorial.status === 'pending'){
+    app.className = 'app' + (S.night ? '' : ' night-off');
+    app.innerHTML = screenMemorialMorning() + petToastHtml();
+    return;
+  }
+
   const screen = S.tab === 'today' ? screenToday()
                : S.tab === 'receipt' ? screenReceipt()
                : S.tab === 'shop' ? screenShop()
                : S.tab === 'insights' ? screenInsights() : screenSettings();
 
+  app.className = 'app'
+    + (S.tab === 'shop' ? ' on-shop' : '')
+    + (S.night ? '' : ' night-off');
   app.innerHTML =
       '<div class="bar">'
     + '<div style="display:flex;align-items:baseline;gap:9px;min-width:0">'
@@ -2410,15 +2942,14 @@ function render(){
     + '<button data-act="lang" data-v="en"'+(S.lang==='en'?' class="on"':'')+'>EN</button></div></div>'
     + '<div class="scroll" id="scroll">'+screen+'</div>'
     + '<div class="tabs">'
-    + tabBtn('today','<span class="ic ic-today"><i></i></span>', t('tab_today'))
-    + tabBtn('receipt','<span class="ic ic-receipt"><i></i><i></i><i></i></span>', t('tab_receipt'))
     + tabBtn('shop','<span class="ic ic-shop"><i></i><i></i><i></i></span>', t('tab_shop'))
+    + tabBtn('receipt','<span class="ic ic-receipt"><i></i><i></i><i></i></span>', t('tab_receipt'))
+    + tabBtn('today','<span class="ic ic-today"><i></i></span>', t('tab_today'))
     + tabBtn('insights','<span class="ic ic-insights"><i style="height:6px"></i><i style="height:13px"></i><i style="height:9px"></i></span>', t('tab_insights'))
     + tabBtn('settings','<span class="ic ic-settings"></span>', t('tab_settings'))
     + '</div>'
     + (ui.sheet === 'spend' ? sheetSpend() : '')
     + (ui.sheet === 'worth' ? sheetWorth() : '')
-    + (ui.sheet === 'shop' ? sheetShop() : '')
     + (ui.sheet === 'cabinet' ? sheetCabinet() : '')
     + (ui.sheet === 'pet-memo' ? sheetPetMemo() : '')
     + petToastHtml()
@@ -2426,6 +2957,42 @@ function render(){
 
   const sn = document.getElementById('spendName');
   if(sn && ui.focusSpend){ sn.focus(); ui.focusSpend = false; }
+  bindShopRails();
+}
+
+/* 商店貨架：觸控＝原生橫滑＋可點；滑鼠＝拖曳捲動，拖過才擋一次 click */
+function bindShopRails(){
+  document.querySelectorAll('.shop-rail').forEach(rail => {
+    let x0 = 0, left0 = 0, moved = false, pid = null, blockClick = false;
+    rail.addEventListener('click', e => {
+      if(!blockClick) return;
+      blockClick = false;
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+    rail.addEventListener('pointerdown', e => {
+      if(e.pointerType === 'touch') return; // 觸控不攔，保留原生滑＋點
+      pid = e.pointerId; x0 = e.clientX; left0 = rail.scrollLeft; moved = false;
+      try{ rail.setPointerCapture(pid); }catch(err){}
+    });
+    rail.addEventListener('pointermove', e => {
+      if(pid === null || e.pointerId !== pid) return;
+      const dx = e.clientX - x0;
+      if(Math.abs(dx) > 6) moved = true;
+      if(moved) rail.scrollLeft = left0 - dx;
+    });
+    const end = e => {
+      if(pid === null || e.pointerId !== pid) return;
+      if(moved){
+        blockClick = true;
+        // 若瀏覽器沒送 click，勿讓 blockClick 永遠卡住
+        setTimeout(()=>{ blockClick = false; }, 80);
+      }
+      pid = null; moved = false;
+    };
+    rail.addEventListener('pointerup', end);
+    rail.addEventListener('pointercancel', end);
+  });
 }
 
 /* ── 7. 事件 ─────────────────────────────────────────────────────────── */
@@ -2496,6 +3063,7 @@ document.addEventListener('click', e => {
     case 'night': setState(()=>{ S.night = !S.night; lastSkin = ''; lastStage = null; applyPressure(); }); break;
     case 'tick':  setState(()=>{ S.tick = !S.tick; }); break;
     case 'cats-open': ui.catsOpen = !ui.catsOpen; render(); break;
+    case 'privacy-open': ui.privacyOpen = !ui.privacyOpen; render(); break;
     case 'cat-toggle': setState(()=>{ const c = el.dataset.cat, i = S.cats.indexOf(c);
                          if(i>=0){ if(S.cats.length>1) S.cats.splice(i,1); } else S.cats.push(c); }); break;
     case 'export': exportBackup(); break;
@@ -2513,15 +3081,20 @@ document.addEventListener('click', e => {
     case 'wipe':   if(confirm(t('confirm_delete'))){ localStorage.removeItem(KEY);
                      S = migrateState({}); resetUiState(); lastSkin = '';
                      save(); applyPressure(); render(); } break;
-    case 'open-shop': ui.shopTab = 'pets'; setState(()=>{ S.tab = 'shop'; ui.sheet = null; }); break;
+    case 'open-shop': setState(()=>{ S.tab = 'shop'; ui.sheet = null; }); break;
     case 'open-cabinet': ui.sheet = 'cabinet'; render(); break;
-    case 'shop-tab': ui.shopTab = el.dataset.v; render(); break;
     case 'buy-pet': buyPet(el.dataset.id); break;
     case 'equip-pet': equipPet(el.dataset.id); break;
     case 'buy-skin': buySkin(el.dataset.id); break;
     case 'equip-skin': equipSkin(el.dataset.id); break;
     case 'pet-memo': ui.petMemoId = el.dataset.id; ui.sheet = 'pet-memo'; render(); break;
     case 'close-memo': ui.petMemoId = null; ui.sheet = 'cabinet'; render(); break;
+    case 'mem-form': setState(()=>{ if(MEM_FORMS.indexOf(el.dataset.v) >= 0) S.memorialForm = el.dataset.v; }); break;
+    case 'mem-create': setState(()=>{
+      placeMemorial(el.dataset.id);
+      ui.sheet = 'pet-memo'; ui.petMemoId = el.dataset.id;
+    }); break;
+    case 'mem-later': setState(()=>{ deferMemorial(); }); break;
     case 'home-tip-ok': setState(()=>{ S.homeTip = false; }); break;
     case 'auth-mode': ui.auth.mode = el.dataset.v; ui.auth.err = ''; render(); break;
     case 'acct-guest':
@@ -2724,12 +3297,24 @@ function pwaBits(){
   }catch(e){}
   // 極簡 SW：http(s) 下快取自身，file:// 會被瀏覽器拒絕所以略過
   if('serviceWorker' in navigator && location.protocol !== 'file:'){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    // 已有控制中的 SW 時，換成新版就重載一次（避免底部順序卡舊殼）
+    if(navigator.serviceWorker.controller){
+      navigator.serviceWorker.addEventListener('controllerchange', () => { location.reload(); });
+    }
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then(reg => { reg.update().catch(()=>{}); })
+      .catch(()=>{});
   }
 }
 
 /* ── 10. 啟動 ────────────────────────────────────────────────────────── */
+(function(){
+  const tb = /[?&]tab=([a-z]+)/i.exec(location.search);
+  if(tb && ['today','receipt','shop','insights','settings'].indexOf(tb[1].toLowerCase()) >= 0)
+    S.tab = tb[1].toLowerCase();
+})();
 catchUpPetSettlement();
+ensureDemoMemorial();
 applyPressure();
 render();
 heartbeat();

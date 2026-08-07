@@ -1,5 +1,5 @@
-/* 86,400 — 極簡 Service Worker：快取殼層，讓 http(s) 重新整理也能離線開 */
-const CACHE = '86400-v9';
+/* 86,400 — Service Worker：殼層離線；HTML／SW 一律網路優先，避免分頁順序卡舊版 */
+const CACHE = '86400-v22';
 const ASSETS = ['./', './index.html', './sw.js'];
 
 self.addEventListener('install', event => {
@@ -16,27 +16,34 @@ self.addEventListener('activate', event => {
   );
 });
 
+function networkFirst(request, offlineFallback){
+  return fetch(request).then(res => {
+    if(res && res.ok){
+      const copy = res.clone();
+      caches.open(CACHE).then(cache => cache.put(request, copy));
+    }
+    return res;
+  }).catch(() =>
+    caches.match(request).then(hit => {
+      if(hit) return hit;
+      return offlineFallback ? caches.match(offlineFallback) : Response.error();
+    })
+  );
+}
+
 self.addEventListener('fetch', event => {
   if(event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
-  // 導覽／HTML：先網路，避免殼層卡在舊版；離線再回退快取
-  const wantsHtml = event.request.mode === 'navigate'
+  const isSw = /\/sw\.js$/.test(url.pathname);
+  const isHtml = event.request.mode === 'navigate'
     || (event.request.headers.get('accept') || '').indexOf('text/html') >= 0
     || /\/index\.html$/.test(url.pathname)
     || url.pathname === '/' || url.pathname.endsWith('/');
-  if(wantsHtml){
-    event.respondWith(
-      fetch(event.request).then(res => {
-        if(res && res.ok){
-          const copy = res.clone();
-          caches.open(CACHE).then(cache => cache.put(event.request, copy));
-        }
-        return res;
-      }).catch(() => caches.match(event.request).then(hit => hit || caches.match('./index.html')))
-    );
+  // HTML：網路優先，離線回退 index；sw.js：網路優先，離線只回自己的快取（不拿 HTML 頂替）
+  if(isHtml || isSw){
+    event.respondWith(networkFirst(event.request, isSw ? null : './index.html'));
     return;
   }
-  // 其他資源：快取優先，維持離線
   event.respondWith(
     caches.match(event.request).then(hit => {
       if(hit) return hit;
