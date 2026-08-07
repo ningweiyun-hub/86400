@@ -20,6 +20,19 @@ Design references live under `design_handoff/` (not production code). They may r
 
 There is no package manager, linter config, test suite, or build step. Validate by opening the app in a browser: console should be clean, and data must survive refresh via `localStorage` key `86400.v1`.
 
-### Open Design
+### Open Design ↔ Cursor Local CLI
 
-[Open Design](https://open-design.ai) is a separate local-first desktop app (not an official Cursor product). This Cloud Agent VM cannot reach a user’s Open Design daemon. To wire it into Cursor Desktop: install Open Design → choose Cursor as agent → authenticate → use the app’s Settings → MCP server snippet (or `od mcp install cursor` from the Open Design CLI, not `/usr/bin/od`). Repo `.dc.html` files are design-canvas HTML handoffs; they are not an automatic Open Design connection.
+[Open Design](https://open-design.ai) drives design via a **local** coding-agent CLI. For Cursor that means the Cursor Agent CLI (`agent` / `cursor-agent`), not a Cloud Agent session.
+
+On the **same machine** that runs Open Design Desktop:
+
+```bash
+curl https://cursor.com/install -fsS | bash
+export PATH="$HOME/.local/bin:$PATH"
+agent login          # or: cursor-agent login
+agent status         # must show authenticated
+```
+
+Then in Open Design: Settings → select **Cursor** as agent (**Local CLI**). Open Design spawns `cursor-agent`; if status is unauthenticated you’ll see `AGENT_AUTH_REQUIRED` / “run `cursor-agent login`…”. Optional MCP wiring into Cursor Desktop: `od mcp install cursor` (Open Design’s `od`, not `/usr/bin/od`).
+
+Repo `design_handoff/*.dc.html` files are design-canvas HTML handoffs only — they do not auto-connect Open Design.
