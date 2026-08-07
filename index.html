@@ -12,7 +12,7 @@
 <title>86,400</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=Noto+Sans+TC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
 <style>
 /* ── After Hours tokens ──────────────────────────────────────────────────
    配色不是固定的：--bg / --accent 這些每一拍由 JS 依「今天過掉多少」
@@ -273,6 +273,55 @@ input{border-radius:0}
 .row .v{font:400 12.5px/1.5 var(--fb);color:rgba(233,237,244,.5);text-align:right}
 .sechead{display:flex;justify-content:space-between;align-items:baseline;
   padding-bottom:8px;border-bottom:1px solid var(--hair-2)}
+
+
+/* ── 商店（貨架佈局）───────────────────────────────────────────────────
+   只有這一頁用這組色票與圓角，刻意跟主畫面的壓力色階分開。 */
+.shop{--s-bg:#07090B;--s-panel:#0E1316;--s-neon:#35F0A0;--s-gold:#FFC24B;
+  --s-ink:#EAF2EE;--s-dim:rgba(234,242,238,.45);--s-line:rgba(255,255,255,.08);
+  font-family:'Noto Sans TC',system-ui,sans-serif;color:var(--s-ink);
+  margin:0 -20px;padding:0 0 8px;background:var(--s-bg);min-height:100%}
+.shop .mono{font-family:'JetBrains Mono',monospace}
+.shop .pix{font-family:Silkscreen,monospace}
+.shop-pad{padding:0 18px}
+.shop-wallet{border-radius:20px;padding:16px 18px;margin-bottom:24px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#0F2019,#0A1113);border:1px solid rgba(53,240,160,.24)}
+.shop-wallet::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;
+  border-radius:999px;background:radial-gradient(circle,rgba(53,240,160,.22),transparent 70%)}
+.shop-rail{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding:0 18px 22px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none}
+.shop-rail::-webkit-scrollbar{display:none}
+.shop-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 18px;margin-bottom:10px}
+.shop-head .t{font-size:14px;font-weight:700}
+.shop-head .t span{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(234,242,238,.56)}
+.shop-card{flex:none;background:var(--s-panel);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:10px}
+.shop-btn{border-radius:12px;padding:10px;font-size:12.5px;font-weight:700;text-align:center;
+  border:1px solid transparent;background:var(--s-neon);color:var(--s-bg)}
+.shop-btn.ghost{background:transparent;border-color:rgba(53,240,160,.3);color:var(--s-neon);font-weight:600}
+.shop-pet{flex:none;width:118px;background:transparent;border:none;padding:0;text-align:left}
+.shop-pet .art{width:118px;height:118px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 6px,transparent 6px 12px),#0E1316;
+  display:grid;place-items:center;font-size:46px;margin-bottom:8px}
+.shop-pet.own .art{border-color:rgba(53,240,160,.4)}
+.shop-pet .nm{font-size:12px;font-weight:600}
+.shop-pet .pr{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--s-neon);margin-top:3px}
+.shop-skin{width:172px;text-align:left}
+.shop-skin .prev{width:100%;height:92px;border-radius:11px;display:flex;align-items:flex-end;
+  padding:11px;margin-bottom:9px;box-sizing:border-box}
+.shop-consum{display:flex;align-items:center;gap:13px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
+  background:var(--s-panel);padding:14px;margin:0 18px 26px}
+
+
+/* 停在商店分頁時，上下導覽列也跟著換成商店的色，不要跟主畫面的壓力色打架 */
+.app.on-shop{background:#07090B}
+.app.on-shop .bar{background:#07090B}
+.app.on-shop .brand{color:#35F0A0;text-shadow:0 0 18px rgba(53,240,160,.45)}
+.app.on-shop .date{color:rgba(234,242,238,.42)}
+.app.on-shop .langsw{border-color:rgba(255,255,255,.14)}
+.app.on-shop .langsw button.on{background:#35F0A0;color:#07090B}
+.app.on-shop .tabs{background:rgba(7,9,11,.92);border-top-color:rgba(255,255,255,.07)}
+.app.on-shop .tabs button{color:rgba(234,242,238,.38)}
+.app.on-shop .tabs button.on{color:#35F0A0;text-shadow:0 0 12px rgba(53,240,160,.4)}
 
 /* ── sheets ──────────────────────────────────────────────────────────── */
 .scrim{position:fixed;inset:0;z-index:80;background:rgba(29,45,61,.45);display:flex;align-items:flex-end}
@@ -2097,22 +2146,94 @@ function shopListsHtml(){
   }).join('');
   return { petRows, skinRows };
 }
+/* 主題預覽：用該主題自己的色票畫一格倒數，讓人買之前就看得到 */
+function skinPreview(sk){
+  const a = sk.stops[0].neon, b = sk.stops[0].bg, hot = sk.stops[2].neon;
+  const num = comma(secLeft());
+  let bgCss, ink = ok(a), extra = '';
+  if(sk.military){
+    bgCss = 'radial-gradient(40px 27px at 18% 28%,'+ok([b[0]+0.10,b[1]+0.02,95])+' 0 99%,transparent 100%),'
+          + 'radial-gradient(34px 22px at 68% 20%,'+ok([b[0]+0.03,b[1],110])+' 0 99%,transparent 100%),'
+          + 'radial-gradient(32px 25px at 46% 80%,'+ok([b[0]+0.16,b[1]+0.03,100])+' 0 99%,transparent 100%),'
+          + ok([b[0]+0.08,b[1]+0.02,105]);
+    ink = '#EDE9D6'; extra = 'text-shadow:0 1px 3px rgba(0,0,0,.5);';
+  }else if(sk.light){
+    bgCss = 'repeating-linear-gradient(0deg,transparent 0 15px,'+ok(a,'0.22')+' 15px 16px),'+ok(b);
+    ink = ok(hot);
+  }else{
+    bgCss = 'repeating-linear-gradient(0deg,'+ok(a,'0.13')+' 0 1px,transparent 1px 13px),'
+          + 'repeating-linear-gradient(90deg,'+ok(a,'0.13')+' 0 1px,transparent 1px 13px),'+ok(b);
+  }
+  return '<div class="prev" style="border:1px solid '+ok(a,'0.30')+';background:'+bgCss+'">'
+    + '<span class="mono" style="font-size:18px;font-weight:700;color:'+ink+';'+extra+'">'+num+'</span></div>';
+}
+function shopRail(titleZh, titleEn, cards){
+  return '<div class="shop-head"><div class="t">'+esc(titleZh)+' <span>'+titleEn+'</span></div></div>'
+    + '<div class="shop-rail">'+cards+'</div>';
+}
 function screenShop(){
-  const { petRows, skinRows } = shopListsHtml();
   ensureCompanion();
   const pet = petOf(S.equippedPet);
-  return '<div style="padding:16px 0 4px;display:flex;justify-content:space-between;align-items:baseline;gap:12px">'
-    + '<div class="h-screen">'+esc(t('pet_shop'))+'</div>'
-    + '<div class="num" style="font:600 22px/1 var(--fh);color:var(--accent-deep)">'+comma(S.coins|0)
-    + '<span style="font:400 11px/1 var(--fb);color:var(--ink-55);margin-left:6px">'+esc(t('coins'))+'</span></div></div>'
-    + '<div class="foot" style="margin-top:6px">'+esc(t('pet_shop_sub'))+'</div>'
-    + '<button class="btn btn-wide" data-act="open-cabinet" style="margin-top:14px;justify-content:space-between;padding:12px 14px">'
-    + '<span style="text-align:left"><span style="font:600 12px var(--fh);letter-spacing:.08em">'+esc(t('pet_cabinet'))+'</span>'
-    + '<span style="display:block;font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:4px;font-family:var(--fb);letter-spacing:0;font-weight:400">'
-    +   pet.emoji+' '+esc(petName(pet.id))+' · '+esc(tFill('pet_days',{n:S.companion.days|0}))+'</span></span>'
-    + '<span style="color:var(--ink-42)">›</span></button>'
-    + '<div style="display:flex;gap:8px;margin-top:18px">'+shopTabBtn('pets',t('shop_tab_pets'))+shopTabBtn('skins',t('shop_tab_skins'))+'</div>'
-    + '<div style="margin-top:4px">'+(ui.shopTab==='skins' ? skinRows : petRows)+'</div>';
+
+  // 錢包
+  const wallet = '<div class="shop-pad"><div class="shop-wallet">'
+    + '<div class="mono" style="position:relative;font-size:10.5px;letter-spacing:.2em;color:rgba(53,240,160,.7);margin-bottom:6px">'
+    +   esc(EN()?'SEC BALANCE':'秒幣餘額 · SEC BALANCE')+'</div>'
+    + '<div style="position:relative;display:flex;align-items:flex-end;gap:8px;margin-bottom:14px">'
+    + '<span class="mono" style="font-size:38px;font-weight:700;line-height:1;color:var(--s-neon);'
+    +   'text-shadow:0 0 24px rgba(53,240,160,.4)">◎ '+comma(S.coins|0)+'</span></div>'
+    + '<div style="position:relative;display:flex;gap:8px">'
+    + '<button class="shop-btn" data-act="open-cabinet" style="flex:1">'+esc(t('pet_cabinet'))+'</button></div>'
+    + '<div style="position:relative;margin-top:12px;font-size:11px;color:var(--s-dim)">'
+    +   esc(EN()?'Anchor finished ':'完成今日 Anchor ')+'<span style="color:var(--s-neon)">+'+COIN_ANCHOR+' ◎</span> · '
+    +   esc(EN()?'stretch finished ':'完成一個時段 ')+'<span style="color:var(--s-neon)">+'+COIN_BLOCK+' ◎</span></div>'
+    + '</div></div>';
+
+  // 寵物貨架
+  const petCards = PETS.map(p => {
+    const owned = S.ownedPets.indexOf(p.id) >= 0;
+    const on = S.equippedPet === p.id;
+    const act = owned ? (on ? '' : 'equip-pet') : 'buy-pet';
+    const label = on ? t('pet_equipped')
+                : owned ? t('pet_equip')
+                : p.free ? t('pet_free') : '◎ ' + p.price;
+    return '<button class="shop-pet'+(owned?' own':'')+'"'+(act?' data-act="'+act+'" data-id="'+p.id+'"':'')+'>'
+      + '<div class="art">'+p.emoji+'</div>'
+      + '<div class="nm">'+esc(petName(p.id))+'</div>'
+      + '<div class="pr"'+(on?' style="color:var(--s-gold)"':'')+'>'+esc(label)+'</div></button>';
+  }).join('');
+
+  // 主題貨架
+  const skinCards = SKINS.map(sk => {
+    const owned = S.ownedSkins.indexOf(sk.id) >= 0;
+    const on = S.equippedSkin === sk.id;
+    const act = owned ? (on ? '' : 'equip-skin') : 'buy-skin';
+    const label = on ? (EN()?'In use':'使用中')
+                : owned ? t('skin_equip')
+                : sk.free ? t('pet_free') : '◎ ' + sk.price;
+    return '<button class="shop-card shop-skin"'+(act?' data-act="'+act+'" data-id="'+sk.id+'"':'')+'>'
+      + skinPreview(sk)
+      + '<div style="font-size:12px;font-weight:600">'+esc(skinName(sk.id))+'</div>'
+      + '<div class="mono" style="font-size:11.5px;margin-top:3px;color:'+(on?'var(--s-gold)':'var(--s-neon)')+'">'
+      +   esc(label)+'</div></button>';
+  }).join('');
+
+  return '<div class="shop">'
+    + '<div class="shop-pad" style="padding-top:16px">'
+    + '<div class="pix" style="font-size:22px;letter-spacing:.06em;margin-bottom:16px">SHOP '
+    +   '<span style="font-family:\'Noto Sans TC\';font-size:12px;letter-spacing:.2em;color:rgba(234,242,238,.4)">'
+    +   esc(t('pet_shop'))+'</span></div></div>'
+    + wallet
+    + shopRail(t('shop_tab_pets'), 'PETS', petCards)
+    + shopRail(t('shop_tab_skins'), 'THEMES', skinCards)
+    + '<div class="shop-consum">'
+    + '<div style="flex:none;width:42px;height:42px;border-radius:12px;background:rgba(94,170,255,.12);'
+    +   'border:1px solid rgba(94,170,255,.3);display:grid;place-items:center;font-size:22px">'+pet.emoji+'</div>'
+    + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">'+esc(petName(pet.id))+'</div>'
+    + '<div style="font-size:11px;color:rgba(234,242,238,.48);margin-top:2px">'
+    +   esc(tFill('pet_days',{n:S.companion.days|0}))+'</div></div>'
+    + '<div style="font-size:18px;color:var(--s-dim)">›</div></div>'
+    + '</div>';
 }
 function sheetShop(){
   // 相容：若還有 sheet 入口，轉成與分頁相同內容
@@ -2402,6 +2523,7 @@ function render(){
                : S.tab === 'shop' ? screenShop()
                : S.tab === 'insights' ? screenInsights() : screenSettings();
 
+  app.className = 'app' + (S.tab === 'shop' ? ' on-shop' : '');
   app.innerHTML =
       '<div class="bar">'
     + '<div style="display:flex;align-items:baseline;gap:9px;min-width:0">'
