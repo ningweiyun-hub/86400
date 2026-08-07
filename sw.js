@@ -1,5 +1,5 @@
 /* 86,400 — Service Worker：殼層離線；HTML／SW 一律網路優先，避免分頁順序卡舊版 */
-const CACHE = '86400-v23';
+const CACHE = '86400-v24';
 const ASSETS = ['./', './index.html', './sw.js'];
 
 self.addEventListener('install', event => {

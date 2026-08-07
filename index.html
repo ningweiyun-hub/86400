@@ -595,6 +595,7 @@ const T = {
   coins_sub:       ['完成任務換金幣；金幣換下一個綁住你的理由。','Finish tasks for coins. Coins buy the next reason that keeps you hostage.'],
   coin_earn_anchor:['Anchor 完成，+{n} 金幣','Anchor finished, +{n} coins'],
   coin_earn_block: ['時段完成，+{n} 金幣','Stretch finished, +{n} coins'],
+  coin_earn_register:['建立帳戶，+{n} 金幣','Account created, +{n} coins'],
   pet_cabinet:     ['寵物櫃','Pet cabinet'],
   pet_cabinet_sub: ['牠們在引線上等你收尾。炸掉之後還會在這裡瞪著你。','They wait on the fuse for you to finish. After they blow, they still stare from here.'],
   pet_shop:        ['商店','Shop'],
@@ -667,7 +668,7 @@ const T = {
   guide_skin_t:    ['主題','Themes'],
   guide_skin_b:    ['預設是焦慮霓虹。商店還有文青簡約、科技、迷彩——每一套都有自己的色票與催促語氣。','Default is Anxiety Neon. The shop also has Quiet Literati, Tech, and Camouflage — each with its own palette and pressure.'],
   guide_acct_t:    ['保存這份資料','Keep this save'],
-  guide_acct_b:    ['建議建立本機帳戶並登入，讓資料綁在這個身分上。也可以用遊客身份直接開始——資料都只存在這台裝置，可隨時匯出備份。','We suggest a local account so this save is tied to you. Or continue as a guest. Either way, data stays on this device — export a backup anytime.'],
+  guide_acct_b:    ['建議建立本機帳戶並登入，讓資料綁在這個身分上（再送 30 金幣）。也可以用遊客身份直接開始（開局 20 金幣）——資料都只存在這台裝置，可隨時匯出備份。','We suggest a local account so this save is tied to you (+30 coins). Or continue as a guest (start with 20). Either way, data stays on this device — export a backup anytime.'],
   guide_acct_note: ['沒有雲端。密碼只是本機遮罩（擋隨手打開，不是真加密）；匯出備份可能含雜湊。','No cloud. The password is a local screen — it blocks casual opens, not real encryption. Exports may include the hash.'],
   acct_register:   ['建立帳戶','Create account'],
   acct_login:      ['登入','Log in'],
@@ -705,6 +706,8 @@ const PETS = [
 ];
 const COIN_ANCHOR = 15;
 const COIN_BLOCK  = 8;
+const COIN_GUEST_START = 20;  // 新安裝／遊客開局
+const COIN_REG_BONUS  = 30;  // 首次建立本機帳戶再送
 const FREE_PET_IDS = PETS.filter(p => p.free).map(p => p.id);
 
 /* 主題：色票（OKLCH stops）+ 首頁提示詞。預設焦慮霓虹＝現行 After Hours。 */
@@ -810,7 +813,7 @@ const DEFAULTS = {
   notif:{wake:true, three:true, sleep:false},
   demo:false,
   fired:{},             // 今天已經送過的提醒
-  coins:400,            // 測試用預設；方便開商店試寵物／主題
+  coins:COIN_GUEST_START, // 遊客開局贈送；註冊另送 COIN_REG_BONUS
   ownedPets: FREE_PET_IDS.slice(),  // 免費角色預設擁有
   equippedPet:'bomb',
   // 目前引線上的陪伴：天數、期間完成的任務。炸掉後寫進 fallen，寵物仍留在櫃裡。
@@ -825,7 +828,8 @@ const DEFAULTS = {
   pendingMemorialId:null,
   revive:{},            // petId -> { needed, progress, lastAnchorDay, fallenId }
   // 本機帳戶（無雲端）。guest＝遊客；local＋session 控制是否需登入閘門
-  account:{ mode:'guest', name:'', passHash:'', salt:'', session:true },
+  // regBonus：是否已領過註冊加贈（舊本機帳號遷移時視為已領，避免一次噴金幣）
+  account:{ mode:'guest', name:'', passHash:'', salt:'', session:true, regBonus:false },
   homeTip:true          // 進首頁後的一次功能提示
 };
 const MEM_FORMS = ['pot','urn','headstone','none'];
@@ -1219,8 +1223,8 @@ function migrateState(raw){
   }));
   if(s.active){ s.activeId = s.active.id; delete s.active; }
   if(typeof s.night !== 'boolean') s.night = true;
-  // 缺值／壞值才回預設；不再把低於 400 的真餘額抬回去
-  if(typeof s.coins !== 'number' || !isFinite(s.coins) || s.coins < 0) s.coins = 400;
+  // 缺值／壞值才回遊客開局額；不抬既有餘額
+  if(typeof s.coins !== 'number' || !isFinite(s.coins) || s.coins < 0) s.coins = COIN_GUEST_START;
   if(!Array.isArray(s.ownedPets)) s.ownedPets = FREE_PET_IDS.slice();
   // 舊 id「elephant／小人象」更正為人物「figure／小人像」
   s.ownedPets = s.ownedPets.map(id => id === 'elephant' ? 'figure' : id);
@@ -1248,13 +1252,16 @@ function migrateState(raw){
   if(!SKINS.some(x => x.id === s.equippedSkin)) s.equippedSkin = 'neon';
   if(s.ownedSkins.indexOf(s.equippedSkin) < 0) s.equippedSkin = 'neon';
   if(!s.account || typeof s.account !== 'object'){
-    s.account = { mode:'guest', name:'', passHash:'', salt:'', session:true };
+    s.account = { mode:'guest', name:'', passHash:'', salt:'', session:true, regBonus:false };
   }else{
     if(s.account.mode !== 'local' && s.account.mode !== 'guest') s.account.mode = 'guest';
     if(typeof s.account.session !== 'boolean') s.account.session = true;
     if(typeof s.account.name !== 'string') s.account.name = '';
     if(typeof s.account.passHash !== 'string') s.account.passHash = '';
     if(typeof s.account.salt !== 'string') s.account.salt = '';
+    // 既有本機帳號視為已領過註冊加贈，避免升級一次狂噴 +30
+    if(typeof s.account.regBonus !== 'boolean')
+      s.account.regBonus = s.account.mode === 'local' && !!s.account.passHash;
   }
   if(typeof s.homeTip !== 'boolean') s.homeTip = false; // 舊使用者不重噴首頁提示
   if(MEM_FORMS.indexOf(s.memorialForm) < 0) s.memorialForm = 'pot';
@@ -1661,7 +1668,8 @@ function needsLogin(){
   return !!(S.account && S.account.mode === 'local' && S.account.passHash && !S.account.session);
 }
 function beginGuest(){
-  S.account = { mode:'guest', name:'', passHash:'', salt:'', session:true };
+  const keptBonus = !!(S.account && S.account.regBonus);
+  S.account = { mode:'guest', name:'', passHash:'', salt:'', session:true, regBonus:keptBonus };
   ui.auth.err = '';
   showPetToast(t('acct_guest_ok'));
 }
@@ -1675,10 +1683,15 @@ function registerLocalAccount(){
   if(!name){ ui.auth.err = t('acct_need_name'); return false; }
   if(pass.length < 4){ ui.auth.err = t('acct_need_pass'); return false; }
   if(pass !== pass2){ ui.auth.err = t('acct_pass_mismatch'); return false; }
+  const alreadyBonus = !!(S.account && S.account.regBonus);
   const salt = 's' + Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36);
-  S.account = { mode:'local', name, passHash:hashPass(pass, salt), salt, session:true };
+  S.account = { mode:'local', name, passHash:hashPass(pass, salt), salt, session:true, regBonus:true };
   ui.auth = { name:'', pass:'', pass2:'', mode:'register', err:'' };
-  showPetToast(tFill('acct_welcome', {name}));
+  if(!alreadyBonus){
+    awardCoins(COIN_REG_BONUS, tFill('coin_earn_register', {n:COIN_REG_BONUS}));
+  }else{
+    showPetToast(tFill('acct_welcome', {name}));
+  }
   return true;
 }
 function loginLocalAccount(){
