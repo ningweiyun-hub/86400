@@ -487,7 +487,7 @@ const T = {
   upcoming_foot:   ['排定還沒開始的，午夜不會算你失敗；一旦開始，就必須收尾。','Scheduled-but-not-started will not fail you at midnight. Once it starts, you must finish it.'],
   named_today:     ['今日已命名時間','Named time today'],
   unnamed:         ['未命名時間','Unnamed time'],
-  unnamed_sub:     ['不代表浪費——但空白也不會救下引線上的牠。','Not wasted — and blank time will not save whoever is on the fuse.'],
+  unnamed_sub:     ['空白不是罪名——但空白也不會救下引線上的牠。','Blank is not a crime — and blank time will not save whoever is on the fuse.'],
   named_empty:     ['今天還沒有命名任何時間。','Nothing named yet today.'],
   end_early:       ['提前結束','End early'],
   extend15:        ['延長 15 分','+15 min'],
@@ -836,8 +836,22 @@ const catOf = k => CATS.find(c => c.k === k) || CATS[0];
 const catName = k => { const c = catOf(k); return EN() ? c.en : c.zh; };
 
 function dayKey(d){ d = d || new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+function dayKeyToDate(k){
+  const [y,m,d] = String(k).split('-').map(Number);
+  return new Date(y, (m||1)-1, d||1);
+}
+function dayOffsetKey(k, delta){
+  const d = dayKeyToDate(k);
+  d.setDate(d.getDate() + (delta||0));
+  return dayKey(d);
+}
 function dayStart(d){ d = d ? new Date(d) : new Date(); d.setHours(0,0,0,0); return d.getTime(); }
 function dayEnd(d){ return dayStart(d) + 86400000; }
+function dayEndMs(k){
+  const d = dayKeyToDate(k);
+  d.setHours(23,59,59,0);
+  return d.getTime();
+}
 
 let S = load();
 let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
@@ -846,6 +860,7 @@ let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
                   when:'now',at:'',warn:false},
            worth:{blockId:null,pick:null,note:'',again:false},
            petToast:null, petMemoId:null,
+           demoMemorial:null, // ?memorial=1 只活在記憶體，不寫入存檔
            auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 
 function load(){
@@ -901,7 +916,7 @@ const ok = (c,alpha) => 'oklch(' + c[0].toFixed(3) + ' ' + c[1].toFixed(3) + ' '
 // 只在驗收/預覽時用（UI 無入口；handoff 註明 DEMO 列不可上線）：
 //   ?preview=23:40     固定時鐘
 //   ?theme=camo        暫時套用主題（不寫入存檔）
-//   ?memorial=1        打開隔天紀念過場（DEMO）
+//   ?memorial=1        打開隔天紀念過場（只活在記憶體，不寫入存檔）
 let PREVIEW = null;
 let PREVIEW_THEME = null;
 let PREVIEW_MEMORIAL = false;
@@ -1204,9 +1219,8 @@ function migrateState(raw){
   }));
   if(s.active){ s.activeId = s.active.id; delete s.active; }
   if(typeof s.night !== 'boolean') s.night = true;
-  if(typeof s.coins !== 'number' || s.coins < 0) s.coins = 400;
-  // 測試階段：既有存檔金幣低於預設時補到 400，方便開商店
-  if(s.coins < 400) s.coins = 400;
+  // 缺值／壞值才回預設；不再把低於 400 的真餘額抬回去
+  if(typeof s.coins !== 'number' || !isFinite(s.coins) || s.coins < 0) s.coins = 400;
   if(!Array.isArray(s.ownedPets)) s.ownedPets = FREE_PET_IDS.slice();
   // 舊 id「elephant／小人象」更正為人物「figure／小人像」
   s.ownedPets = s.ownedPets.map(id => id === 'elephant' ? 'figure' : id);
@@ -1433,6 +1447,9 @@ function tickReviveOnAnchor(day){
     const r = S.revive[pid];
     if(!r) return;
     if(r.lastAnchorDay === day) return; // 今日已計
+    // 必須是「日曆上連續」：上次完成日不是昨天 → streak 歸零再從 1 起
+    const prev = dayOffsetKey(day, -1);
+    if(r.lastAnchorDay && r.lastAnchorDay !== prev) r.progress = 0;
     r.progress = Math.min(r.needed || REVIVE_NEEDED, (r.progress|0) + 1);
     r.lastAnchorDay = day;
     any = true;
@@ -1454,15 +1471,12 @@ function untickReviveOnUndo(day){
     const r = S.revive[pid];
     if(!r || r.lastAnchorDay !== day) return;
     r.progress = Math.max(0, (r.progress|0) - 1);
-    r.lastAnchorDay = null;
+    r.lastAnchorDay = r.progress > 0 ? dayOffsetKey(day, -1) : null;
   });
 }
-/* 結算完一天後：當天有設 Anchor 卻沒完成 → 斷掉進行中的復活 streak（安靜日不傷） */
+/* 結算完一天後：當天沒完成 Anchor → 斷掉復活 streak（安靜日也算斷） */
 function checkReviveStreakBreak(k){
   if(!S.revive || !k) return;
-  const day = dayOf(k);
-  const hasAnchor = !!(day.anchor && day.anchor.text && day.anchor.text.trim());
-  if(!hasAnchor) return;
   Object.keys(S.revive).forEach(pid => {
     const r = S.revive[pid];
     if(!r || (r.progress|0) <= 0) return;
@@ -1532,15 +1546,36 @@ function settlePetDay(k){
   }
   checkReviveStreakBreak(k);
 }
+/* 結算後才收尾：保留 abandoned 標記，不發金幣、不開 Worth */
+function closeAbandonedBlocks(k){
+  const day = S.days && S.days[k];
+  if(!day) return;
+  const cap = dayEndMs(k);
+  (day.blocks || []).forEach(b => {
+    if(b.demo || !b.startedAt || b.endedAt) return;
+    b.abandoned = true;
+    b.endedAt = Math.max(b.startedAt, Math.min(b.endAt || cap, cap));
+  });
+  if(S.activeId){
+    const b = findBlock(S.activeId);
+    if(!b || b.endedAt || (b.day && b.day < dayKey())) S.activeId = null;
+  }
+}
 /* 關掉 App 跨過午夜時，下次開啟要把漏掉的日子結算完 */
 function catchUpPetSettlement(){
   const todayK = dayKey();
-  // 先結算（未收尾的進行中＝失敗→炸掉），再清掉跨日殘留的 activeId
+  // 先結算（未收尾的進行中＝失敗→炸掉），再標記 abandoned 並清 activeId
   Object.keys(S.days || {}).filter(k => k < todayK && !S.petSettled[k]).sort()
-    .forEach(settlePetDay);
+    .forEach(k => {
+      settlePetDay(k);
+      closeAbandonedBlocks(k);
+    });
   const act = activeBlock();
   if(act && act.day && act.day < todayK){
-    if(!act.endedAt) act.endedAt = Math.min(Date.now(), act.endAt || Date.now());
+    if(!act.endedAt){
+      act.abandoned = true;
+      act.endedAt = Math.max(act.startedAt, Math.min(act.endAt || dayEndMs(act.day), dayEndMs(act.day)));
+    }
     S.activeId = null;
   }else if(S.activeId && !activeBlock()){
     S.activeId = null;
@@ -1571,32 +1606,29 @@ function equipPet(id){
     if(ui.sheet === 'cabinet') ui.sheet = null;
   });
 }
+/* DEMO：只建記憶體過場，絕不 save() 進 86400.v1 */
 function ensureDemoMemorial(){
   if(!PREVIEW_MEMORIAL) return;
   PREVIEW_MEMORIAL = false; // 只在啟動跑一次
-  if(S.memorialForm === 'none') S.memorialForm = 'pot';
-  let f = (S.fallen || []).find(x => x && x.memorial && x.memorial.status === 'pending');
-  if(!f){
-    const petId = S.equippedPet === 'bomb' ? 'figure' : (S.equippedPet || 'figure');
-    if(S.ownedPets.indexOf(petId) < 0) S.ownedPets.push(petId);
-    f = {
-      id:'fdemo'+Date.now(),
-      petId, startedOn:dayKey(), endedOn:dayKey(),
-      days: Math.max(1, ((S.companion && S.companion.days)|0) || 12),
-      tasks:(S.companion && S.companion.tasks ? S.companion.tasks.slice() : []),
-      memorial:{
-        status:'pending', form:null, placedOn:null,
-        unfinished:[{ kind:'anchor', name: EN()?'Finish the draft':'寫完提案初稿', at:null }]
-      }
-    };
-    S.fallen.unshift(f);
-    openReviveGate(petId, f.id);
-    startCompanion('bomb', dayKey());
-  }
-  S.pendingMemorialId = f.id;
-  S.onboarded = true;
-  if(S.account) S.account.session = true;
-  save();
+  const formHint = (S.memorialForm && S.memorialForm !== 'none') ? S.memorialForm : 'pot';
+  const petId = 'figure';
+  ui.demoMemorial = {
+    id:'fdemo',
+    petId, startedOn:dayKey(), endedOn:dayKey(),
+    days:12, tasks:[{ day:dayKey(), kind:'anchor', name:'', at:Date.now() }],
+    memorial:{
+      status:'pending', form:formHint, placedOn:null,
+      unfinished:[{ kind:'anchor', name: EN()?'Finish the draft':'寫完提案初稿', at:null }]
+    },
+    _demo:true
+  };
+}
+function memorialPendingFallen(){
+  if(ui.demoMemorial) return ui.demoMemorial;
+  if(!S.pendingMemorialId) return null;
+  const f = fallenOf(S.pendingMemorialId);
+  if(!f || !f.memorial || f.memorial.status !== 'pending') return null;
+  return f;
 }
 function buySkin(id){
   const sk = skinOf(id);
@@ -1674,6 +1706,7 @@ function resetUiState(){
                 when:'now',at:'',warn:false},
          worth:{blockId:null,pick:null,note:'',again:false},
          petToast:null, petMemoId:null,
+         demoMemorial:null,
          auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 }
 
@@ -1977,7 +2010,8 @@ function namedListHtml(){
         + '<div style="width:5px;height:26px;flex:none;background:'+catTone(b.cat)+'"></div>'
         + '<div style="flex:1;min-width:0">'
         + '<div style="font:500 13.5px/1.35 var(--fb);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(b.name)+'</div>'
-        + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-48)">'+clock(b.startedAt)+'–'+clock(b.endedAt)+' · '+esc(catName(b.cat))+'</div></div>'
+        + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-48)">'+clock(b.startedAt)+'–'+clock(b.endedAt)+' · '+esc(catName(b.cat))
+        + (b.abandoned ? ' · '+esc(EN()?'Left open':'未收尾') : '')+'</div></div>'
         + '<div style="text-align:right;flex:none">'
         + '<div class="num" style="font:600 14px/1 var(--fh)">'+minDur(dur)+'</div>'
         + '<div style="font:400 10px/1.5 var(--fb);color:'+wc+'">'+esc(wl)+'</div></div></div>';
@@ -2550,10 +2584,11 @@ function reviveBarHtml(progress, needed){
     + ' · '+p+'/'+n+'</div>';
 }
 function filmstripHtml(){
+  // 紀念過場用 ash／bone 色階說故事，不把商店霓虹帶進來
   const cells = [
-    { border:'rgba(53,240,160,.22)', dot:'#35F0A0', line:'rgba(53,240,160,.7)', t:'23:00' },
-    { border:'rgba(255,194,75,.28)', dot:'#FFC24B', line:'rgba(255,194,75,.7)', t:'23:40' },
-    { border:'rgba(255,77,94,.4)', glow:true, t:'23:59' },
+    { border:'rgba(196,184,165,.28)', dot:'#C4B8A5', line:'rgba(196,184,165,.65)', t:'23:00' },
+    { border:'rgba(176,140,96,.35)', dot:'#B08C60', line:'rgba(176,140,96,.7)', t:'23:40' },
+    { border:'rgba(140,90,84,.45)', glow:true, t:'23:59' },
     { earth:true, t:'00:00' }
   ];
   return '<div class="mem-film">'+cells.map(c => {
@@ -2561,8 +2596,8 @@ function filmstripHtml(){
     if(c.earth){
       inner = '<div class="cell" style="display:grid;place-items:center"><span style="width:26px;height:13px;border-radius:26px 26px 3px 3px;background:#3A2E24"></span></div>';
     }else if(c.glow){
-      inner = '<div class="cell" style="border-color:'+c.border+';background:#1A0C0E;display:grid;place-items:center">'
-        + '<span style="width:16px;height:16px;border-radius:99px;background:#FF4D5E;box-shadow:0 0 14px rgba(255,77,94,.8)"></span></div>';
+      inner = '<div class="cell" style="border-color:'+c.border+';background:#1A1210;display:grid;place-items:center">'
+        + '<span style="width:16px;height:16px;border-radius:99px;background:#8C5A54;box-shadow:0 0 12px rgba(140,90,84,.55)"></span></div>';
     }else{
       inner = '<div class="cell" style="border-color:'+c.border+'">'
         + '<span style="flex:none;width:9px;height:9px;border-radius:99px;background:'+c.dot+'"></span>'
@@ -2572,8 +2607,12 @@ function filmstripHtml(){
   }).join('')+'</div>';
 }
 function screenMemorialMorning(){
-  const f = fallenOf(S.pendingMemorialId);
-  if(!f){ S.pendingMemorialId = null; return ''; }
+  const f = memorialPendingFallen();
+  if(!f){
+    if(S.pendingMemorialId) S.pendingMemorialId = null;
+    ui.demoMemorial = null;
+    return '';
+  }
   const unfinished = (f.memorial && f.memorial.unfinished) || [];
   const uRows = unfinished.length
     ? unfinished.map(u =>
@@ -2583,13 +2622,15 @@ function screenMemorialMorning(){
         + esc(u.kind==='anchor'?'Anchor':t('named_time'))+'</span></div>').join('')
     : '<div class="foot" style="margin-top:8px">'+esc(t('pet_tasks_none'))+'</div>';
   const anchorN = (f.tasks || []).filter(x => x.kind === 'anchor').length;
+  const artForm = (f.memorial && f.memorial.form)
+    || (S.memorialForm && S.memorialForm !== 'none' ? S.memorialForm : 'pot');
   return '<div class="full memorial" style="padding:0">'
     + '<div style="flex:1;overflow:auto;padding:62px 20px 20px">'
     + '<div style="font-family:var(--fh);font-size:10px;letter-spacing:.22em;color:rgba(230,227,220,.5);margin-bottom:22px">'
     +   esc(t('mem_morning_k'))+'</div>'
     + filmstripHtml()
     + '<div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:28px">'
-    + memorialArtHtml('pot', true)
+    + memorialArtHtml(artForm, true)
     + '<div style="width:180px;height:1px;background:rgba(230,227,220,.12);margin-top:2px"></div>'
     + '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:26px">'
     +   esc(tFill('mem_morning_title',{name:petName(f.petId)}))+'</div>'
@@ -2777,7 +2818,7 @@ function sheetOnboarding(){
     body = '<div><div style="font:600 28px/1.2 var(--fh)">'+esc(t('guide_fuse_t'))+'</div>'
       + '<div style="font:400 15px/1.75 var(--fb);color:var(--ink-55);margin-top:14px">'+esc(t('guide_fuse_b'))+'</div>'
       + '<div style="margin-top:22px;padding:16px;border:1px solid var(--hair)">'
-      + '<div class="kicker">DEMO</div><div class="num" style="font:700 40px/.9 var(--fh);margin-top:8px;color:var(--accent)">86,400</div>'
+      + '<div class="kicker">FUSE</div><div class="num" style="font:700 40px/.9 var(--fh);margin-top:8px;color:var(--accent)">86,400</div>'
       + '<div style="font:400 12px/1.6 var(--fb);color:var(--ink-55);margin-top:8px">💣 ———— ◆</div></div></div>';
   }else if(step === 2){
     body = '<div><div style="font:600 28px/1.2 var(--fh)">'+esc(t('guide_task_t'))+'</div>'
@@ -2914,13 +2955,17 @@ function tabBtn(id, icon, label){
 }
 function render(){
   const app = document.getElementById('app');
+  // ?memorial=1 記憶體 DEMO：可蓋過 onboarding／登入，且不碰存檔
+  if(ui.demoMemorial){
+    app.className = 'app' + (S.night ? '' : ' night-off');
+    app.innerHTML = screenMemorialMorning() + petToastHtml();
+    return;
+  }
   if(!S.onboarded){ app.innerHTML = sheetOnboarding() + petToastHtml(); return; }
   if(needsLogin()){ app.innerHTML = sheetLogin() + petToastHtml(); return; }
 
   // 隔天紀念過場蓋過一般分頁（ash／bone，無霓虹）
-  if(S.pendingMemorialId && fallenOf(S.pendingMemorialId)
-      && fallenOf(S.pendingMemorialId).memorial
-      && fallenOf(S.pendingMemorialId).memorial.status === 'pending'){
+  if(memorialPendingFallen()){
     app.className = 'app' + (S.night ? '' : ' night-off');
     app.innerHTML = screenMemorialMorning() + petToastHtml();
     return;
@@ -3090,11 +3135,17 @@ document.addEventListener('click', e => {
     case 'pet-memo': ui.petMemoId = el.dataset.id; ui.sheet = 'pet-memo'; render(); break;
     case 'close-memo': ui.petMemoId = null; ui.sheet = 'cabinet'; render(); break;
     case 'mem-form': setState(()=>{ if(MEM_FORMS.indexOf(el.dataset.v) >= 0) S.memorialForm = el.dataset.v; }); break;
-    case 'mem-create': setState(()=>{
+    case 'mem-create':
+      if(ui.demoMemorial && el.dataset.id === ui.demoMemorial.id){
+        ui.demoMemorial = null; render(); break;
+      }
+      setState(()=>{
       placeMemorial(el.dataset.id);
       ui.sheet = 'pet-memo'; ui.petMemoId = el.dataset.id;
     }); break;
-    case 'mem-later': setState(()=>{ deferMemorial(); }); break;
+    case 'mem-later':
+      if(ui.demoMemorial){ ui.demoMemorial = null; render(); break; }
+      setState(()=>{ deferMemorial(); }); break;
     case 'home-tip-ok': setState(()=>{ S.homeTip = false; }); break;
     case 'auth-mode': ui.auth.mode = el.dataset.v; ui.auth.err = ''; render(); break;
     case 'acct-guest':
@@ -3198,19 +3249,17 @@ function heartbeat(){
   applyPressure();
   if(!S.onboarded) return;
 
-  if(dayKey() !== lastDay){            // 跨過本地午夜 → 先收尾進行中，再結算寵物
+  if(dayKey() !== lastDay){            // 跨過本地午夜 → 先結算（進行中＝失敗），再收尾殘留
     const prev = lastDay;
-    const a0 = activeBlock();
-    if(a0){
-      // 必須在 settle 之前結束，否則「進行中」會被誤判為失敗而炸掉
-      a0.endedAt = Math.min(Date.now(), a0.endAt || Date.now());
-      S.activeId = null;
-      rewardBlockDone(a0);
-      ui.worth = { blockId:a0.id, pick:null, note:'', again:false };
-      ui.sheet = 'worth';
-    }
     settlePetDay(prev);
+    closeAbandonedBlocks(prev);
     lastDay = dayKey(); S.fired = {}; ui.anchorDraft = null; ui.anchorEdit = false;
+    // 跨日未收尾不開 Worth、不發完成金幣
+    if(ui.worth && ui.worth.blockId){
+      const wb = findBlock(ui.worth.blockId);
+      if(wb && wb.abandoned) ui.worth = { blockId:null, pick:null, note:'', again:false };
+    }
+    if(ui.sheet === 'worth' && !(ui.worth && ui.worth.blockId)) ui.sheet = null;
     save(); render(); return;
   }
   const act = activeBlock();
@@ -3265,7 +3314,7 @@ setInterval(heartbeat, 1000);
 document.addEventListener('visibilitychange', () => {
   if(!document.hidden){ catchUpPetSettlement(); save(); render(); heartbeat(); }
 });
-window.addEventListener('pageshow', () => { catchUpPetSettlement(); heartbeat(); });
+window.addEventListener('pageshow', () => { catchUpPetSettlement(); save(); render(); heartbeat(); });
 
 /* ── 9. PWA：manifest 與圖示都在執行時產生，維持單檔 ─────────────────── */
 function pwaBits(){
@@ -3315,6 +3364,7 @@ function pwaBits(){
 })();
 catchUpPetSettlement();
 ensureDemoMemorial();
+save();
 applyPressure();
 render();
 heartbeat();

@@ -3,3 +3,4 @@
 
 # 設計原始檔已解壓到 design_handoff/
 *.zip
+_incoming_zip/
