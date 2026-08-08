@@ -195,13 +195,19 @@ Respect `prefers-reduced-motion`: drop stages 2–4 to a static state and freeze
 - Both from Google Fonts. Square corners throughout (radius 0) except circles.
 
 ## Mood copy (drives the line under the countdown)
-| p | zh | en |
-| --- | --- | --- |
-| < 0.25 | 今天還很寬。現在什麼都還來得及。 | The day is still wide. Nothing is urgent yet. |
-| < 0.60 | 一半以上已經過去了。剩下的要給誰？ | More than half is spent. What gets the rest? |
-| < 0.85 | 天色在走了。下一段，刻意選一次。 | The light is going. Choose the next stretch on purpose. |
-| ≥ 0.85 | 今天不會結轉。剩下的就是全部了。 | Today does not roll over. Whatever is left is all there is. |
-| stage 4 | 引線快燒完了。剩下的就是全部了。 | The fuse is almost gone. Whatever is left is all there is. |
+The line is **not** a fixed string: each skin supplies its own five-key mood table (`early` / `mid` /
+`late` / `end` / `fuse`) in both languages, and the equipped skin decides which voice is heard. The
+thresholds below are the engine; the sentences are Anxiety Neon's, the default skin. `fuse` overrides
+the `p` bands, and because stage 4 requires Night intensity on, turning that switch off returns the
+line to `early`.
+
+| p | key | zh | en |
+| --- | --- | --- | --- |
+| < 0.25 | `early` | 今天還很寬——但寬不代表可以欠著。 | The day is still wide — wide is not permission to owe. |
+| < 0.60 | `mid` | 一半以上已經過去了。引線上的牠還在看你。 | More than half is spent. Whoever sits on the fuse is still watching. |
+| < 0.85 | `late` | 天色在走了。再不收尾，午夜會算帳。 | The light is going. Finish now, or midnight will collect. |
+| ≥ 0.85 | `end` | 今天不會結轉。沒做完的，會炸掉一個陪伴你的理由。 | Today does not roll over. What you leave open can blow up a reason that stayed with you. |
+| stage 4 | `fuse` | 引線快燒完了。牠還在等你。剩下的就是全部了。 | The fuse is almost gone. They are still waiting. Whatever is left is all there is. |
 
 ## Widgets & lock screen (After Hours)
 Same pressure curve on the home screen; see turn 5 in `86400.dc.html`.
@@ -214,6 +220,68 @@ Same pressure curve on the home screen; see turn 5 in `86400.dc.html`.
 ## Demo affordance
 The neon prototype has a `DEMO` row (現在 / 09:30 / 15:00 / 20:30 / 23:40) that forces the clock so every stage can be reviewed without waiting. It is a prototype-only control — do not ship it.
 
+The shipped build has no DEMO row. Review runs on query parameters with no UI entry, none of which
+write to `localStorage`: `?preview=HH:MM` pins the clock, `?theme=<id>` previews a skin without
+buying it, and `?memorial=1` opens the midnight settle.
+
 ## Files added by this addendum
 - `PrototypeNeon.dc.html` — the After Hours phone prototype (adopted).
 - `86400.dc.html` — the design canvas. Turn 5 = widgets & lock screen, turn 4 = the four countdown stages, turn 3 = four fuse treatments (3a adopted; 3d is a character-on-the-charge concept that needs three-state character art, ~200×200 transparent, before it can be built), turn 2 = After Hours screens at three times of day, turn 1 = the superseded Industry exploration.
+
+---
+
+# Addendum — Design system (dual visual systems)
+
+Two renderings of one 16-section design system, added after a review of the shipped `index.html`.
+The content, structure and section numbering are identical; only the prose language differs.
+
+- `DesignSystem.dc.html` — English.
+- `DesignSystemZH.dc.html` — 正體中文. This is the authoring language for anything that becomes UI copy.
+- Both need `support.js`, which the Files list above named but which was never actually in this
+  folder; it is included now, so the older `.dc.html` prototypes resolve it too. The runtime fetches
+  React and Babel from unpkg, so rendering needs network access — without it the page stays blank
+  apart from static markup.
+
+`Shop.dc.html` was already in this folder but never listed: it is the handoff for the shop, the
+companions and the memorial objects, and it is the source for anything the design system defers.
+
+## What the sections describe
+
+| Sections | Status |
+| --- | --- |
+| §01–§09, §16 | **Shipped.** Read from `index.html`. Where the written concept disagreed with the code, the code won. |
+| §10–§13, §15 | **Target.** iOS and Android specs. No native build exists — instructions for one, not a description of one. |
+| §14 | **Unbuilt.** There is no widget code in the product. Not validated against a running tile. |
+
+## Corrections this addendum makes to the sections above
+
+These supersede the earlier After Hours addendum wherever they conflict.
+
+1. **Stage gating is `p`, not elapsed time.** Stages 2 and 3 fire at `p > 0.55` (≈19:40) and
+   `p > 0.8` (≈21:39). Reading those as "55% / 80% elapsed" puts stage 2 at 13:12, more than six
+   hours early. Only stage 4 reads raw elapsed percentage (≥ 95%, ≈22:48), and it additionally
+   requires Night intensity on.
+2. **Hero chroma is `C ×(1 + 0.8p)`**, not `×(1 + p)`. The `×(1 + p)` multiplier belongs to the
+   field/card token, which the earlier spec never listed.
+3. **The fuse tail is a gradient**, `linear-gradient(to left, ink/.04, ink/.13)`, and follows the
+   skin's ink token — not a flat `rgba(233,237,244,.1)`.
+4. **Flame sizes**: flare 22→48px, spark 9→17px, spark glow 10→28px, each gaining +16 / +6 / +12px
+   at stage 4.
+5. **The bomb is only the default fuse head.** An equipped companion replaces it with a 26px glyph
+   on the same anchor, with the same pulse and rattle.
+6. **Radius 0 has two deliberate exceptions**, not one: Shop *and* every memorial surface.
+7. **Memorials are chosen, not routed.** Three forms plus an opt-out (`pot` / `urn` / `headstone` /
+   `none`), a one-time locale suggestion that Settings then owns, 18 purchasable memorial skins, and
+   a revival loop at three consecutive Anchor days. There is no ancestral tablet, no memorial-hall
+   object and no sharing anywhere in the product. See §16.
+8. **The memorial ground is warm ash** — `#0B0B0A` / `#E6E3DC` / `#C4B8A5`, glows cleared — not the
+   cold cyan the concept called for. It is a fixed palette that ignores the equipped theme.
+
+## Still open
+
+- Final memorial art: three forms × three states each (~200×200). Everything shipping is the hatched
+  construction placeholder.
+- Whether the five-region memorial concept is dropped or reworked into more purchasable forms; as
+  written it conflicts with the shipped chosen-form model.
+- Widgets: no code exists, so the memorial has no home-screen presence.
+- Whether a light skin such as Quiet Literati should get a light memorial ground.
