@@ -430,6 +430,26 @@ html[data-skin="camo"] .app.on-shop .sheet .btn-fill{
 .mem-revive{display:flex;gap:6px;margin-top:10px}
 .mem-revive i{flex:1;height:8px;border-radius:99px;background:rgba(230,227,220,.12);display:block}
 .mem-revive i.on{background:#C4B8A5}
+.mem-art.skin-celadon{background:repeating-linear-gradient(135deg,rgba(160,200,170,.12) 0 5px,transparent 5px 10px),#24352C;border-color:rgba(160,200,170,.35)}
+.mem-art.skin-plain{background:repeating-linear-gradient(135deg,rgba(230,227,220,.12) 0 5px,transparent 5px 10px),#3A3834;border-color:rgba(230,227,220,.28)}
+.mem-art.skin-wood{background:repeating-linear-gradient(135deg,rgba(180,130,80,.14) 0 5px,transparent 5px 10px),#3A2A1C;border-color:rgba(180,130,80,.35)}
+.mem-art.skin-slate{background:repeating-linear-gradient(135deg,rgba(140,150,160,.12) 0 5px,transparent 5px 10px),#2A2E34;border-color:rgba(140,150,160,.35)}
+.mem-art.skin-granite{background:repeating-linear-gradient(135deg,rgba(180,180,180,.1) 0 5px,transparent 5px 10px),#323232;border-color:rgba(200,200,200,.28)}
+.mem-art.skin-brass{background:repeating-linear-gradient(135deg,rgba(200,160,80,.14) 0 5px,transparent 5px 10px),#3A3018;border-color:rgba(200,160,80,.4)}
+.mem-art.skin-clay{background:repeating-linear-gradient(135deg,rgba(180,120,80,.1) 0 5px,transparent 5px 10px),#3A2E24}
+.mem-art.skin-glaze{background:repeating-linear-gradient(135deg,rgba(120,160,180,.12) 0 5px,transparent 5px 10px),#243038;border-color:rgba(120,160,180,.35)}
+.mem-art.skin-moss{background:repeating-linear-gradient(135deg,rgba(120,150,90,.14) 0 5px,transparent 5px 10px),#2A3420;border-color:rgba(140,170,100,.4)}
+.mem-hall-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:12px}
+.mem-hall-card{background:#111110;border:1px solid rgba(230,227,220,.1);border-radius:14px;padding:9px;text-align:left;color:#E6E3DC;width:100%}
+.mem-hall-card .thumb{height:98px;border-radius:10px;background:#0D0C0B;display:grid;place-items:center}
+.mem-rite-row{display:flex;gap:9px;margin-top:18px}
+.mem-rite-row button{flex:1;text-align:center;padding:12px 8px;border-radius:13px;border:1px solid rgba(230,227,220,.18);
+  background:transparent;color:#E6E3DC;font:600 13px var(--fb);min-height:44px}
+.mem-rite-row button:disabled{opacity:.4}
+.mem-rite-row button.pot-on{border-color:rgba(168,192,142,.34);color:#A8C08E}
+.mem-leaves{display:flex;gap:4px;justify-content:center;margin-top:8px;min-height:10px}
+.mem-leaves i{width:8px;height:10px;border-radius:8px 8px 2px 2px;background:#6B8A5A;display:block;opacity:.35}
+.mem-leaves i.on{opacity:1}
 @keyframes up{from{transform:translateY(14px)}to{transform:translateY(0)}}
 .full{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;flex-direction:column;
   padding:calc(env(safe-area-inset-top,0px) + 40px) 24px calc(env(safe-area-inset-bottom,0px) + 28px)}
@@ -660,6 +680,30 @@ const T = {
   mem_place_cta:   ['安放','Enshrine'],
   mem_anchors:     ['完成的 Anchor','Anchors finished'],
   mem_film_earth:  ['一捧土','Earth'],
+  mem_record:      ['牠的紀錄 · THE RECORD','THE RECORD'],
+  mem_days_together:['相處天數','Days together'],
+  mem_longest:     ['最長連續','Longest streak'],
+  mem_placed_on:   ['安放於 {date}','Enshrined {date}'],
+  mem_roc:         ['民國 {n} 年 {m} 月 {d} 日','ROC year {n}, {m}/{d}'],
+  mem_rite_incense:['上香','Incense'],
+  mem_rite_flowers:['獻花','Flowers'],
+  mem_rite_pebble: ['放一顆石','Place a pebble'],
+  mem_rite_water:  ['澆水','Water'],
+  mem_rite_sun:    ['曬太陽','Sun'],
+  mem_rite_foot:   ['每天一次，免費。','Once a day, free.'],
+  mem_rite_streak: ['已連續 {n} 天。','{n} days running.'],
+  mem_rite_done:   ['今天已經來過了','Already visited today'],
+  mem_rite_ok:     ['已留下。','Left.'],
+  mem_pot_leaves:  ['長出第 {n} 片葉','Leaf {n} grew'],
+  mem_hall_shelf:  ['已安放','Enshrined'],
+  mem_hall_alive:  ['在世','Alive'],
+  mem_want_back:   ['想再養回來？','Want them back?'],
+  mem_skins:       ['紀念外觀','Memorial skins'],
+  mem_skins_sub:   ['罈身、碑面、盆器','Urns, stones, pots'],
+  mem_skin_use:    ['套用','Apply'],
+  mem_skin_using:  ['使用中','In use'],
+  shop_tab_mem:    ['紀念外觀','Memorial looks'],
+  shop_rail_mem:   ['MEMORIAL','MEMORIAL'],
   // 新手引導／帳戶（本機；無雲端）
   guide_fuse_t:    ['引線與倒數','The fuse and the countdown'],
   guide_fuse_b:    ['每天 86,400 秒從右往左燒完。越晚越紅、越抖。引線左端坐著會陪你——也會因你炸掉的角色。','86,400 seconds burn right to left. Later means redder, shakier. On the left sits a character that stays with you — and can die because of you.'],
@@ -709,6 +753,21 @@ const COIN_BLOCK  = 8;
 const COIN_GUEST_START = 20;  // 新安裝／遊客開局
 const COIN_REG_BONUS  = 30;  // 首次建立本機帳戶再送
 const FREE_PET_IDS = PETS.filter(p => p.free).map(p => p.id);
+
+/* 紀念外觀：每形態 3 款起步；金幣可買外觀，買不到復活 */
+const MEM_SKINS = [
+  {id:'urn_celadon', form:'urn', price:80, free:false, skin:'celadon', zh:'青瓷', en:'Celadon'},
+  {id:'urn_plain',   form:'urn', price:0,  free:true,  skin:'plain',   zh:'素白', en:'Plain'},
+  {id:'urn_wood',    form:'urn', price:100,free:false, skin:'wood',    zh:'木紋', en:'Wood'},
+  {id:'stone_slate', form:'headstone', price:80, free:false, skin:'slate',   zh:'青石', en:'Slate'},
+  {id:'stone_plain', form:'headstone', price:0,  free:true,  skin:'plain',   zh:'素碑', en:'Plain stone'},
+  {id:'stone_brass', form:'headstone', price:120,free:false, skin:'brass',   zh:'銅線', en:'Brass'},
+  {id:'pot_clay',    form:'pot', price:0,  free:true,  skin:'clay', zh:'素陶', en:'Clay'},
+  {id:'pot_glaze',   form:'pot', price:70, free:false, skin:'glaze',zh:'青釉', en:'Glaze'},
+  {id:'pot_moss',    form:'pot', price:90, free:false, skin:'moss', zh:'苔痕', en:'Moss'}
+];
+const FREE_MEM_SKIN_IDS = MEM_SKINS.filter(s => s.free).map(s => s.id);
+const DEFAULT_MEM_SKIN = { pot:'pot_clay', urn:'urn_plain', headstone:'stone_plain' };
 
 /* 主題：色票（OKLCH stops）+ 首頁提示詞。預設焦慮霓虹＝現行 After Hours。 */
 const SKINS = [
@@ -825,8 +884,10 @@ const DEFAULTS = {
   equippedSkin:'neon',
   // 紀念：形態設定、待顯示過場、各寵物復活閘
   memorialForm:'pot',   // pot | urn | headstone | none
+  memorialFormTouched:false, // 使用者是否手選過形態（否→首次死亡用語系建議）
   pendingMemorialId:null,
   revive:{},            // petId -> { needed, progress, lastAnchorDay, fallenId }
+  ownedMemSkins: FREE_MEM_SKIN_IDS.slice(),
   // 本機帳戶（無雲端）。guest＝遊客；local＋session 控制是否需登入閘門
   // regBonus：是否已領過註冊加贈（舊本機帳號遷移時視為已領，避免一次噴金幣）
   account:{ mode:'guest', name:'', passHash:'', salt:'', session:true, regBonus:false },
@@ -1265,7 +1326,11 @@ function migrateState(raw){
   }
   if(typeof s.homeTip !== 'boolean') s.homeTip = false; // 舊使用者不重噴首頁提示
   if(MEM_FORMS.indexOf(s.memorialForm) < 0) s.memorialForm = 'pot';
+  if(typeof s.memorialFormTouched !== 'boolean') s.memorialFormTouched = false;
   if(s.pendingMemorialId !== null && typeof s.pendingMemorialId !== 'string') s.pendingMemorialId = null;
+  if(!Array.isArray(s.ownedMemSkins)) s.ownedMemSkins = FREE_MEM_SKIN_IDS.slice();
+  FREE_MEM_SKIN_IDS.forEach(id => { if(s.ownedMemSkins.indexOf(id) < 0) s.ownedMemSkins.push(id); });
+  s.ownedMemSkins = s.ownedMemSkins.filter(id => MEM_SKINS.some(x => x.id === id));
   if(!s.revive || typeof s.revive !== 'object' || Array.isArray(s.revive)) s.revive = {};
   Object.keys(s.revive).forEach(pid => {
     const r = s.revive[pid];
@@ -1279,7 +1344,8 @@ function migrateState(raw){
   s.fallen = (s.fallen || []).map(f => {
     if(!f || typeof f !== 'object') return f;
     if(!f.memorial || typeof f.memorial !== 'object'){
-      f.memorial = { status:'placed', form:'pot', placedOn:f.endedOn || null, unfinished:[] };
+      f.memorial = { status:'placed', form:'pot', placedOn:f.endedOn || null, unfinished:[],
+        skinId:DEFAULT_MEM_SKIN.pot, rite:{ lastDay:null, streak:0, growth:0 } };
     }else{
       const st = f.memorial.status;
       if(['pending','placed','skipped','revived'].indexOf(st) < 0) f.memorial.status = 'placed';
@@ -1287,6 +1353,19 @@ function migrateState(raw){
         f.memorial.form = 'pot';
       if(f.memorial.placedOn != null && typeof f.memorial.placedOn !== 'string') f.memorial.placedOn = null;
       if(!Array.isArray(f.memorial.unfinished)) f.memorial.unfinished = [];
+      const form = f.memorial.form || 'pot';
+      if(!f.memorial.skinId || !MEM_SKINS.some(x => x.id === f.memorial.skinId))
+        f.memorial.skinId = DEFAULT_MEM_SKIN[form] || DEFAULT_MEM_SKIN.pot;
+      if(!f.memorial.rite || typeof f.memorial.rite !== 'object'){
+        f.memorial.rite = { lastDay:null, streak:0, growth:0 };
+      }else{
+        if(f.memorial.rite.lastDay != null && typeof f.memorial.rite.lastDay !== 'string')
+          f.memorial.rite.lastDay = null;
+        if(typeof f.memorial.rite.streak !== 'number' || f.memorial.rite.streak < 0)
+          f.memorial.rite.streak = 0;
+        if(typeof f.memorial.rite.growth !== 'number' || f.memorial.rite.growth < 0)
+          f.memorial.rite.growth = 0;
+      }
     }
     return f;
   });
@@ -1322,6 +1401,7 @@ function petOf(id){ return PETS.find(p => p.id === id) || PETS[0]; }
 function petName(id){ const p = petOf(id); return EN() ? p.en : p.zh; }
 function tFill(key, map){
   let s = t(key);
+  map = map || {};
   Object.keys(map).forEach(k => { s = s.split('{'+k+'}').join(String(map[k])); });
   return s;
 }
@@ -1496,14 +1576,95 @@ function placeMemorial(fallenId){
   const f = fallenOf(fallenId);
   if(!f || !f.memorial) return;
   if(f.memorial.status !== 'pending') return;
+  ensureMemorialFormSuggestion();
   const form = S.memorialForm === 'none' ? 'pot' : S.memorialForm;
   f.memorial.status = 'placed';
   f.memorial.form = form;
   f.memorial.placedOn = dayKey();
+  f.memorial.skinId = defaultMemSkinFor(form);
+  if(!f.memorial.rite) f.memorial.rite = { lastDay:null, streak:0, growth:0 };
   if(S.pendingMemorialId === fallenId) S.pendingMemorialId = null;
 }
 function deferMemorial(){
   S.pendingMemorialId = null;
+}
+function memSkinOf(id){ return MEM_SKINS.find(s => s.id === id) || null; }
+function memSkinName(id){ const s = memSkinOf(id); return s ? (EN() ? s.en : s.zh) : id; }
+function defaultMemSkinFor(form){
+  const id = DEFAULT_MEM_SKIN[form] || DEFAULT_MEM_SKIN.pot;
+  if((S.ownedMemSkins || []).indexOf(id) < 0) S.ownedMemSkins.push(id);
+  return id;
+}
+function suggestMemorialForm(){
+  try{
+    const loc = String(navigator.language || '').toLowerCase();
+    if(loc.indexOf('zh') === 0) return 'urn';
+    if(/^(en|de|fr|es|pt|it)/.test(loc)) return 'headstone';
+  }catch(e){}
+  return 'pot';
+}
+function ensureMemorialFormSuggestion(){
+  if(S.memorialFormTouched) return;
+  if(S.memorialForm === 'none') return;
+  S.memorialForm = suggestMemorialForm();
+}
+function ritesForForm(form){
+  if(form === 'urn') return [['incense','mem_rite_incense'],['flowers','mem_rite_flowers']];
+  if(form === 'headstone') return [['flowers','mem_rite_flowers'],['pebble','mem_rite_pebble']];
+  return [['water','mem_rite_water'],['sun','mem_rite_sun']];
+}
+function longestAnchorStreak(tasks){
+  const days = Array.from(new Set((tasks || []).filter(x => x && x.kind === 'anchor' && x.day).map(x => x.day))).sort();
+  if(!days.length) return 0;
+  let best = 1, cur = 1;
+  for(let i = 1; i < days.length; i++){
+    if(days[i] === dayOffsetKey(days[i-1], 1)){ cur++; if(cur > best) best = cur; }
+    else cur = 1;
+  }
+  return best;
+}
+function formatMemDate(k){
+  if(!k) return '';
+  const d = dayKeyToDate(k);
+  if(EN()) return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  const y = d.getFullYear(), m = d.getMonth()+1, day = d.getDate();
+  return y+'.'+p2(m)+'.'+p2(day)+' · '+tFill('mem_roc',{n:y-1911, m:m, d:day});
+}
+function performRite(fallenId){
+  const f = fallenOf(fallenId);
+  if(!f || !f.memorial || f.memorial.status !== 'placed') return;
+  const mem = f.memorial;
+  if(!mem.rite || typeof mem.rite !== 'object') mem.rite = { lastDay:null, streak:0, growth:0 };
+  const today = dayKey();
+  if(mem.rite.lastDay === today){ showPetToast(t('mem_rite_done')); return; }
+  const prev = dayOffsetKey(today, -1);
+  mem.rite.streak = (mem.rite.lastDay === prev) ? ((mem.rite.streak|0) + 1) : 1;
+  mem.rite.lastDay = today;
+  if((mem.form || 'pot') === 'pot'){
+    mem.rite.growth = Math.min(7, Math.max(mem.rite.growth|0, mem.rite.streak|0));
+    showPetToast(tFill('mem_pot_leaves',{n:mem.rite.growth}));
+  }else{
+    showPetToast(t('mem_rite_ok'));
+  }
+}
+function buyMemSkin(id){
+  const sk = memSkinOf(id);
+  if(!sk) return;
+  if((S.ownedMemSkins || []).indexOf(id) >= 0){ showPetToast(t('pet_owned')); render(); return; }
+  if(!sk.free && (S.coins|0) < sk.price){ showPetToast(t('pet_need_coins')); render(); return; }
+  setState(()=>{
+    if(!sk.free) S.coins -= sk.price;
+    S.ownedMemSkins.push(id);
+    showPetToast(t('pet_bought'));
+  });
+}
+function applyMemSkin(fallenId, skinId){
+  const f = fallenOf(fallenId);
+  const sk = memSkinOf(skinId);
+  if(!f || !f.memorial || !sk) return;
+  if((S.ownedMemSkins || []).indexOf(skinId) < 0) return;
+  if(f.memorial.form && sk.form !== f.memorial.form) return;
+  setState(()=>{ f.memorial.skinId = skinId; });
 }
 function startCompanion(petId, onDay){
   S.equippedPet = petId;
@@ -1511,19 +1672,23 @@ function startCompanion(petId, onDay){
 }
 function explodeCompanion(endedOn){
   ensureCompanion();
+  ensureMemorialFormSuggestion();
   const c = S.companion;
   const name = petName(c.petId);
   const endK = endedOn || dayKey();
   const skipUi = S.memorialForm === 'none';
+  const formHint = skipUi ? null : (S.memorialForm === 'none' ? 'pot' : S.memorialForm);
   const entry = {
     id:'f'+Date.now()+Math.floor(Math.random()*1000),
     petId:c.petId, startedOn:c.startedOn, endedOn:endK,
     days: Math.max(1, c.days|0), tasks:(c.tasks || []).slice(),
     memorial:{
       status: skipUi ? 'skipped' : 'pending',
-      form: skipUi ? null : null,
+      form: formHint,
       placedOn: null,
-      unfinished: unfinishedAtDeath(endK)
+      unfinished: unfinishedAtDeath(endK),
+      skinId: formHint ? defaultMemSkinFor(formHint) : null,
+      rite:{ lastDay:null, streak:0, growth:0 }
     }
   };
   S.fallen.unshift(entry);
@@ -1625,7 +1790,9 @@ function ensureDemoMemorial(){
     days:12, tasks:[{ day:dayKey(), kind:'anchor', name:'', at:Date.now() }],
     memorial:{
       status:'pending', form:formHint, placedOn:null,
-      unfinished:[{ kind:'anchor', name: EN()?'Finish the draft':'寫完提案初稿', at:null }]
+      unfinished:[{ kind:'anchor', name: EN()?'Finish the draft':'寫完提案初稿', at:null }],
+      skinId: defaultMemSkinFor(formHint),
+      rite:{ lastDay:null, streak:0, growth:0 }
     },
     _demo:true
   };
@@ -2564,6 +2731,18 @@ function screenShop(){
       + '<div class="pr"'+(on?' style="color:var(--s-gold)"':'')+'>'+esc(label)+'</div></div>';
   }).join('');
 
+  const memSkinCards = MEM_SKINS.map(sk => {
+    const owned = (S.ownedMemSkins || []).indexOf(sk.id) >= 0;
+    const canBuy = sk.free || S.coins >= sk.price;
+    const act = owned ? '' : 'buy-mem-skin';
+    const label = owned ? t('pet_owned') : (sk.free ? t('pet_free') : '◎ ' + sk.price);
+    return '<div class="shop-card shop-skin'+(!owned && !canBuy?' cant':'')+'" role="button" tabindex="0"'
+      + (act?' data-act="'+act+'" data-id="'+sk.id+'"':'')+'>'
+      + '<div style="height:64px;display:grid;place-items:center">'+memorialArtHtml(sk.form, false, sk.id)+'</div>'
+      + '<div style="font-size:12px;font-weight:600">'+esc(memSkinName(sk.id))+'</div>'
+      + '<div class="pr" style="color:var(--s-dim)">'+esc(formLabel(sk.form))+' · '+esc(label)+'</div></div>';
+  }).join('');
+
   return '<div class="shop">'
     + '<div class="shop-pad" style="padding-top:16px">'
     + '<div class="pix" style="font-size:22px;letter-spacing:.06em;margin-bottom:16px">SHOP '
@@ -2572,6 +2751,7 @@ function screenShop(){
     + wallet
     + shopRail(t('shop_tab_pets'), 'shop_rail_pets', petCards)
     + shopRail(t('shop_tab_skins'), 'shop_rail_themes', skinCards)
+    + shopRail(t('shop_tab_mem'), 'shop_rail_mem', memSkinCards)
     + '<button class="shop-consum" data-act="open-cabinet">'
     + '<div style="flex:none;width:42px;height:42px;border-radius:12px;background:rgba(94,170,255,.12);'
     +   'border:1px solid rgba(94,170,255,.3);display:grid;place-items:center;font-size:22px">'+pet.emoji+'</div>'
@@ -2581,11 +2761,20 @@ function screenShop(){
     + '<div style="font-size:18px;color:var(--s-dim)">›</div></button>'
     + '</div>';
 }
-function memorialArtHtml(form, big){
+function memorialArtHtml(form, big, skinId){
   const f = form === 'urn' ? 'urn' : form === 'headstone' ? 'stone' : 'pot';
-  const label = f === 'urn' ? t('mem_form_urn') : f === 'stone' ? t('mem_form_stone') : t('mem_form_pot');
-  return '<div class="mem-art '+f+'"'+(big?'':' style="width:56px;height:56px;border-radius:12px;font-size:8px"')+'>'
+  const sk = memSkinOf(skinId);
+  const skinClass = sk && sk.skin ? ' skin-'+sk.skin : '';
+  const label = sk ? memSkinName(sk.id)
+    : (f === 'urn' ? t('mem_form_urn') : f === 'stone' ? t('mem_form_stone') : t('mem_form_pot'));
+  return '<div class="mem-art '+f+skinClass+'"'+(big?'':' style="width:56px;height:56px;border-radius:12px;font-size:8px"')+'>'
     + esc(label)+'</div>';
+}
+function memLeavesHtml(growth){
+  const n = Math.max(0, Math.min(7, growth|0));
+  let cells = '';
+  for(let i = 0; i < 7; i++) cells += '<i class="'+(i < n ? 'on' : '')+'"></i>';
+  return '<div class="mem-leaves">'+cells+'</div>';
 }
 function reviveBarHtml(progress, needed){
   const n = needed || REVIVE_NEEDED;
@@ -2643,7 +2832,7 @@ function screenMemorialMorning(){
     +   esc(t('mem_morning_k'))+'</div>'
     + filmstripHtml()
     + '<div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:28px">'
-    + memorialArtHtml(artForm, true)
+    + memorialArtHtml(artForm, true, f.memorial && f.memorial.skinId)
     + '<div style="width:180px;height:1px;background:rgba(230,227,220,.12);margin-top:2px"></div>'
     + '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:26px">'
     +   esc(tFill('mem_morning_title',{name:petName(f.petId)}))+'</div>'
@@ -2696,39 +2885,71 @@ function sheetCabinet(){
       + action
       + '</div></div>';
   }).join('');
-  const allFallen = (S.fallen||[]);
+
+  const alive = '<div style="margin-top:16px;padding:14px 15px;border-radius:16px;border:1px solid var(--hair);'
+    + 'background:var(--fill);display:flex;align-items:center;gap:13px">'
+    + '<div style="flex:none;width:52px;height:52px;border-radius:13px;border:1px solid var(--hair);'
+    +   'display:grid;place-items:center;font-size:26px;background:var(--bg)">'+petOf(S.equippedPet).emoji+'</div>'
+    + '<div style="flex:1;min-width:0"><div style="font:700 13.5px/1.35 var(--fb)">'+esc(petName(S.equippedPet))
+    + ' <span style="font:400 10.5px var(--fb);color:var(--accent-deep)">'+esc(t('mem_hall_alive'))+'</span></div>'
+    + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:3px">'
+    +   esc(tFill('pet_days',{n:S.companion.days|0}))+'</div></div></div>';
+
+  const placed = (S.fallen||[]).filter(f => f && f.memorial && (f.memorial.status === 'placed' || f.memorial.status === 'revived'));
+  const pending = (S.fallen||[]).filter(f => f && f.memorial && f.memorial.status === 'pending');
+  const hallCards = placed.length
+    ? '<div class="mem-hall-grid">'+placed.map(f => {
+        const form = (f.memorial && f.memorial.form) || 'pot';
+        const skinId = f.memorial && f.memorial.skinId;
+        const growth = f.memorial && f.memorial.rite ? (f.memorial.rite.growth|0) : 0;
+        return '<button class="mem-hall-card" data-act="pet-memo" data-id="'+f.id+'">'
+          + '<div class="thumb">'+memorialArtHtml(form, false, skinId)+'</div>'
+          + '<div style="font-size:11.5px;font-weight:600;margin-top:8px">'+esc(petName(f.petId))+'</div>'
+          + '<div style="font-family:var(--fh);font-size:9px;color:rgba(230,227,220,.45);margin-top:2px">'
+          +   esc(tFill('pet_days_short',{n:f.days}))
+          +   (form === 'pot' && growth ? ' · '+growth : '')
+          + '</div></button>';
+      }).join('')+'</div>'
+    : '<div class="foot" style="margin-top:10px">'+esc(t('mem_hall_none'))+'</div>';
+
+  const pendingRows = pending.map(f =>
+    '<div style="padding:12px 0;border-bottom:1px solid var(--hair-3)">'
+    + '<div style="font:500 13px var(--fb)">'+esc(petName(f.petId))+' · '+esc(t('mem_pending'))+'</div>'
+    + '<button class="btn btn-fill" data-act="mem-create" data-id="'+f.id+'" style="margin-top:10px;padding:8px 12px;font-size:12px">'
+    +   esc(t('mem_place_cta'))+'</button></div>').join('');
+
+  const reviveBlocks = Object.keys(S.revive || {}).map(pid => {
+    const rp = reviveProgress(pid);
+    if(!rp) return '';
+    return '<div style="margin-top:12px;padding:15px 16px;border-radius:15px;border:1px dashed var(--hair-2)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px">'
+      + '<span style="font:700 12.5px var(--fb)">'+esc(t('mem_want_back'))+' · '+esc(petName(pid))+'</span>'
+      + '<span style="font-family:var(--fh);font-size:11px;color:var(--ink-55)">'
+      +   rp.progress+' / '+rp.needed+'</span></div>'
+      + reviveBarHtml(rp.progress, rp.needed)
+      + '<div class="foot" style="margin-top:8px">'+esc(t('mem_revive_note'))+'</div></div>';
+  }).join('');
+
   return '<div class="scrim" data-act="close-sheet"><div class="sheet" data-stop="1" style="max-height:88vh;overflow:auto">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">CABINET</div>'
     + '<button data-act="close-sheet" class="sheet-x">'+esc(t('pet_close'))+'</button></div>'
     + '<div style="font:400 18px/1.45 var(--fb);margin-top:10px">'+esc(t('pet_cabinet'))+'</div>'
     + '<div class="foot" style="margin-top:6px">'+esc(t('pet_cabinet_sub'))+'</div>'
+    + alive
     + '<div style="margin-top:8px">'+rows+'</div>'
-    + '<div class="kicker" style="margin-top:22px">'+esc(t('mem_hall'))+'</div>'
-    + (allFallen.length
-        ? '<div style="margin-top:8px">'+allFallen.map(f => {
-            const st = (f.memorial && f.memorial.status) || 'placed';
-            const form = (f.memorial && f.memorial.form) || 'pot';
-            const rp = petNeedsRevive(f.petId) ? reviveProgress(f.petId) : null;
-            return '<div style="padding:12px 0;border-bottom:1px solid var(--hair-3)">'
-              + '<button data-act="pet-memo" data-id="'+f.id+'" style="display:flex;width:100%;text-align:left;gap:10px;'
-              + 'border:none;background:transparent;color:var(--ink);padding:0;align-items:center">'
-              + (st === 'pending' || st === 'skipped'
-                  ? '<span style="font-size:22px;flex:none">'+petOf(f.petId).emoji+'</span>'
-                  : '<span style="flex:none">'+memorialArtHtml(form, false)+'</span>')
-              + '<span style="flex:1;min-width:0;font:400 12.5px/1.5 var(--fb)">'
-              + esc(petName(f.petId))+' · '+esc(memorialStatusLabel(st))
-              + '<br><span style="color:var(--ink-42);font-size:11px">'
-              + esc(tFill('pet_days_short',{n:f.days}))+' · '+esc((f.startedOn||'')+' → '+(f.endedOn||''))
-              + (rp ? ' · '+(rp.progress)+'/'+rp.needed : '')
-              + '</span></span><span style="color:var(--ink-42)">›</span></button>'
-              + (st === 'pending'
-                  ? '<button class="btn btn-fill" data-act="mem-create" data-id="'+f.id+'" style="margin-top:10px;padding:8px 12px;font-size:12px">'
-                    + esc(t('mem_place_cta'))+'</button>'
-                  : '')
-              + '</div>';
-          }).join('')+'</div>'
-        : '<div class="foot" style="margin-top:10px">'+esc(t('mem_hall_none'))+'</div>')
+    + '<div class="kicker" style="margin-top:22px">'+esc(t('mem_hall'))+' · '+esc(t('mem_hall_shelf'))
+    +   (placed.length ? ' · '+placed.length : '')+'</div>'
+    + hallCards
+    + (pendingRows ? '<div class="kicker" style="margin-top:22px">'+esc(t('mem_pending'))+'</div>'+pendingRows : '')
+    + reviveBlocks
+    + '<div style="margin-top:18px;display:flex;align-items:center;gap:13px;border-radius:15px;border:1px solid var(--hair);'
+    +   'background:var(--fill);padding:14px 16px;cursor:pointer" data-act="open-shop">'
+    + '<div style="flex:none;width:40px;height:40px;border-radius:11px;border:1px solid var(--hair);'
+    +   'display:grid;place-items:center;color:var(--ink-55)">▤</div>'
+    + '<div style="flex:1;min-width:0"><div style="font:700 13px var(--fb)">'+esc(t('mem_skins'))+'</div>'
+    + '<div style="font:400 11px var(--fb);color:var(--ink-55);margin-top:3px">'+esc(t('mem_skins_sub'))+'</div></div>'
+    + '<div style="color:var(--ink-55)">›</div></div>'
     + '</div></div>';
 }
 function sheetPetMemo(){
@@ -2738,55 +2959,98 @@ function sheetPetMemo(){
       + '<div class="foot">'+esc(t('mem_hall_none'))+'</div>'
       + '<button class="btn btn-wide" data-act="close-memo" style="margin-top:16px">'+esc(t('pet_close'))+'</button></div></div>';
   }
-  const mem = f.memorial || { status:'placed', form:'pot', unfinished:[] };
+  const mem = f.memorial || { status:'placed', form:'pot', unfinished:[], rite:{streak:0,growth:0} };
   const form = mem.form || (S.memorialForm === 'none' ? 'pot' : S.memorialForm) || 'pot';
   const rp = reviveProgress(f.petId);
   const unfinished = mem.unfinished || [];
   const tasks = f.tasks || [];
   const anchors = tasks.filter(x => x.kind === 'anchor').length;
-  const taskRows = tasks.length
-    ? tasks.map(x =>
-        '<div style="padding:10px 0;border-bottom:1px solid var(--hair-3)">'
-        + '<div style="font:400 13px/1.5 var(--fb)">'+esc(x.name || (x.kind==='anchor'?'Anchor':t('named_time')))+'</div>'
-        + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-42);margin-top:3px">'
-        + esc(x.day||'')+' · '+(x.kind==='anchor'?'Anchor':t('named_time'))+'</div></div>').join('')
-    : '<div class="foot" style="padding:12px 0">'+esc(t('pet_tasks_none'))+'</div>';
+  const longest = longestAnchorStreak(tasks);
+  const rite = mem.rite || { lastDay:null, streak:0, growth:0 };
+  const rites = ritesForForm(form);
+  const riteDone = rite.lastDay === dayKey();
+  const range = (f.startedOn || '—')+' — '+(f.endedOn || '—');
+  const placedLine = mem.placedOn
+    ? tFill('mem_placed_on', { date: formatMemDate(mem.placedOn) })
+    : '';
+
+  const riteBtns = mem.status === 'placed'
+    ? '<div class="mem-rite-row">'+rites.map(([kind,key]) =>
+        '<button data-act="mem-rite" data-id="'+f.id+'" data-v="'+kind+'"'
+        + (riteDone ? ' disabled' : '')
+        + (form === 'pot' ? ' class="pot-on"' : '')+'>'+esc(t(key))+'</button>').join('')+'</div>'
+      + '<div style="font-size:11px;color:rgba(230,227,220,.4);text-align:center;margin-top:10px">'
+      +   esc(t('mem_rite_foot'))
+      +   ((rite.streak|0) > 0 ? ' '+esc(tFill('mem_rite_streak',{n:rite.streak})) : '')
+      + '</div>'
+      + (form === 'pot' ? memLeavesHtml(rite.growth) : '')
+    : '';
+
+  const formSkins = MEM_SKINS.filter(s => s.form === form);
+  const skinRow = mem.status === 'placed'
+    ? '<div class="kicker" style="margin-top:22px">'+esc(t('mem_skins'))+'</div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+formSkins.map(sk => {
+          const owned = (S.ownedMemSkins||[]).indexOf(sk.id) >= 0;
+          const on = mem.skinId === sk.id;
+          if(!owned){
+            return '<button class="btn" data-act="buy-mem-skin" data-id="'+sk.id+'" style="padding:8px 10px;font-size:11px">'
+              + esc(memSkinName(sk.id))+' · ◎ '+sk.price+'</button>';
+          }
+          return '<button class="btn'+(on?' btn-fill':'')+'" data-act="apply-mem-skin" data-fid="'+f.id+'" data-id="'+sk.id+'"'
+            + ' style="padding:8px 10px;font-size:11px">'
+            + esc(on ? t('mem_skin_using') : memSkinName(sk.id))+'</button>';
+        }).join('')+'</div>'
+    : '';
+
   const uRows = unfinished.length
     ? unfinished.map(u =>
         '<div style="padding:8px 0;border-bottom:1px solid var(--hair-3);font:400 12.5px/1.5 var(--fb)">'
         + esc(u.name || (u.kind==='anchor'?'Anchor':t('named_time')))+'</div>').join('')
     : '';
+
   return '<div class="scrim memorial" data-act="close-sheet"><div class="sheet memorial" data-stop="1" style="max-height:88vh;overflow:auto">'
     + '<div style="display:flex;justify-content:space-between;align-items:baseline">'
     + '<div class="kicker">'+esc(t('mem_detail'))+'</div>'
     + '<button data-act="close-memo" class="sheet-x">'+esc(t('pet_close'))+'</button></div>'
     + '<div style="display:flex;flex-direction:column;align-items:center;margin-top:18px">'
-    + memorialArtHtml(form, true)
-    + '<div style="font:500 18px/1.35 var(--fb);margin-top:16px">'+esc(petName(f.petId))+'</div>'
-    + '<div style="font:400 12px/1.5 var(--fb);color:var(--ink-55);margin-top:4px">'
+    + memorialArtHtml(form, true, mem.skinId)
+    + '<div style="font:500 22px/1.35 var(--fb);margin-top:16px">'+esc(petName(f.petId))+'</div>'
+    + '<div style="font:400 12px/1.5 var(--fb);color:var(--ink-55);margin-top:6px;font-family:var(--fh)">'
+    +   esc(range)+'</div>'
+    + (placedLine ? '<div style="font:400 11.5px/1.5 var(--fb);color:var(--ink-42);margin-top:4px">'+esc(placedLine)+'</div>' : '')
+    + '<div style="font:400 12px/1.5 var(--fb);color:var(--ink-55);margin-top:6px">'
     +   esc(memorialStatusLabel(mem.status))
     +   (mem.form ? ' · '+esc(formLabel(mem.form)) : '')+'</div></div>'
-    + '<div style="margin-top:16px;padding:12px 14px;border:1px solid var(--hair)">'
-    + '<div class="num" style="font:600 28px/1 var(--fh)">'+esc(tFill('pet_days_short',{n:f.days}))+'</div>'
-    + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-55);margin-top:6px">'
-    +   esc((f.startedOn||'')+' → '+(f.endedOn||''))+'</div>'
-    + '<div style="font:400 11px/1.5 var(--fb);color:var(--ink-42);margin-top:8px">'
-    +   esc(t('mem_anchors'))+' · '+anchors+'</div></div>'
+    + riteBtns
+    + '<div style="margin-top:22px;border-radius:15px;border:1px solid var(--hair);background:#111110;padding:15px 16px">'
+    + '<div style="font-family:var(--fh);font-size:9.5px;letter-spacing:.18em;color:var(--ink-55);margin-bottom:11px">'
+    +   esc(t('mem_record'))+'</div>'
+    + '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px">'
+    +   '<span style="color:var(--ink-55)">'+esc(t('mem_days_together'))+'</span>'
+    +   '<span style="font-family:var(--fh);font-weight:700">'+(f.days|0)+'</span></div>'
+    + '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px">'
+    +   '<span style="color:var(--ink-55)">'+esc(t('mem_anchors'))+'</span>'
+    +   '<span style="font-family:var(--fh);font-weight:700">'+anchors+'</span></div>'
+    + '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px">'
+    +   '<span style="color:var(--ink-55)">'+esc(t('mem_longest'))+'</span>'
+    +   '<span style="font-family:var(--fh);font-weight:700">'+longest+'</span></div></div>'
     + (mem.status === 'pending'
         ? '<button class="btn btn-wide btn-fill" data-act="mem-create" data-id="'+f.id+'" style="margin-top:16px">'
           + esc(t('mem_create'))+'</button>'
         : '')
-    + '<div class="kicker" style="margin-top:22px">'+esc(t('mem_revive'))+'</div>'
+    + '<div style="margin-top:16px;padding:14px 16px;border-radius:15px;border:1px dashed var(--hair-2)">'
+    + '<div style="font:700 12.5px var(--fb);margin-bottom:5px">'+esc(t('mem_want_back'))+'</div>'
     + (rp
         ? reviveBarHtml(rp.progress, rp.needed)
           + '<div class="foot" style="margin-top:6px">'+esc(t('mem_revive_note'))+'</div>'
-        : '<div class="foot" style="margin-top:8px">'
+        : '<div class="foot" style="margin-top:4px">'
           + esc(mem.status === 'revived' ? t('mem_revived') : t('mem_revive_note'))+'</div>')
+    + '</div>'
+    + skinRow
     + (uRows
         ? '<div class="kicker" style="margin-top:22px">'+esc(t('mem_unfinished'))+'</div><div style="margin-top:4px">'+uRows+'</div>'
         : '')
-    + '<div class="kicker" style="margin-top:22px">'+esc(t('pet_tasks'))+'</div>'
-    + '<div style="margin-top:4px">'+taskRows+'</div></div></div>';
+    + '</div></div>';
 }
 function authFieldsHtml(mode){
   const a = ui.auth;
@@ -3147,7 +3411,15 @@ document.addEventListener('click', e => {
     case 'equip-skin': equipSkin(el.dataset.id); break;
     case 'pet-memo': ui.petMemoId = el.dataset.id; ui.sheet = 'pet-memo'; render(); break;
     case 'close-memo': ui.petMemoId = null; ui.sheet = 'cabinet'; render(); break;
-    case 'mem-form': setState(()=>{ if(MEM_FORMS.indexOf(el.dataset.v) >= 0) S.memorialForm = el.dataset.v; }); break;
+    case 'mem-form': setState(()=>{
+      if(MEM_FORMS.indexOf(el.dataset.v) >= 0){
+        S.memorialForm = el.dataset.v;
+        S.memorialFormTouched = true;
+      }
+    }); break;
+    case 'mem-rite': setState(()=>{ performRite(el.dataset.id); }); break;
+    case 'buy-mem-skin': buyMemSkin(el.dataset.id); break;
+    case 'apply-mem-skin': applyMemSkin(el.dataset.fid, el.dataset.id); break;
     case 'mem-create':
       if(ui.demoMemorial && el.dataset.id === ui.demoMemorial.id){
         ui.demoMemorial = null; render(); break;
