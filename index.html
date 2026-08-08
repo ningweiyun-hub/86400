@@ -362,6 +362,27 @@ html[data-lang="en"] .row .v{font-size:13.5px}
 .shop-skin:not(.cant):active{transform:scale(.98)}
 .shop-rail .shop-pet,
 .shop-rail .shop-skin{touch-action:manipulation}
+/* 商店貨架上的紀念外觀：不要斜線 hatch（看起來像整排 disabled） */
+.shop .mem-art{
+  background:#2A2724 !important;
+  color:rgba(230,227,220,.72);
+}
+.shop .mem-art.skin-celadon{background:#24352C !important}
+.shop .mem-art.skin-plain{background:#3A3834 !important}
+.shop .mem-art.skin-wood{background:#3A2A1C !important}
+.shop .mem-art.skin-slate{background:#2A2E34 !important}
+.shop .mem-art.skin-granite{background:#323232 !important}
+.shop .mem-art.skin-brass{background:#3A3018 !important}
+.shop .mem-art.skin-clay{background:#3A2E24 !important}
+.shop .mem-art.skin-glaze{background:#243038 !important}
+.shop .mem-art.skin-moss{background:#2A3420 !important}
+.shop .mem-art.skin-gold{background:#3A3014 !important}
+.shop .mem-art.skin-ink{background:#161616 !important}
+.shop .mem-art.skin-marble{background:#3A3836 !important}
+.shop .mem-art.skin-drift{background:#2E261C !important}
+.shop .mem-art.skin-iron{background:#1E2226 !important}
+.shop .mem-art.skin-terra{background:#3A2418 !important}
+.shop .mem-art.skin-sand{background:#3A3424 !important}
 .shop-consum{display:flex;align-items:center;gap:13px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
   background:var(--s-panel);padding:14px;margin:0 18px 26px;width:calc(100% - 36px);box-sizing:border-box;
   cursor:pointer;color:inherit;text-align:left}
@@ -3867,7 +3888,7 @@ function pwaBits(){
     if(navigator.serviceWorker.controller){
       navigator.serviceWorker.addEventListener('controllerchange', () => { location.reload(); });
     }
-    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js?v=31', { updateViaCache: 'none' })
       .then(reg => { reg.update().catch(()=>{}); })
       .catch(()=>{});
   }
