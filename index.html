@@ -173,10 +173,12 @@ html[data-skin="camo"] .row{
   border-bottom:6px solid var(--accent);opacity:.85;
 }
 
-/* 減少動態偏好：停在靜態，不閃不抖 */
+/* 減少動態偏好：停在靜態，不閃不抖；紀念爆炸直接顯示最終一捧土 */
 @media (prefers-reduced-motion:reduce){
   *{animation:none !important}
   .scan{display:none}
+  .mem-boom .mem-boom-flash,.mem-boom .mem-boom-ember,.mem-boom .mem-boom-pet{display:none !important}
+  .mem-boom .mem-boom-earth{opacity:1 !important;transform:none !important}
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
@@ -450,6 +452,32 @@ html[data-skin="camo"] .app.on-shop .sheet .btn-fill{
 .mem-leaves{display:flex;gap:4px;justify-content:center;margin-top:8px;min-height:10px}
 .mem-leaves i{width:8px;height:10px;border-radius:8px 8px 2px 2px;background:#6B8A5A;display:block;opacity:.35}
 .mem-leaves i.on{opacity:1}
+.mem-art.skin-gold{background:repeating-linear-gradient(135deg,rgba(212,175,55,.16) 0 5px,transparent 5px 10px),#3A3014;border-color:rgba(212,175,55,.45)}
+.mem-art.skin-ink{background:repeating-linear-gradient(135deg,rgba(230,227,220,.06) 0 5px,transparent 5px 10px),#161616;border-color:rgba(230,227,220,.22)}
+.mem-art.skin-marble{background:repeating-linear-gradient(135deg,rgba(230,227,220,.14) 0 5px,transparent 5px 10px),#3A3836;border-color:rgba(230,227,220,.32)}
+.mem-art.skin-drift{background:repeating-linear-gradient(135deg,rgba(170,140,100,.12) 0 5px,transparent 5px 10px),#2E261C;border-color:rgba(170,140,100,.35)}
+.mem-art.skin-iron{background:repeating-linear-gradient(135deg,rgba(140,150,160,.1) 0 5px,transparent 5px 10px),#1E2226;border-color:rgba(140,150,160,.3)}
+.mem-art.skin-terra{background:repeating-linear-gradient(135deg,rgba(180,90,60,.12) 0 5px,transparent 5px 10px),#3A2418;border-color:rgba(180,90,60,.35)}
+.mem-art.skin-sand{background:repeating-linear-gradient(135deg,rgba(200,180,130,.12) 0 5px,transparent 5px 10px),#3A3424;border-color:rgba(200,180,130,.35)}
+.mem-boom{position:relative;width:100%;height:168px;display:grid;place-items:center;margin:8px 0 4px}
+.mem-boom-stage{position:relative;width:168px;height:160px}
+.mem-boom-flash,.mem-boom-ember,.mem-boom-pet,.mem-boom-earth{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.mem-boom-flash{opacity:0;background:radial-gradient(circle,rgba(255,77,94,.55) 0%,transparent 62%)}
+.mem-boom-ember{opacity:0}
+.mem-boom-ember i{display:block;width:10px;height:10px;border-radius:99px;background:#8C5A54;
+  box-shadow:0 0 12px rgba(140,90,84,.6)}
+.mem-boom-pet{font-size:42px;opacity:1;transform:scale(1)}
+.mem-boom-earth{opacity:0;transform:translateY(18px) scale(.92)}
+.mem-boom.play .mem-boom-flash{animation:mem-flash .55s ease-out forwards}
+.mem-boom.play .mem-boom-ember{animation:mem-ember .9s .15s ease-out forwards}
+.mem-boom.play .mem-boom-pet{animation:mem-pet-blow .7s ease-in forwards}
+.mem-boom.play .mem-boom-earth{animation:mem-earth-rise 1s .75s ease-out forwards}
+.mem-boom.done .mem-boom-flash,.mem-boom.done .mem-boom-ember,.mem-boom.done .mem-boom-pet{opacity:0;visibility:hidden}
+.mem-boom.done .mem-boom-earth{opacity:1;transform:none}
+@keyframes mem-flash{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+@keyframes mem-ember{0%{opacity:0;transform:translateY(0) scale(1)}40%{opacity:1}100%{opacity:0;transform:translateY(28px) scale(.4)}}
+@keyframes mem-pet-blow{0%{opacity:1;transform:scale(1)}55%{opacity:.8;transform:scale(1.15)}100%{opacity:0;transform:scale(.2)}}
+@keyframes mem-earth-rise{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:none}}
 @keyframes up{from{transform:translateY(14px)}to{transform:translateY(0)}}
 .full{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;flex-direction:column;
   padding:calc(env(safe-area-inset-top,0px) + 40px) 24px calc(env(safe-area-inset-bottom,0px) + 28px)}
@@ -572,8 +600,10 @@ const T = {
   cats_row:        ['時間類別','Categories'],
   cats_hint:       ['點一下增減，至少留一個。','Tap to add or remove. Keep at least one.'],
   notif:           ['通知','Notifications'],
-  notif_sub:       ['每天最多三次提醒，可分別開關。','Up to three reminders a day. Toggle each one.'],
+  notif_sub:       ['日常最多三次；若有已安放的紀念，可另開探訪提醒。','Up to three daily reminders; plus an optional memorial visit if you have one enshrined.'],
   notif_web:       ['網頁版只有在 App 開著時才會提醒。','On the web, reminders only fire while the app is open.'],
+  n_rite:          ['紀念探訪提醒（傍晚）','Memorial visit reminder (evening)'],
+  n_rite_body:     ['去紀念館看看牠留下的那一捧土。','Visit the memorial hall — the earth is still there.'],
   n_wake:          ['起床：提醒設定 Today Anchor','Wake: set Today Anchor'],
   n_3h:            ['剩三小時：提醒安排剩餘時間','3h left: plan remaining time'],
   n_sleep:         ['睡前：提醒查看收據','Before bed: open Receipt'],
@@ -695,11 +725,12 @@ const T = {
   mem_rite_done:   ['今天已經來過了','Already visited today'],
   mem_rite_ok:     ['已留下。','Left.'],
   mem_pot_leaves:  ['長出第 {n} 片葉','Leaf {n} grew'],
+  mem_pot_leaves_short:['盆栽 · {n} 葉','Pot · {n} leaves'],
   mem_hall_shelf:  ['已安放','Enshrined'],
   mem_hall_alive:  ['在世','Alive'],
   mem_want_back:   ['想再養回來？','Want them back?'],
   mem_skins:       ['紀念外觀','Memorial skins'],
-  mem_skins_sub:   ['罈身、碑面、盆器','Urns, stones, pots'],
+  mem_skins_sub:   ['罈身、碑面、盆器 · 18 款','Urns, stones, pots · 18 looks'],
   mem_skin_use:    ['套用','Apply'],
   mem_skin_using:  ['使用中','In use'],
   shop_tab_mem:    ['紀念外觀','Memorial looks'],
@@ -754,20 +785,30 @@ const COIN_GUEST_START = 20;  // 新安裝／遊客開局
 const COIN_REG_BONUS  = 30;  // 首次建立本機帳戶再送
 const FREE_PET_IDS = PETS.filter(p => p.free).map(p => p.id);
 
-/* 紀念外觀：每形態 3 款起步；金幣可買外觀，買不到復活 */
+/* 紀念外觀：每形態 6 款共 18；金幣可買外觀，買不到復活 */
 const MEM_SKINS = [
-  {id:'urn_celadon', form:'urn', price:80, free:false, skin:'celadon', zh:'青瓷', en:'Celadon'},
-  {id:'urn_plain',   form:'urn', price:0,  free:true,  skin:'plain',   zh:'素白', en:'Plain'},
-  {id:'urn_wood',    form:'urn', price:100,free:false, skin:'wood',    zh:'木紋', en:'Wood'},
-  {id:'stone_slate', form:'headstone', price:80, free:false, skin:'slate',   zh:'青石', en:'Slate'},
-  {id:'stone_plain', form:'headstone', price:0,  free:true,  skin:'plain',   zh:'素碑', en:'Plain stone'},
-  {id:'stone_brass', form:'headstone', price:120,free:false, skin:'brass',   zh:'銅線', en:'Brass'},
-  {id:'pot_clay',    form:'pot', price:0,  free:true,  skin:'clay', zh:'素陶', en:'Clay'},
-  {id:'pot_glaze',   form:'pot', price:70, free:false, skin:'glaze',zh:'青釉', en:'Glaze'},
-  {id:'pot_moss',    form:'pot', price:90, free:false, skin:'moss', zh:'苔痕', en:'Moss'}
+  {id:'urn_celadon', form:'urn', price:80,  free:false, skin:'celadon', zh:'青瓷', en:'Celadon'},
+  {id:'urn_plain',   form:'urn', price:0,   free:true,  skin:'plain',   zh:'素白', en:'Plain'},
+  {id:'urn_wood',    form:'urn', price:100, free:false, skin:'wood',    zh:'木紋', en:'Wood'},
+  {id:'urn_gold',    form:'urn', price:140, free:false, skin:'gold',    zh:'金線', en:'Gold line'},
+  {id:'urn_ink',     form:'urn', price:110, free:false, skin:'ink',     zh:'墨色', en:'Ink'},
+  {id:'urn_marble',  form:'urn', price:130, free:false, skin:'marble',  zh:'大理石', en:'Marble'},
+  {id:'stone_slate', form:'headstone', price:80,  free:false, skin:'slate',   zh:'青石', en:'Slate'},
+  {id:'stone_plain', form:'headstone', price:0,   free:true,  skin:'plain',   zh:'素碑', en:'Plain stone'},
+  {id:'stone_brass', form:'headstone', price:120, free:false, skin:'brass',   zh:'銅線', en:'Brass'},
+  {id:'stone_granite',form:'headstone',price:100, free:false, skin:'granite', zh:'花崗', en:'Granite'},
+  {id:'stone_drift', form:'headstone', price:110, free:false, skin:'drift',   zh:'漂流木', en:'Driftwood'},
+  {id:'stone_iron',  form:'headstone', price:130, free:false, skin:'iron',    zh:'鐵灰', en:'Iron'},
+  {id:'pot_clay',    form:'pot', price:0,   free:true,  skin:'clay',  zh:'素陶', en:'Clay'},
+  {id:'pot_glaze',   form:'pot', price:70,  free:false, skin:'glaze', zh:'青釉', en:'Glaze'},
+  {id:'pot_moss',    form:'pot', price:90,  free:false, skin:'moss',  zh:'苔痕', en:'Moss'},
+  {id:'pot_terra',   form:'pot', price:85,  free:false, skin:'terra', zh:'赤土', en:'Terra'},
+  {id:'pot_sand',    form:'pot', price:95,  free:false, skin:'sand',  zh:'沙色', en:'Sand'},
+  {id:'pot_ink',     form:'pot', price:105, free:false, skin:'ink',   zh:'墨盆', en:'Ink pot'}
 ];
 const FREE_MEM_SKIN_IDS = MEM_SKINS.filter(s => s.free).map(s => s.id);
 const DEFAULT_MEM_SKIN = { pot:'pot_clay', urn:'urn_plain', headstone:'stone_plain' };
+const RITE_AT = '20:00'; // 紀念探訪提醒時刻（本地）
 
 /* 主題：色票（OKLCH stops）+ 首頁提示詞。預設焦慮霓虹＝現行 After Hours。 */
 const SKINS = [
@@ -869,7 +910,7 @@ const DEFAULTS = {
   days:{},              // 'YYYY-MM-DD' -> { anchor:{text,state}, blocks:[], tomorrow:[] }
   activeId:null,        // 進行中的 block id（一次只有一個；block 本體只存在 days 裡）
   nextWeek:[],
-  notif:{wake:true, three:true, sleep:false},
+  notif:{wake:true, three:true, sleep:false, rite:false},
   demo:false,
   fired:{},             // 今天已經送過的提醒
   coins:COIN_GUEST_START, // 遊客開局贈送；註冊另送 COIN_REG_BONUS
@@ -926,6 +967,8 @@ let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
            worth:{blockId:null,pick:null,note:'',again:false},
            petToast:null, petMemoId:null,
            demoMemorial:null, // ?memorial=1 只活在記憶體，不寫入存檔
+           memBoomDone:null,  // 已播完爆炸→一捧土的 fallen id
+           memBoomPlaying:null,
            auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 
 function load(){
@@ -1326,7 +1369,9 @@ function migrateState(raw){
   }
   if(typeof s.homeTip !== 'boolean') s.homeTip = false; // 舊使用者不重噴首頁提示
   if(MEM_FORMS.indexOf(s.memorialForm) < 0) s.memorialForm = 'pot';
-  if(typeof s.memorialFormTouched !== 'boolean') s.memorialFormTouched = false;
+  // DEFAULTS 會先填 false；要以 raw 是否帶鍵判斷，否則舊存檔永遠被當成未定案
+  if(!raw || typeof raw.memorialFormTouched !== 'boolean')
+    s.memorialFormTouched = !!(raw && Object.prototype.hasOwnProperty.call(raw, 'memorialForm'));
   if(s.pendingMemorialId !== null && typeof s.pendingMemorialId !== 'string') s.pendingMemorialId = null;
   if(!Array.isArray(s.ownedMemSkins)) s.ownedMemSkins = FREE_MEM_SKIN_IDS.slice();
   FREE_MEM_SKIN_IDS.forEach(id => { if(s.ownedMemSkins.indexOf(id) < 0) s.ownedMemSkins.push(id); });
@@ -1354,7 +1399,8 @@ function migrateState(raw){
       if(f.memorial.placedOn != null && typeof f.memorial.placedOn !== 'string') f.memorial.placedOn = null;
       if(!Array.isArray(f.memorial.unfinished)) f.memorial.unfinished = [];
       const form = f.memorial.form || 'pot';
-      if(!f.memorial.skinId || !MEM_SKINS.some(x => x.id === f.memorial.skinId))
+      const sk = MEM_SKINS.find(x => x.id === f.memorial.skinId);
+      if(!sk || sk.form !== form)
         f.memorial.skinId = DEFAULT_MEM_SKIN[form] || DEFAULT_MEM_SKIN.pot;
       if(!f.memorial.rite || typeof f.memorial.rite !== 'object'){
         f.memorial.rite = { lastDay:null, streak:0, growth:0 };
@@ -1365,6 +1411,7 @@ function migrateState(raw){
           f.memorial.rite.streak = 0;
         if(typeof f.memorial.rite.growth !== 'number' || f.memorial.rite.growth < 0)
           f.memorial.rite.growth = 0;
+        if(f.memorial.rite.growth > 7) f.memorial.rite.growth = 7;
       }
     }
     return f;
@@ -1607,11 +1654,24 @@ function ensureMemorialFormSuggestion(){
   if(S.memorialFormTouched) return;
   if(S.memorialForm === 'none') return;
   S.memorialForm = suggestMemorialForm();
+  // 建議只生效一次；之後只有設定手選能改
+  S.memorialFormTouched = true;
 }
 function ritesForForm(form){
   if(form === 'urn') return [['incense','mem_rite_incense'],['flowers','mem_rite_flowers']];
   if(form === 'headstone') return [['flowers','mem_rite_flowers'],['pebble','mem_rite_pebble']];
   return [['water','mem_rite_water'],['sun','mem_rite_sun']];
+}
+/* 漏探訪後 UI 不顯示過期 streak；lastDay 是今天或昨天才算有效 */
+function effectiveRiteStreak(rite){
+  if(!rite || !(rite.streak|0) || !rite.lastDay) return 0;
+  const today = dayKey();
+  if(rite.lastDay === today || rite.lastDay === dayOffsetKey(today, -1)) return rite.streak|0;
+  return 0;
+}
+/* 設計：約每 3 天長一葉（第 6 天第 2 片）；葉片不因斷 streak 退回 */
+function potLeavesFromStreak(streak){
+  return Math.min(7, Math.max(0, Math.floor((streak|0) / 3)));
 }
 function longestAnchorStreak(tasks){
   const days = Array.from(new Set((tasks || []).filter(x => x && x.kind === 'anchor' && x.day).map(x => x.day))).sort();
@@ -1641,8 +1701,10 @@ function performRite(fallenId){
   mem.rite.streak = (mem.rite.lastDay === prev) ? ((mem.rite.streak|0) + 1) : 1;
   mem.rite.lastDay = today;
   if((mem.form || 'pot') === 'pot'){
-    mem.rite.growth = Math.min(7, Math.max(mem.rite.growth|0, mem.rite.streak|0));
-    showPetToast(tFill('mem_pot_leaves',{n:mem.rite.growth}));
+    const next = potLeavesFromStreak(mem.rite.streak);
+    const grew = next > (mem.rite.growth|0);
+    mem.rite.growth = Math.min(7, Math.max(mem.rite.growth|0, next));
+    showPetToast(grew ? tFill('mem_pot_leaves',{n:mem.rite.growth}) : t('mem_rite_ok'));
   }else{
     showPetToast(t('mem_rite_ok'));
   }
@@ -1655,6 +1717,10 @@ function buyMemSkin(id){
   setState(()=>{
     if(!sk.free) S.coins -= sk.price;
     S.ownedMemSkins.push(id);
+    // 詳情頁內購買：同形態直接套用
+    const open = ui.petMemoId ? fallenOf(ui.petMemoId) : null;
+    if(open && open.memorial && open.memorial.status === 'placed' && open.memorial.form === sk.form)
+      open.memorial.skinId = id;
     showPetToast(t('pet_bought'));
   });
 }
@@ -1887,6 +1953,8 @@ function resetUiState(){
          worth:{blockId:null,pick:null,note:'',again:false},
          petToast:null, petMemoId:null,
          demoMemorial:null,
+         memBoomDone:null,
+         memBoomPlaying:null,
          auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 }
 
@@ -2493,7 +2561,7 @@ function screenSettings(){
     + '<div class="kicker">'+esc(t('notif'))+'</div>'
     + '<div class="foot" style="margin-top:6px">'+esc(t('notif_sub'))+'</div>'
     + '<div class="foot" style="margin-top:2px">'+esc(t('notif_web'))+'</div>'
-    + [['wake','n_wake'],['three','n_3h'],['sleep','n_sleep']].map(([k,lbl]) =>
+    + [['wake','n_wake'],['three','n_3h'],['sleep','n_sleep'],['rite','n_rite']].map(([k,lbl]) =>
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0">'
         + '<span style="font:400 12.5px/1.5 var(--fb)'+(S.notif[k]?'':';color:rgba(233,237,244,.5)')+'">'+esc(t(lbl))+'</span>'
         + swHtml(S.notif[k],'notif:'+k) + '</div>').join('')
@@ -2831,8 +2899,14 @@ function screenMemorialMorning(){
     + '<div style="font-family:var(--fh);font-size:10px;letter-spacing:.22em;color:rgba(230,227,220,.5);margin-bottom:22px">'
     +   esc(t('mem_morning_k'))+'</div>'
     + filmstripHtml()
-    + '<div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:28px">'
-    + memorialArtHtml(artForm, true, f.memorial && f.memorial.skinId)
+    + '<div class="mem-boom'+ (ui.memBoomDone === f.id ? ' done' : (ui.memBoomPlaying === f.id ? ' play' : '')) +'" id="memBoom">'
+    + '<div class="mem-boom-stage">'
+    + '<div class="mem-boom-flash"></div>'
+    + '<div class="mem-boom-ember"><i></i></div>'
+    + '<div class="mem-boom-pet">'+petOf(f.petId).emoji+'</div>'
+    + '<div class="mem-boom-earth">'+memorialArtHtml(artForm, true, f.memorial && f.memorial.skinId)+'</div>'
+    + '</div></div>'
+    + '<div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:8px">'
     + '<div style="width:180px;height:1px;background:rgba(230,227,220,.12);margin-top:2px"></div>'
     + '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:26px">'
     +   esc(tFill('mem_morning_title',{name:petName(f.petId)}))+'</div>'
@@ -2907,7 +2981,7 @@ function sheetCabinet(){
           + '<div style="font-size:11.5px;font-weight:600;margin-top:8px">'+esc(petName(f.petId))+'</div>'
           + '<div style="font-family:var(--fh);font-size:9px;color:rgba(230,227,220,.45);margin-top:2px">'
           +   esc(tFill('pet_days_short',{n:f.days}))
-          +   (form === 'pot' && growth ? ' · '+growth : '')
+          +   (form === 'pot' && growth ? ' · '+esc(tFill('mem_pot_leaves_short',{n:growth})) : '')
           + '</div></button>';
       }).join('')+'</div>'
     : '<div class="foot" style="margin-top:10px">'+esc(t('mem_hall_none'))+'</div>';
@@ -2969,6 +3043,7 @@ function sheetPetMemo(){
   const rite = mem.rite || { lastDay:null, streak:0, growth:0 };
   const rites = ritesForForm(form);
   const riteDone = rite.lastDay === dayKey();
+  const streakNow = effectiveRiteStreak(rite);
   const range = (f.startedOn || '—')+' — '+(f.endedOn || '—');
   const placedLine = mem.placedOn
     ? tFill('mem_placed_on', { date: formatMemDate(mem.placedOn) })
@@ -2981,7 +3056,7 @@ function sheetPetMemo(){
         + (form === 'pot' ? ' class="pot-on"' : '')+'>'+esc(t(key))+'</button>').join('')+'</div>'
       + '<div style="font-size:11px;color:rgba(230,227,220,.4);text-align:center;margin-top:10px">'
       +   esc(t('mem_rite_foot'))
-      +   ((rite.streak|0) > 0 ? ' '+esc(tFill('mem_rite_streak',{n:rite.streak})) : '')
+      +   (streakNow > 0 ? ' '+esc(tFill('mem_rite_streak',{n:streakNow})) : '')
       + '</div>'
       + (form === 'pot' ? memLeavesHtml(rite.growth) : '')
     : '';
@@ -3236,6 +3311,7 @@ function render(){
   if(ui.demoMemorial){
     app.className = 'app' + (S.night ? '' : ' night-off');
     app.innerHTML = screenMemorialMorning() + petToastHtml();
+    playMemorialBoom();
     return;
   }
   if(!S.onboarded){ app.innerHTML = sheetOnboarding() + petToastHtml(); return; }
@@ -3245,6 +3321,7 @@ function render(){
   if(memorialPendingFallen()){
     app.className = 'app' + (S.night ? '' : ' night-off');
     app.innerHTML = screenMemorialMorning() + petToastHtml();
+    playMemorialBoom();
     return;
   }
 
@@ -3594,6 +3671,46 @@ function checkNotif(left){
     fire('three', EN()?'3 hours left. Plan the rest of today.':'今天剩三小時，請安排剩餘時間。');
   if(S.notif.sleep && hm === S.sleep)
     fire('sleep', EN()?'Open today’s Receipt.':'查看今天的收據。');
+  if(S.notif.rite && hm === RITE_AT){
+    const todayK = dayKey();
+    const needVisit = (S.fallen || []).some(f =>
+      f && f.memorial && f.memorial.status === 'placed'
+      && !(f.memorial.rite && f.memorial.rite.lastDay === todayK));
+    if(needVisit) fire('rite', t('n_rite_body'));
+  }
+}
+function prefersReduceMotion(){
+  try{ return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  catch(e){ return false; }
+}
+function playMemorialBoom(){
+  const f = memorialPendingFallen();
+  const el = document.getElementById('memBoom');
+  if(!f || !el) return;
+  if(ui.memBoomDone === f.id){ el.classList.add('done'); return; }
+  if(ui.memBoomPlaying === f.id){
+    // 整頁重繪會拆掉節點，CSS 動畫無法接續 → 定格在一捧土，不重播
+    ui.memBoomDone = f.id;
+    ui.memBoomPlaying = null;
+    clearTimeout(playMemorialBoom._t);
+    el.classList.remove('play');
+    el.classList.add('done');
+    return;
+  }
+  ui.memBoomPlaying = f.id;
+  if(prefersReduceMotion()){
+    ui.memBoomDone = f.id; ui.memBoomPlaying = null;
+    el.classList.add('done'); return;
+  }
+  el.classList.remove('done');
+  requestAnimationFrame(() => { el.classList.add('play'); });
+  clearTimeout(playMemorialBoom._t);
+  playMemorialBoom._t = setTimeout(() => {
+    ui.memBoomDone = f.id;
+    ui.memBoomPlaying = null;
+    const node = document.getElementById('memBoom');
+    if(node){ node.classList.remove('play'); node.classList.add('done'); }
+  }, 2100);
 }
 setInterval(heartbeat, 1000);
 document.addEventListener('visibilitychange', () => {
