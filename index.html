@@ -1369,8 +1369,8 @@ function migrateState(raw){
   }
   if(typeof s.homeTip !== 'boolean') s.homeTip = false; // 舊使用者不重噴首頁提示
   if(MEM_FORMS.indexOf(s.memorialForm) < 0) s.memorialForm = 'pot';
-  // 舊存檔若已寫過 memorialForm，視為已定案，避免升級後被語系建議蓋掉
-  if(typeof s.memorialFormTouched !== 'boolean')
+  // DEFAULTS 會先填 false；要以 raw 是否帶鍵判斷，否則舊存檔永遠被當成未定案
+  if(!raw || typeof raw.memorialFormTouched !== 'boolean')
     s.memorialFormTouched = !!(raw && Object.prototype.hasOwnProperty.call(raw, 'memorialForm'));
   if(s.pendingMemorialId !== null && typeof s.pendingMemorialId !== 'string') s.pendingMemorialId = null;
   if(!Array.isArray(s.ownedMemSkins)) s.ownedMemSkins = FREE_MEM_SKIN_IDS.slice();
