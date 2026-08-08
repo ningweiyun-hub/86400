@@ -560,10 +560,13 @@ const T = {
   remove:          ['刪除','Remove'],
   waiting_prev:    ['等前一段結束後開始','Starts when the current one ends'],
   time_past:       ['那個時間已經過了，改成現在開始。','That time has passed — starting now instead.'],
-  upcoming_foot:   ['排定還沒開始的，午夜不會算你失敗；一旦開始，就必須收尾。','Scheduled-but-not-started will not fail you at midnight. Once it starts, you must finish it.'],
+  upcoming_foot:   ['排定還沒開始的，還沒算進已命名，午夜也不會算你失敗；一旦開始，就必須收尾。','Scheduled-but-not-started is not named time yet, and will not fail you at midnight. Once it starts, you must finish it.'],
   named_today:     ['今日已命名時間','Named time today'],
   unnamed:         ['未命名時間','Unnamed time'],
-  unnamed_sub:     ['空白不是罪名——但空白也不會救下引線上的牠。','Blank is not a crime — and blank time will not save whoever is on the fuse.'],
+  unnamed_sub:     ['今天已過的時間扣掉已結束的時段——睡覺、空隙都在裡面。','Time already gone today minus the stretches you finished — sleep and gaps are in here.'],
+  unnamed_foot:    ['空白不是罪名——但空白也不會救下引線上的牠。','Blank is not a crime — and blank time will not save whoever is on the fuse.'],
+  running_row:     ['進行中','In progress'],
+  running_sub:     ['還沒算進已命名，結束後才會計入。','Not named time yet — it counts once you end it.'],
   named_empty:     ['今天還沒有命名任何時間。','Nothing named yet today.'],
   end_early:       ['提前結束','End early'],
   extend15:        ['延長 15 分','+15 min'],
@@ -2362,9 +2365,10 @@ function activeLine(){
 }
 function namedListHtml(){
   const st = stats(dayKey());
+  const act = activeBlock();
   let rows = '';
   if(!st.done.length){
-    rows = '<div class="foot" style="padding:14px 0">'+esc(t('named_empty'))+'</div>';
+    if(!act) rows = '<div class="foot" style="padding:14px 0">'+esc(t('named_empty'))+'</div>';
   }else{
     rows = st.done.slice().sort((a,b)=>a.startedAt-b.startedAt).map(b => {
       const dur = blockDur(b);
@@ -2381,15 +2385,28 @@ function namedListHtml(){
         + '<div style="font:400 10px/1.5 var(--fb);color:'+wc+'">'+esc(wl)+'</div></div></div>';
     }).join('');
   }
+  // 進行中的時段單獨列一行：它還沒進 named，否則會被誤讀成「加了卻沒算到」
+  const runRow = act
+    ? '<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--hair-3)">'
+      + '<div style="width:5px;height:26px;flex:none;background:'+catTone(act.cat)+';opacity:.5"></div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font:500 13.5px/1.35 var(--fb);color:var(--ink-55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
+      +   esc(act.name)+' · '+esc(t('running_row'))+'</div>'
+      + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(233,237,244,.4)">'+esc(t('running_sub'))+'</div></div>'
+      + '<div id="runVal" class="num" style="font:600 14px/1 var(--fh);color:var(--ink-55)">'
+      +   minDur(Math.max(0, Math.round((Date.now()-act.startedAt)/1000)))+'</div></div>'
+    : '';
   return '<div style="margin-top:28px">'
     + '<div class="sechead"><div class="kicker">'+esc(t('named_today'))+'</div>'
     + '<div class="num" style="font:600 14px/1 var(--fh)">'+hmDur(st.named)+'</div></div>'
     + rows
+    + runRow
     + '<div style="display:flex;align-items:center;gap:11px;padding:11px 0">'
     + '<div style="width:5px;height:26px;flex:none;background:rgba(233,237,244,.09)"></div>'
     + '<div style="flex:1"><div style="font:500 13.5px/1.35 var(--fb);color:var(--ink-55)">'+esc(t('unnamed'))+'</div>'
     + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(233,237,244,.4)">'+esc(t('unnamed_sub'))+'</div></div>'
-    + '<div id="unnamedVal" class="num" style="font:600 14px/1 var(--fh);color:var(--ink-55)">'+hmDur(st.unnamed)+'</div></div></div>';
+    + '<div id="unnamedVal" class="num" style="font:600 14px/1 var(--fh);color:var(--ink-55)">'+hmDur(st.unnamed)+'</div></div>'
+    + '<div class="foot" style="margin-top:6px">'+esc(t('unnamed_foot'))+'</div></div>';
 }
 /* 已排定但還沒開始的小區塊 */
 function upcomingHtml(){
@@ -2476,7 +2493,9 @@ function receiptCard(k){
     + '<div class="num" style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
     + '<div style="display:flex;justify-content:space-between;font:500 12.5px/1.9 var(--fb)"><span>'+esc(t('named_time'))+'</span><span>'+hmDur(st.named)+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb);color:var(--ink-55)"><span>'+esc(t('unnamed'))+'</span><span id="rcUnnamed">'+hmDur(st.unnamed)+'</span></div>'
-    + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb);color:var(--ink-55)"><span>'+esc(t('times_named'))+'</span><span>'+st.done.length+'</span></div></div>'
+    + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb);color:var(--ink-55)"><span>'+esc(t('times_named'))+'</span><span>'+st.done.length+'</span></div>'
+    + (isToday ? '<div style="font:400 10.5px/1.6 var(--fb);color:var(--ink-42);margin-top:4px">'+esc(t('unnamed_sub'))+'</div>' : '')
+    + '</div>'
 
     + (st.done.length
         ? '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
@@ -3782,6 +3801,11 @@ function heartbeat(){
   const rl = document.getElementById('rcLeft'); if(rl && !ui.receiptDay) rl.textContent = comma(left);
   const uv = document.getElementById('unnamedVal');
   if(uv) uv.textContent = hmDur(stats(dayKey()).unnamed);
+  const rv = document.getElementById('runVal');
+  if(rv){
+    const ra = activeBlock();
+    if(ra) rv.textContent = minDur(Math.max(0, Math.round((Date.now()-ra.startedAt)/1000)));
+  }
   const ru = document.getElementById('rcUnnamed');
   if(ru && !ui.receiptDay) ru.textContent = hmDur(stats(dayKey()).unnamed);
 
@@ -3888,7 +3912,7 @@ function pwaBits(){
     if(navigator.serviceWorker.controller){
       navigator.serviceWorker.addEventListener('controllerchange', () => { location.reload(); });
     }
-    navigator.serviceWorker.register('./sw.js?v=31', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js?v=32', { updateViaCache: 'none' })
       .then(reg => { reg.update().catch(()=>{}); })
       .catch(()=>{});
   }
