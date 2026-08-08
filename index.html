@@ -1588,11 +1588,17 @@ function tickReviveOnAnchor(day){
     r.lastAnchorDay = day;
     any = true;
     if((r.progress|0) >= (r.needed || REVIVE_NEEDED)){
-      const fid = r.fallenId;
+      const fid = r.fallenId, need = r.needed || REVIVE_NEEDED;
       clearReviveGate(pid);
       const f = fallenOf(fid) || (S.fallen || []).find(x => x && x.petId === pid
         && x.memorial && x.memorial.status !== 'revived');
-      if(f && f.memorial) f.memorial.status = 'revived';
+      // 閘門在這裡就被清掉了，所以把還原用的資料留在紀念碑上，撤銷才回得去
+      if(f && f.memorial){
+        f.memorial.revivedFrom = f.memorial.status;
+        f.memorial.revivedOn = day;
+        f.memorial.revivedNeed = need;
+        f.memorial.status = 'revived';
+      }
       showPetToast(tFill('mem_revived_toast', {name:petName(pid)}));
     }
   });
@@ -1600,6 +1606,19 @@ function tickReviveOnAnchor(day){
 }
 function untickReviveOnUndo(day){
   day = day || dayKey();
+  // 今天才剛復活成功的：閘門已經被 clearReviveGate 清掉，要整組長回來、寵物重新上鎖
+  (S.fallen || []).forEach(f => {
+    const m = f && f.memorial;
+    if(!m || m.status !== 'revived' || m.revivedOn !== day) return;
+    const need = m.revivedNeed || REVIVE_NEEDED;
+    m.status = m.revivedFrom || 'placed';
+    delete m.revivedFrom; delete m.revivedOn; delete m.revivedNeed;
+    if(!S.revive || typeof S.revive !== 'object') S.revive = {};
+    S.revive[f.petId] = { needed:need, progress:Math.max(0, need - 1),
+                          lastAnchorDay:dayOffsetKey(day, -1), fallenId:f.id };
+    // 復活後馬上戴上引線的話，鎖回去的同時也要把引線換回炸彈
+    if(S.companion && S.companion.petId === f.petId) startCompanion('bomb', dayKey());
+  });
   if(!S.revive) return;
   Object.keys(S.revive).forEach(pid => {
     const r = S.revive[pid];
@@ -1768,10 +1787,27 @@ function explodeCompanion(endedOn){
   startCompanion('bomb', dayKey());
   showPetToast(tFill('pet_blown_note', {name}));
 }
+/* 這個區塊到 at 為止，計畫時間是否已經跑完 */
+function blockLapsed(b, at){ return !!(b && b.endAt && b.endAt <= at); }
+/* 計畫時間已經過完的區塊，App 醒著時 heartbeat 早就自動收掉了。
+   結算前補跑一次，「分頁被凍結」跟「螢幕開著」才會算出同一個結果。 */
+function autoEndLapsedBlocks(k){
+  const day = S.days && S.days[k];
+  if(!day) return;
+  const cap = dayEndMs(k);
+  const at = Math.min(Date.now(), cap);
+  (day.blocks || []).forEach(b => {
+    if(b.demo || !b.startedAt || b.endedAt) return;
+    if(!blockLapsed(b, at)) return;            // 還在計畫時間內就斷掉的才算未收尾
+    b.endedAt = Math.max(b.startedAt, Math.min(b.endAt, cap));
+    if(S.activeId === b.id) S.activeId = null;
+  });
+}
 function settlePetDay(k){
   if(!k || S.petSettled[k]) return;
   S.petSettled[k] = true;
   ensureCompanion();
+  autoEndLapsedBlocks(k);          // 先補收尾，再判成敗
   // 當天完全沒有任務 → 不炸，也不強制加天（安靜的一天）
   if(!dayHadTasks(k)){
     checkReviveStreakBreak(k);
@@ -1784,10 +1820,12 @@ function settlePetDay(k){
   }
   checkReviveStreakBreak(k);
 }
-/* 結算後才收尾：保留 abandoned 標記，不發金幣、不開 Worth */
+/* 結算後才收尾：保留 abandoned 標記，不發金幣、不開 Worth。
+   計畫時間已經跑完的不算未收尾（autoEndLapsedBlocks 會當成正常結束）。 */
 function closeAbandonedBlocks(k){
   const day = S.days && S.days[k];
   if(!day) return;
+  autoEndLapsedBlocks(k);          // settlePetDay 早退時也要補跑
   const cap = dayEndMs(k);
   (day.blocks || []).forEach(b => {
     if(b.demo || !b.startedAt || b.endedAt) return;
@@ -1811,8 +1849,9 @@ function catchUpPetSettlement(){
   const act = activeBlock();
   if(act && act.day && act.day < todayK){
     if(!act.endedAt){
-      act.abandoned = true;
-      act.endedAt = Math.max(act.startedAt, Math.min(act.endAt || dayEndMs(act.day), dayEndMs(act.day)));
+      const cap = dayEndMs(act.day);
+      if(!blockLapsed(act, cap)) act.abandoned = true;   // 計畫時間過完的照樣算正常結束
+      act.endedAt = Math.max(act.startedAt, Math.min(act.endAt || cap, cap));
     }
     S.activeId = null;
   }else if(S.activeId && !activeBlock()){
