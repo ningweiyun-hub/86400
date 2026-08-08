@@ -978,7 +978,11 @@ function load(){
     return migrateState(JSON.parse(raw));
   }catch(e){ return migrateState({}); }
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function save(){
+  // ?memorial=1 過場期間不寫存檔，避免 DEMO 污染 86400.v1
+  if(ui && ui.demoMemorial) return;
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+}
 
 /* ── 3. 小工具 ───────────────────────────────────────────────────────── */
 const EN = () => S.lang === 'en';
@@ -1368,6 +1372,9 @@ function migrateState(raw){
       s.account.regBonus = s.account.mode === 'local' && !!s.account.passHash;
   }
   if(typeof s.homeTip !== 'boolean') s.homeTip = false; // 舊使用者不重噴首頁提示
+  // 提醒旗標依日；舊格式沒有 _day → 清掉以免跨日冷啟動永不推播
+  if(!s.fired || typeof s.fired !== 'object' || Array.isArray(s.fired) || s.fired._day !== dayKey())
+    s.fired = { _day: dayKey() };
   if(MEM_FORMS.indexOf(s.memorialForm) < 0) s.memorialForm = 'pot';
   // DEFAULTS 會先填 false；要以 raw 是否帶鍵判斷，否則舊存檔永遠被當成未定案
   if(!raw || typeof raw.memorialFormTouched !== 'boolean')
@@ -1546,6 +1553,24 @@ function petNeedsRevive(petId){
   const r = S.revive && S.revive[petId];
   return !!(r && (r.progress|0) < (r.needed || REVIVE_NEEDED));
 }
+/* 引線上要換人時：跳過復活閘中的寵物；炸彈死了就改放其他免費角色 */
+function fuseFallbackPetId(){
+  const tryIds = ['bomb'].concat(FREE_PET_IDS).concat(S.ownedPets || []);
+  const seen = {};
+  for(let i = 0; i < tryIds.length; i++){
+    const id = tryIds[i];
+    if(!id || seen[id]) continue;
+    seen[id] = true;
+    if((S.ownedPets || []).indexOf(id) < 0) continue;
+    if(petNeedsRevive(id)) continue;
+    return id;
+  }
+  return null;
+}
+function startFuseFallback(onDay){
+  const id = fuseFallbackPetId() || 'bomb';
+  startCompanion(id, onDay || dayKey());
+}
 function reviveProgress(petId){
   const r = S.revive && S.revive[petId];
   if(!r) return null;
@@ -1616,8 +1641,8 @@ function untickReviveOnUndo(day){
     if(!S.revive || typeof S.revive !== 'object') S.revive = {};
     S.revive[f.petId] = { needed:need, progress:Math.max(0, need - 1),
                           lastAnchorDay:dayOffsetKey(day, -1), fallenId:f.id };
-    // 復活後馬上戴上引線的話，鎖回去的同時也要把引線換回炸彈
-    if(S.companion && S.companion.petId === f.petId) startCompanion('bomb', dayKey());
+    // 復活後馬上戴上引線的話，鎖回去的同時把引線換到沒有閘的寵物
+    if(S.companion && S.companion.petId === f.petId) startFuseFallback(dayKey());
   });
   if(!S.revive) return;
   Object.keys(S.revive).forEach(pid => {
@@ -1634,6 +1659,19 @@ function checkReviveStreakBreak(k){
     const r = S.revive[pid];
     if(!r || (r.progress|0) <= 0) return;
     if(r.lastAnchorDay === k) return;
+    r.progress = 0;
+    r.lastAnchorDay = null;
+  });
+}
+/* 日曆上缺席、沒有 S.days 列的日子也要斷 streak（catch-up 補洞） */
+function catchUpReviveStreakGaps(){
+  if(!S.revive) return;
+  const todayK = dayKey();
+  const yesterday = dayOffsetKey(todayK, -1);
+  Object.keys(S.revive).forEach(pid => {
+    const r = S.revive[pid];
+    if(!r || (r.progress|0) <= 0 || !r.lastAnchorDay) return;
+    if(r.lastAnchorDay === todayK || r.lastAnchorDay === yesterday) return;
     r.progress = 0;
     r.lastAnchorDay = null;
   });
@@ -1783,8 +1821,8 @@ function explodeCompanion(endedOn){
   }else{
     S.pendingMemorialId = entry.id;
   }
-  // 寵物仍在 ownedPets；引線回到預設炸彈（強制，不受復活閘限制）
-  startCompanion('bomb', dayKey());
+  // 寵物仍在 ownedPets；引線換到沒有復活閘的角色（炸彈自己死了就不要再放回去）
+  startFuseFallback(dayKey());
   showPetToast(tFill('pet_blown_note', {name}));
 }
 /* 這個區塊到 at 為止，計畫時間是否已經跑完 */
@@ -1801,6 +1839,8 @@ function autoEndLapsedBlocks(k){
     if(!blockLapsed(b, at)) return;            // 還在計畫時間內就斷掉的才算未收尾
     b.endedAt = Math.max(b.startedAt, Math.min(b.endAt, cap));
     if(S.activeId === b.id) S.activeId = null;
+    // 跟醒著時 endBlock→Worth 完成一樣發金幣／記陪伴（不開 Worth 面板）
+    rewardBlockDone(b);
   });
 }
 function settlePetDay(k){
@@ -1846,12 +1886,20 @@ function catchUpPetSettlement(){
       settlePetDay(k);
       closeAbandonedBlocks(k);
     });
+  // 沒有 S.days 列的缺席日也要斷復活 streak
+  catchUpReviveStreakGaps();
   const act = activeBlock();
   if(act && act.day && act.day < todayK){
     if(!act.endedAt){
       const cap = dayEndMs(act.day);
-      if(!blockLapsed(act, cap)) act.abandoned = true;   // 計畫時間過完的照樣算正常結束
-      act.endedAt = Math.max(act.startedAt, Math.min(act.endAt || cap, cap));
+      if(blockLapsed(act, cap)){
+        // 計畫時間過完 → 跟醒著收尾一樣算正常結束並發金幣
+        act.endedAt = Math.max(act.startedAt, Math.min(act.endAt || cap, cap));
+        rewardBlockDone(act);
+      }else{
+        act.abandoned = true;   // 還在計畫時間內就跨日／關掉＝未收尾
+        act.endedAt = Math.max(act.startedAt, Math.min(act.endAt || cap, cap));
+      }
     }
     S.activeId = null;
   }else if(S.activeId && !activeBlock()){
@@ -1896,7 +1944,8 @@ function ensureDemoMemorial(){
     memorial:{
       status:'pending', form:formHint, placedOn:null,
       unfinished:[{ kind:'anchor', name: EN()?'Finish the draft':'寫完提案初稿', at:null }],
-      skinId: defaultMemSkinFor(formHint),
+      // 不要走 defaultMemSkinFor（會 push ownedMemSkins）
+      skinId: DEFAULT_MEM_SKIN[formHint] || DEFAULT_MEM_SKIN.pot,
       rite:{ lastDay:null, streak:0, growth:0 }
     },
     _demo:true
@@ -2400,6 +2449,20 @@ function receiptCard(k){
     + '<div style="display:flex;justify-content:space-between;font:500 12.5px/1.9 var(--fb)"><span>'+esc(t('named_time'))+'</span><span>'+hmDur(st.named)+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb);color:var(--ink-55)"><span>'+esc(t('unnamed'))+'</span><span id="rcUnnamed">'+hmDur(st.unnamed)+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb);color:var(--ink-55)"><span>'+esc(t('times_named'))+'</span><span>'+st.done.length+'</span></div></div>'
+
+    + (st.done.length
+        ? '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
+          + '<div class="kicker-s" style="margin-bottom:8px">'+esc(t('named_time'))+'</div>'
+          + st.done.slice().sort((a,b)=>a.startedAt-b.startedAt).map(b =>
+              '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;font:400 12.5px/1.5 var(--fb)">'
+              + '<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(b.name)
+              + (b.abandoned ? ' · <span style="color:var(--ink-42)">'
+                + esc(EN()?'Left open':'未收尾')+'</span>' : '')
+              + '</span>'
+              + '<span class="num" style="flex:none;color:var(--ink-55)">'+minDur(blockDur(b))+'</span></div>'
+            ).join('')
+          + '</div>'
+        : '')
 
     + '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
     + '<div class="kicker-s" style="margin-bottom:9px">'+esc(t('by_category'))+'</div>' + catRows + '</div>'
@@ -3648,13 +3711,13 @@ document.addEventListener('focusout', e => {
 let lastDay = dayKey();
 function heartbeat(){
   applyPressure();
-  if(!S.onboarded) return;
+  if(!S.onboarded && !ui.demoMemorial) return;
 
-  if(dayKey() !== lastDay){            // 跨過本地午夜 → 先結算（進行中＝失敗），再收尾殘留
-    const prev = lastDay;
-    settlePetDay(prev);
-    closeAbandonedBlocks(prev);
-    lastDay = dayKey(); S.fired = {}; ui.anchorDraft = null; ui.anchorEdit = false;
+  if(dayKey() !== lastDay){            // 跨過本地午夜 → 與 catch-up 同一套結算（含漏掉的日子）
+    catchUpPetSettlement();
+    lastDay = dayKey();
+    ensureFiredDay(true);
+    ui.anchorDraft = null; ui.anchorEdit = false;
     // 跨日未收尾不開 Worth、不發完成金幣
     if(ui.worth && ui.worth.blockId){
       const wb = findBlock(ui.worth.blockId);
@@ -3696,8 +3759,14 @@ function heartbeat(){
 
   checkNotif(left);
 }
+function ensureFiredDay(force){
+  const k = dayKey();
+  if(force || !S.fired || typeof S.fired !== 'object' || S.fired._day !== k)
+    S.fired = { _day: k };
+}
 function checkNotif(left){
   if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  ensureFiredDay();
   const now = new Date(), hm = p2(now.getHours())+':'+p2(now.getMinutes());
   const fire = (k, body) => {
     if(S.fired[k]) return;
@@ -3804,8 +3873,9 @@ function pwaBits(){
     S.tab = tb[1].toLowerCase();
 })();
 catchUpPetSettlement();
-ensureDemoMemorial();
-save();
+save();                 // 先把 catch-up 結算寫進存檔
+ensureDemoMemorial();   // DEMO 只掛記憶體過場；其間 save() 會被擋下
+ensureFiredDay();
 applyPressure();
 render();
 heartbeat();
