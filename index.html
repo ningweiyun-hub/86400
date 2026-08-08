@@ -343,18 +343,25 @@ html[data-lang="en"] .row .v{font-size:13.5px}
   border:1px solid transparent;background:var(--s-neon);color:var(--s-bg)}
 .shop-btn.ghost{background:transparent;border-color:rgba(53,240,160,.3);color:var(--s-neon);font-weight:600}
 .shop-pet{flex:none;width:118px;background:transparent;border:none;padding:0;text-align:left;color:inherit;display:block}
-.shop-pet .art{width:118px;height:118px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
-  background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 6px,transparent 6px 12px),#0E1316;
+.shop-pet .art{width:118px;height:118px;border-radius:16px;border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(165deg,#1A2228 0%,#0E1316 70%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
   display:grid;place-items:center;font-size:46px;margin-bottom:8px}
-.shop-pet.own .art{border-color:rgba(53,240,160,.4)}
+.shop-pet.own .art{border-color:rgba(53,240,160,.45);
+  box-shadow:inset 0 0 0 1px rgba(53,240,160,.14), 0 0 16px rgba(53,240,160,.12)}
 .shop-pet .nm{font-size:12px;font-weight:600}
 .shop-pet .pr{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--s-neon);margin-top:3px}
-.shop-pet.cant .art,.shop-skin.cant{opacity:.7}
+/* 買不起／鎖定才降透明度；預設貨架不要斜線「假 disabled」 */
+.shop-pet.cant .art,.shop-skin.cant{opacity:.55}
 .shop-pet.cant .pr,.shop-skin.cant .pr{color:var(--s-dim)}
+.shop-pet:not(.cant):active .art{transform:scale(.97)}
 .shop-skin{width:172px;text-align:left;color:inherit;display:block;box-sizing:border-box}
 .shop-skin .prev{width:100%;height:92px;border-radius:11px;display:flex;align-items:flex-end;
   padding:11px;margin-bottom:9px;box-sizing:border-box}
 .shop-skin .pr{font-family:'JetBrains Mono',monospace;font-size:11.5px;margin-top:3px;color:var(--s-neon)}
+.shop-skin:not(.cant):active{transform:scale(.98)}
+.shop-rail .shop-pet,
+.shop-rail .shop-skin{touch-action:manipulation}
 .shop-consum{display:flex;align-items:center;gap:13px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
   background:var(--s-panel);padding:14px;margin:0 18px 26px;width:calc(100% - 36px);box-sizing:border-box;
   cursor:pointer;color:inherit;text-align:left}
@@ -3461,38 +3468,38 @@ function render(){
   bindShopRails();
 }
 
-/* 商店貨架：觸控＝原生橫滑＋可點；滑鼠＝拖曳捲動，拖過才擋一次 click */
+/* 商店貨架：觸控＝原生橫滑＋可點；滑鼠＝拖過閾值才捲，不 capture，避免點擊被吃掉 */
 function bindShopRails(){
   document.querySelectorAll('.shop-rail').forEach(rail => {
-    let x0 = 0, left0 = 0, moved = false, pid = null, blockClick = false;
+    let x0 = 0, left0 = 0, moved = false, dragging = false;
     rail.addEventListener('click', e => {
-      if(!blockClick) return;
-      blockClick = false;
+      if(!moved) return;
+      moved = false;
       e.preventDefault();
       e.stopPropagation();
     }, true);
     rail.addEventListener('pointerdown', e => {
-      if(e.pointerType === 'touch') return; // 觸控不攔，保留原生滑＋點
-      pid = e.pointerId; x0 = e.clientX; left0 = rail.scrollLeft; moved = false;
-      try{ rail.setPointerCapture(pid); }catch(err){}
+      // 觸控交給瀏覽器原生 pan-x；滑鼠才自己拖
+      if(e.pointerType === 'touch') return;
+      dragging = true; moved = false;
+      x0 = e.clientX; left0 = rail.scrollLeft;
     });
     rail.addEventListener('pointermove', e => {
-      if(pid === null || e.pointerId !== pid) return;
+      if(!dragging) return;
       const dx = e.clientX - x0;
-      if(Math.abs(dx) > 6) moved = true;
+      if(Math.abs(dx) > 12) moved = true;
       if(moved) rail.scrollLeft = left0 - dx;
     });
-    const end = e => {
-      if(pid === null || e.pointerId !== pid) return;
-      if(moved){
-        blockClick = true;
-        // 若瀏覽器沒送 click，勿讓 blockClick 永遠卡住
-        setTimeout(()=>{ blockClick = false; }, 80);
-      }
-      pid = null; moved = false;
+    const end = () => {
+      dragging = false;
+      // click 事件緊接在 pointerup 後；短暫保留 moved 擋拖曳誤點
+      if(moved) setTimeout(()=>{ moved = false; }, 50);
     };
     rail.addEventListener('pointerup', end);
     rail.addEventListener('pointercancel', end);
+    rail.addEventListener('pointerleave', e => {
+      if(dragging && e.pointerType !== 'touch') end();
+    });
   });
 }
 
