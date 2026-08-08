@@ -603,7 +603,7 @@ const T = {
   notif_sub:       ['日常最多三次；若有已安放的紀念，可另開探訪提醒。','Up to three daily reminders; plus an optional memorial visit if you have one enshrined.'],
   notif_web:       ['網頁版只有在 App 開著時才會提醒。','On the web, reminders only fire while the app is open.'],
   n_rite:          ['紀念探訪提醒（傍晚）','Memorial visit reminder (evening)'],
-  n_rite_body:     ['去看看引線上留下的那一捧土。','Go visit the earth left on the fuse.'],
+  n_rite_body:     ['去紀念館看看牠留下的那一捧土。','Visit the memorial hall — the earth is still there.'],
   n_wake:          ['起床：提醒設定 Today Anchor','Wake: set Today Anchor'],
   n_3h:            ['剩三小時：提醒安排剩餘時間','3h left: plan remaining time'],
   n_sleep:         ['睡前：提醒查看收據','Before bed: open Receipt'],
@@ -725,6 +725,7 @@ const T = {
   mem_rite_done:   ['今天已經來過了','Already visited today'],
   mem_rite_ok:     ['已留下。','Left.'],
   mem_pot_leaves:  ['長出第 {n} 片葉','Leaf {n} grew'],
+  mem_pot_leaves_short:['盆栽 · {n} 葉','Pot · {n} leaves'],
   mem_hall_shelf:  ['已安放','Enshrined'],
   mem_hall_alive:  ['在世','Alive'],
   mem_want_back:   ['想再養回來？','Want them back?'],
@@ -1368,7 +1369,9 @@ function migrateState(raw){
   }
   if(typeof s.homeTip !== 'boolean') s.homeTip = false; // 舊使用者不重噴首頁提示
   if(MEM_FORMS.indexOf(s.memorialForm) < 0) s.memorialForm = 'pot';
-  if(typeof s.memorialFormTouched !== 'boolean') s.memorialFormTouched = false;
+  // 舊存檔若已寫過 memorialForm，視為已定案，避免升級後被語系建議蓋掉
+  if(typeof s.memorialFormTouched !== 'boolean')
+    s.memorialFormTouched = !!(raw && Object.prototype.hasOwnProperty.call(raw, 'memorialForm'));
   if(s.pendingMemorialId !== null && typeof s.pendingMemorialId !== 'string') s.pendingMemorialId = null;
   if(!Array.isArray(s.ownedMemSkins)) s.ownedMemSkins = FREE_MEM_SKIN_IDS.slice();
   FREE_MEM_SKIN_IDS.forEach(id => { if(s.ownedMemSkins.indexOf(id) < 0) s.ownedMemSkins.push(id); });
@@ -1396,7 +1399,8 @@ function migrateState(raw){
       if(f.memorial.placedOn != null && typeof f.memorial.placedOn !== 'string') f.memorial.placedOn = null;
       if(!Array.isArray(f.memorial.unfinished)) f.memorial.unfinished = [];
       const form = f.memorial.form || 'pot';
-      if(!f.memorial.skinId || !MEM_SKINS.some(x => x.id === f.memorial.skinId))
+      const sk = MEM_SKINS.find(x => x.id === f.memorial.skinId);
+      if(!sk || sk.form !== form)
         f.memorial.skinId = DEFAULT_MEM_SKIN[form] || DEFAULT_MEM_SKIN.pot;
       if(!f.memorial.rite || typeof f.memorial.rite !== 'object'){
         f.memorial.rite = { lastDay:null, streak:0, growth:0 };
@@ -1407,6 +1411,7 @@ function migrateState(raw){
           f.memorial.rite.streak = 0;
         if(typeof f.memorial.rite.growth !== 'number' || f.memorial.rite.growth < 0)
           f.memorial.rite.growth = 0;
+        if(f.memorial.rite.growth > 7) f.memorial.rite.growth = 7;
       }
     }
     return f;
@@ -1649,11 +1654,24 @@ function ensureMemorialFormSuggestion(){
   if(S.memorialFormTouched) return;
   if(S.memorialForm === 'none') return;
   S.memorialForm = suggestMemorialForm();
+  // 建議只生效一次；之後只有設定手選能改
+  S.memorialFormTouched = true;
 }
 function ritesForForm(form){
   if(form === 'urn') return [['incense','mem_rite_incense'],['flowers','mem_rite_flowers']];
   if(form === 'headstone') return [['flowers','mem_rite_flowers'],['pebble','mem_rite_pebble']];
   return [['water','mem_rite_water'],['sun','mem_rite_sun']];
+}
+/* 漏探訪後 UI 不顯示過期 streak；lastDay 是今天或昨天才算有效 */
+function effectiveRiteStreak(rite){
+  if(!rite || !(rite.streak|0) || !rite.lastDay) return 0;
+  const today = dayKey();
+  if(rite.lastDay === today || rite.lastDay === dayOffsetKey(today, -1)) return rite.streak|0;
+  return 0;
+}
+/* 設計：約每 3 天長一葉（第 6 天第 2 片）；葉片不因斷 streak 退回 */
+function potLeavesFromStreak(streak){
+  return Math.min(7, Math.max(0, Math.floor((streak|0) / 3)));
 }
 function longestAnchorStreak(tasks){
   const days = Array.from(new Set((tasks || []).filter(x => x && x.kind === 'anchor' && x.day).map(x => x.day))).sort();
@@ -1683,8 +1701,10 @@ function performRite(fallenId){
   mem.rite.streak = (mem.rite.lastDay === prev) ? ((mem.rite.streak|0) + 1) : 1;
   mem.rite.lastDay = today;
   if((mem.form || 'pot') === 'pot'){
-    mem.rite.growth = Math.min(7, Math.max(mem.rite.growth|0, mem.rite.streak|0));
-    showPetToast(tFill('mem_pot_leaves',{n:mem.rite.growth}));
+    const next = potLeavesFromStreak(mem.rite.streak);
+    const grew = next > (mem.rite.growth|0);
+    mem.rite.growth = Math.min(7, Math.max(mem.rite.growth|0, next));
+    showPetToast(grew ? tFill('mem_pot_leaves',{n:mem.rite.growth}) : t('mem_rite_ok'));
   }else{
     showPetToast(t('mem_rite_ok'));
   }
@@ -1697,6 +1717,10 @@ function buyMemSkin(id){
   setState(()=>{
     if(!sk.free) S.coins -= sk.price;
     S.ownedMemSkins.push(id);
+    // 詳情頁內購買：同形態直接套用
+    const open = ui.petMemoId ? fallenOf(ui.petMemoId) : null;
+    if(open && open.memorial && open.memorial.status === 'placed' && open.memorial.form === sk.form)
+      open.memorial.skinId = id;
     showPetToast(t('pet_bought'));
   });
 }
@@ -2875,7 +2899,7 @@ function screenMemorialMorning(){
     + '<div style="font-family:var(--fh);font-size:10px;letter-spacing:.22em;color:rgba(230,227,220,.5);margin-bottom:22px">'
     +   esc(t('mem_morning_k'))+'</div>'
     + filmstripHtml()
-    + '<div class="mem-boom'+(ui.memBoomDone === f.id ? ' done' : '')+'" id="memBoom">'
+    + '<div class="mem-boom'+ (ui.memBoomDone === f.id ? ' done' : (ui.memBoomPlaying === f.id ? ' play' : '')) +'" id="memBoom">'
     + '<div class="mem-boom-stage">'
     + '<div class="mem-boom-flash"></div>'
     + '<div class="mem-boom-ember"><i></i></div>'
@@ -2957,7 +2981,7 @@ function sheetCabinet(){
           + '<div style="font-size:11.5px;font-weight:600;margin-top:8px">'+esc(petName(f.petId))+'</div>'
           + '<div style="font-family:var(--fh);font-size:9px;color:rgba(230,227,220,.45);margin-top:2px">'
           +   esc(tFill('pet_days_short',{n:f.days}))
-          +   (form === 'pot' && growth ? ' · '+growth : '')
+          +   (form === 'pot' && growth ? ' · '+esc(tFill('mem_pot_leaves_short',{n:growth})) : '')
           + '</div></button>';
       }).join('')+'</div>'
     : '<div class="foot" style="margin-top:10px">'+esc(t('mem_hall_none'))+'</div>';
@@ -3019,6 +3043,7 @@ function sheetPetMemo(){
   const rite = mem.rite || { lastDay:null, streak:0, growth:0 };
   const rites = ritesForForm(form);
   const riteDone = rite.lastDay === dayKey();
+  const streakNow = effectiveRiteStreak(rite);
   const range = (f.startedOn || '—')+' — '+(f.endedOn || '—');
   const placedLine = mem.placedOn
     ? tFill('mem_placed_on', { date: formatMemDate(mem.placedOn) })
@@ -3031,7 +3056,7 @@ function sheetPetMemo(){
         + (form === 'pot' ? ' class="pot-on"' : '')+'>'+esc(t(key))+'</button>').join('')+'</div>'
       + '<div style="font-size:11px;color:rgba(230,227,220,.4);text-align:center;margin-top:10px">'
       +   esc(t('mem_rite_foot'))
-      +   ((rite.streak|0) > 0 ? ' '+esc(tFill('mem_rite_streak',{n:rite.streak})) : '')
+      +   (streakNow > 0 ? ' '+esc(tFill('mem_rite_streak',{n:streakNow})) : '')
       + '</div>'
       + (form === 'pot' ? memLeavesHtml(rite.growth) : '')
     : '';
@@ -3663,7 +3688,15 @@ function playMemorialBoom(){
   const el = document.getElementById('memBoom');
   if(!f || !el) return;
   if(ui.memBoomDone === f.id){ el.classList.add('done'); return; }
-  if(ui.memBoomPlaying === f.id){ el.classList.add('play'); return; }
+  if(ui.memBoomPlaying === f.id){
+    // 整頁重繪會拆掉節點，CSS 動畫無法接續 → 定格在一捧土，不重播
+    ui.memBoomDone = f.id;
+    ui.memBoomPlaying = null;
+    clearTimeout(playMemorialBoom._t);
+    el.classList.remove('play');
+    el.classList.add('done');
+    return;
+  }
   ui.memBoomPlaying = f.id;
   if(prefersReduceMotion()){
     ui.memBoomDone = f.id; ui.memBoomPlaying = null;
@@ -3676,7 +3709,7 @@ function playMemorialBoom(){
     ui.memBoomDone = f.id;
     ui.memBoomPlaying = null;
     const node = document.getElementById('memBoom');
-    if(node) node.classList.add('done');
+    if(node){ node.classList.remove('play'); node.classList.add('done'); }
   }, 2100);
 }
 setInterval(heartbeat, 1000);
