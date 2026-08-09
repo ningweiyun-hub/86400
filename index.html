@@ -3384,6 +3384,17 @@ function sheetOnboarding(){
 /* 每一拍就地更新 hero：數字的字級/顏色/動態，以及引線燒到哪裡。
    不整段重畫 —— 重畫會讓火花與抖動的動畫每秒從頭開始。 */
 let lastStage = null;
+/* 數字的寬度跟著位數跳（19,800 是六個字符，7,800 只有五個），字級卻只跟著 p 一路長大。
+   兩者相乘在傍晚會撐破 hero，而 hero 是 overflow:hidden —— 於是最後一位被無聲切掉。
+   92 + p×22 仍然是目標字級；真的放不下時才依可用寬度收斂。不裁切優先於照字級。 */
+let lastFit = null;
+function fitHeroNum(num, target){
+  if(!num) return;
+  num.style.fontSize = target.toFixed(0) + 'px';
+  const avail = num.clientWidth, need = num.scrollWidth;
+  if(avail > 0 && need > avail)
+    num.style.fontSize = Math.max(44, Math.floor(target * avail / need)) + 'px';
+}
 function refreshHero(){
   const hero = document.getElementById('hero');
   if(!hero) return;
@@ -3407,7 +3418,6 @@ function refreshHero(){
     lastStage = key;
     const num = document.getElementById('cdNum');
     if(num){
-      num.style.fontSize = (92 + p*22).toFixed(0) + 'px';
       num.style.color = p > 0.45 ? 'var(--accent)' : 'var(--ink)';
       num.style.animation = heroAnim();
     }
@@ -3427,6 +3437,14 @@ function refreshHero(){
         if(/n-ember/.test(el.style.animation || '')) el.style.animation = 'none';
       });
     }
+  }
+
+  // 位數與字級是各自變動的，所以文字、目標字級或可用寬度一改就重新丈量（每秒最多一次）
+  const numFit = document.getElementById('cdNum');
+  if(numFit){
+    const target = 92 + p*22;
+    const fkey = numFit.textContent + '|' + target.toFixed(0) + '|' + numFit.clientWidth;
+    if(fkey !== lastFit){ lastFit = fkey; fitHeroNum(numFit, target); }
   }
 }
 
@@ -3487,6 +3505,9 @@ function render(){
   const sn = document.getElementById('spendName');
   if(sn && ui.focusSpend){ sn.focus(); ui.focusSpend = false; }
   bindShopRails();
+  // heroHtml() 寫進去的是目標字級；心跳要一秒後才到，先就地丈量一次免得首幀被切
+  lastFit = null;
+  refreshHero();
 }
 
 /* 商店貨架：觸控＝原生橫滑＋可點；滑鼠＝拖過閾值才捲，不 capture，避免點擊被吃掉 */
@@ -3853,6 +3874,11 @@ document.addEventListener('visibilitychange', () => {
   if(!document.hidden){ catchUpPetSettlement(); save(); render(); heartbeat(); }
 });
 window.addEventListener('pageshow', () => { catchUpPetSettlement(); save(); render(); heartbeat(); });
+// 轉向／視窗改變寬度後立刻重量一次，不然要等下一拍才收斂
+window.addEventListener('resize', () => {
+  const n = document.getElementById('cdNum');
+  if(n){ lastFit = null; fitHeroNum(n, 92 + pressure()*22); }
+});
 
 /* ── 9. PWA：manifest 與圖示都在執行時產生，維持單檔 ─────────────────── */
 function pwaBits(){

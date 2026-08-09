@@ -299,7 +299,7 @@ if (nightIntensity == off) p = 0</pre>
         <div style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:rgba(233,237,244,.5);line-height:1.95;margin-top:14px">已過 ≥ 95% · 約 22:48<br>~114px<br>n-shake .22s ±3px + n-breathe 1.1s</div>
       </div>
     </div>
-    <div style="font-size:13px;color:rgba(233,237,244,.55);margin-top:14px">數字尺寸為 92 + p×22 px；p &gt; 0.45 之後顏色由紙色翻成強調色。階段 2 與 3 是看 <b style="font-weight:500">p</b>，不是看已過時間——p &gt; 0.55 落在約 19:40，不是「已過 55%」所指的 13:12。只有階段 4 讀原始已過百分比，而且還要夜間強度是開的，所以那個開關會同時收掉抖動與階段 4 的文案。<span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px">prefers-reduced-motion</span>會讓階段 2–4 退回靜態，火花停格，掃描線整層移除。</div>
+    <div style="font-size:13px;color:rgba(233,237,244,.55);margin-top:14px">數字尺寸為 92 + p×22 px——這是<i>目標值</i>，不是保證。字符數是跳著減的（19,800 六個字符、7,800 五個），字級卻是平滑長大，所以在窄的機型上兩者會在傍晚一起到頂，數字撐破 hero。又因為 hero 是 <span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px">overflow:hidden</span>，結果不是版面爆開，而是無聲切掉一位數；因此數字會對照 hero 寬度丈量，放不下就收斂：390pt 機型在 20:30 約 93px，430pt 機型仍是 106px。有空間時一律照原尺寸，深夜的 110–114px 不受影響。階段 2 與 3 是看 <b style="font-weight:500">p</b>，不是看已過時間——p &gt; 0.55 落在約 19:40，不是「已過 55%」所指的 13:12。只有階段 4 讀原始已過百分比，而且還要夜間強度是開的，所以那個開關會同時收掉抖動與階段 4 的文案。<span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px">prefers-reduced-motion</span>會讓階段 2–4 退回靜態，火花停格，掃描線整層移除。</div>
   </div>
 
   <!-- 04 THE FUSE -->

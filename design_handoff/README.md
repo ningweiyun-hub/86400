@@ -158,7 +158,7 @@ Everything below is a function of `p` — color, glow, type size, and which anim
 Derived surfaces: hero panel = background lightened `+0.02 + p*0.02` with chroma `×(1+p)`; tab bar = background darkened `-0.03`; sheets = background `+0.015`. Text is `#e9edf4` on dark, `#0b0f14` on neon fills. Glow: small `0 0 (4+p*14)px accent/(0.25+p*0.55)`, hero `0 0 (8+p*46)px accent/(0.2+p*0.7)`. Scanlines (1px black every 3px) at opacity `p*0.16`; a top vignette at `p*0.55`.
 
 ## The four countdown stages
-The number's size runs `92 + p*22` px (Chakra Petch 700, tabular-nums) and its color flips from paper to the accent past `p > 0.45`.
+The number's size runs `92 + p*22` px (Chakra Petch 700, tabular-nums) and its color flips from paper to the accent past `p > 0.45`. That size is a **target, not a guarantee**: glyph count drops in steps while the size grows smoothly, so on narrow phones the two peak together in the early evening and the number outgrows the hero. Since the hero is `overflow:hidden`, that shows up as a silently truncated digit rather than a broken layout, so the number is measured against the hero width and clamped when it will not fit. Fit wins over size; the late-day 110–114px is untouched wherever there is room.
 
 | Stage | Trigger | Number | Motion |
 | --- | --- | --- | --- |
