@@ -36,3 +36,13 @@ agent status         # must show authenticated
 Then in Open Design: Settings → select **Cursor** as agent (**Local CLI**). Open Design spawns `cursor-agent`; if status is unauthenticated you’ll see `AGENT_AUTH_REQUIRED` / “run `cursor-agent login`…”. Optional MCP wiring into Cursor Desktop: `od mcp install cursor` (Open Design’s `od`, not `/usr/bin/od`).
 
 Repo `design_handoff/*.dc.html` files are design-canvas HTML handoffs only — they do not auto-connect Open Design.
+
+### Branches
+
+`archive/DO-NOT-MERGE-*` branches are kept for reference only — **never merge them into `main`**.
+They were built on an older base and their changes have already been re-applied on top of current
+`main` in a separate PR. Merging one will conflict badly and can regress `sw.js` cache versions.
+
+This repo is worked on by several agents in parallel (Cursor Cloud, Claude Code). Always
+`git fetch` and branch from the latest `origin/main` before starting; a local `main` can be many
+commits behind without any local sign of it.

@@ -29,6 +29,7 @@
   --accent-tint:oklch(0.860 0.200 148 / 0.10);
   --on-accent:#0b0f14;
 
+  --ink-rgb:233,237,244;   /* 明暗共用的墨色三元組；applyPressure() 每拍依主題改寫 */
   --ink:#e9edf4;
   --ink-55:rgba(233,237,244,.55);
   --ink-48:rgba(233,237,244,.48);
@@ -72,11 +73,11 @@
 /* 迷彩／野戰：全畫面斑塊、掃描線、角標、警戒條 */
 html[data-skin="camo"] body{
   background-image:
-    radial-gradient(ellipse 58% 42% at 6% 10%, oklch(0.30 0.07 125 / .7), transparent 68%),
-    radial-gradient(ellipse 48% 52% at 94% 6%, oklch(0.20 0.055 70 / .65), transparent 70%),
-    radial-gradient(ellipse 62% 38% at 72% 92%, oklch(0.15 0.05 45 / .7), transparent 68%),
-    radial-gradient(ellipse 44% 34% at 18% 78%, oklch(0.26 0.06 110 / .55), transparent 68%),
-    radial-gradient(ellipse 36% 28% at 48% 42%, oklch(0.18 0.04 95 / .4), transparent 70%);
+    radial-gradient(ellipse 58% 42% at 6% 10%, var(--camo-a), transparent 68%),
+    radial-gradient(ellipse 48% 52% at 94% 6%, var(--camo-b), transparent 70%),
+    radial-gradient(ellipse 62% 38% at 72% 92%, var(--camo-c), transparent 68%),
+    radial-gradient(ellipse 44% 34% at 18% 78%, var(--camo-d), transparent 68%),
+    radial-gradient(ellipse 36% 28% at 48% 42%, var(--camo-e), transparent 70%);
 }
 html[data-skin="camo"] .scan{
   background:
@@ -87,9 +88,9 @@ html[data-skin="camo"] .scan{
 /* 商店分頁有獨立 chrome（.on-shop），迷彩邊框／底欄不要蓋過去 */
 html[data-skin="camo"] .app:not(.on-shop) .brand{
   letter-spacing:.18em;text-shadow:none;font-weight:700;
-  border:1px solid rgba(190,200,120,.45);padding:4px 9px 3px;
-  background:rgba(0,0,0,.35);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);
+  border:1px solid var(--camo-line);padding:4px 9px 3px;
+  background:var(--camo-plate);
+  box-shadow:inset 0 0 0 1px rgba(var(--ink-rgb),.10);
 }
 html[data-skin="camo"] .app:not(.on-shop) .brand::before{content:"◇ ";opacity:.75;letter-spacing:0}
 html[data-skin="camo"] .kicker,
@@ -105,16 +106,16 @@ html[data-skin="camo"] #hero{
   background-image:
     linear-gradient(90deg, rgba(190,200,120,.18) 0 2px, transparent 2px),
     linear-gradient(0deg, rgba(190,200,120,.12) 0 1px, transparent 1px),
-    radial-gradient(ellipse 42% 36% at 12% 28%, oklch(0.32 0.07 125 / .7), transparent 70%),
-    radial-gradient(ellipse 38% 40% at 78% 18%, oklch(0.22 0.055 85 / .65), transparent 72%),
-    radial-gradient(ellipse 50% 34% at 58% 78%, oklch(0.17 0.045 55 / .7), transparent 70%),
-    radial-gradient(ellipse 30% 28% at 30% 70%, oklch(0.28 0.06 110 / .55), transparent 70%);
+    radial-gradient(ellipse 42% 36% at 12% 28%, var(--camo-h1), transparent 70%),
+    radial-gradient(ellipse 38% 40% at 78% 18%, var(--camo-h2), transparent 72%),
+    radial-gradient(ellipse 50% 34% at 58% 78%, var(--camo-h3), transparent 70%),
+    radial-gradient(ellipse 30% 28% at 30% 70%, var(--camo-h4), transparent 70%);
   background-size:100% 100%, 100% 10px, auto, auto, auto, auto;
   border-color:rgba(190,200,120,.28) !important;
 }
 html[data-skin="camo"] .app:not(.on-shop) .tabs{
   border-top-color:rgba(190,200,120,.35);
-  background:linear-gradient(180deg, oklch(0.15 0.035 100 / .95), oklch(0.11 0.03 90 / .98));
+  background:linear-gradient(180deg, var(--camo-t1), var(--camo-t2));
 }
 html[data-skin="camo"] .app:not(.on-shop) .tabs button{
   letter-spacing:.06em;font-weight:600;text-transform:uppercase;font-size:9.5px;
@@ -286,10 +287,10 @@ html[data-lang="en"] .row .v{font-size:13.5px}
   width:100%;padding:6px 0;font:400 16px/1.5 var(--fb);outline:none;-webkit-appearance:none}
 .line:focus{border-bottom-color:var(--accent)}
 .chip{border:1px solid var(--hair-2);background:transparent;padding:7px 10px;
-  font:400 12px/1.2 var(--fb);color:rgba(233,237,244,.6);min-height:34px}
+  font:400 12px/1.2 var(--fb);color:rgba(var(--ink-rgb),.6);min-height:34px}
 .chip.on{border-color:var(--accent);background:var(--accent-tint);color:var(--accent-deep)}
-.sw{width:46px;height:24px;flex:none;border:1px solid rgba(233,237,244,.25);padding:2px;display:flex;background:transparent}
-.sw i{width:18px;height:18px;display:block;background:rgba(233,237,244,.2)}
+.sw{width:46px;height:24px;flex:none;border:1px solid rgba(var(--ink-rgb),.25);padding:2px;display:flex;background:transparent}
+.sw i{width:18px;height:18px;display:block;background:rgba(var(--ink-rgb),.2)}
 .sw.on{background:var(--accent);justify-content:flex-end;border-color:var(--accent)}
 .sw.on i{background:var(--bg)}
 .seg{display:flex;border:1px solid var(--hair-2)}
@@ -297,9 +298,9 @@ html[data-lang="en"] .row .v{font-size:13.5px}
 .seg button+button{border-left:1px solid var(--hair-2)}
 .seg button.on{background:var(--ink);color:var(--bg)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:12px;
-  padding:14px 0;border-top:1px solid rgba(233,237,244,.14)}
+  padding:14px 0;border-top:1px solid rgba(var(--ink-rgb),.14)}
 .row .k{font:400 13.5px/1.5 var(--fb)}
-.row .v{font:400 12.5px/1.5 var(--fb);color:rgba(233,237,244,.5);text-align:right}
+.row .v{font:400 12.5px/1.5 var(--fb);color:rgba(var(--ink-rgb),.5);text-align:right}
 .sechead{display:flex;justify-content:space-between;align-items:baseline;
   padding-bottom:8px;border-bottom:1px solid var(--hair-2)}
 
@@ -394,6 +395,9 @@ html[data-lang="en"] .row .v{font-size:13.5px}
 .app.on-shop .brand::before{content:none}
 .app.on-shop .date{color:rgba(234,242,238,.42)}
 .app.on-shop .langsw{border-color:rgba(255,255,255,.14)}
+/* 商店把 chrome 壓成固定深色，未選中的語言鍵原本沿用 var(--ink)，
+   淺色主題下就變成深字壓在近黑的列上。比照下面 .tabs button 給它自己的色。 */
+.app.on-shop .langsw button{color:rgba(234,242,238,.55)}
 .app.on-shop .langsw button.on{background:#35F0A0;color:#07090B}
 .app.on-shop .tabs{background:rgba(7,9,11,.92);border-top-color:rgba(255,255,255,.07)}
 .app.on-shop .tabs button{color:rgba(234,242,238,.38);letter-spacing:.06em;text-transform:none;font-size:9.5px;font-weight:500}
@@ -647,6 +651,8 @@ const T = {
   delete_all:      ['刪除全部資料','Delete all data'],
   confirm_delete:  ['刪除之後無法復原，確定嗎？','This cannot be undone. Delete everything?'],
   confirm_import:  ['匯入會覆蓋這台裝置上的現有資料，確定嗎？','Import will replace the data on this device. Continue?'],
+  load_broken:     ['讀不到這台裝置上的存檔，已經先開一份空白的。\n\n壞掉的原始資料沒有被刪除，留在瀏覽器裡的 86400.v1.broken，還有機會救回來——在覆蓋之前先匯出一份備份。',
+                    'The saved data on this device could not be read, so a blank one was started.\n\nThe damaged original was not deleted — it is kept in the browser as 86400.v1.broken and may still be recoverable. Export a backup before overwriting it.'],
   tab_today:       ['今天','Today'],
   tab_receipt:     ['收據','Receipt'],
   tab_insights:    ['洞察','Insights'],
@@ -931,6 +937,7 @@ const WD_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 /* ── 2. 狀態 ─────────────────────────────────────────────────────────── */
 const KEY = '86400.v1';
+const KEY_BROKEN = '86400.v1.broken';   // 讀不起來的存檔搬到這裡，不直接丟掉
 const DEFAULTS = {
   lang:'en', tab:'today', disp:'sec', tick:true, night:true,
   onboarded:false, wake:'07:00', sleep:'23:30',
@@ -999,12 +1006,19 @@ let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
            memBoomPlaying:null,
            auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 
+// 存檔壞掉時絕不無聲清空：原始字串先搬到 KEY_BROKEN 留著救，開機後再明講一次
+let loadFailed = false;
 function load(){
+  let raw = null;
   try{
-    const raw = localStorage.getItem(KEY);
+    raw = localStorage.getItem(KEY);
     if(!raw) return migrateState({});
     return migrateState(JSON.parse(raw));
-  }catch(e){ return migrateState({}); }
+  }catch(e){
+    try{ if(raw) localStorage.setItem(KEY_BROKEN, raw); }catch(e2){}
+    loadFailed = true;
+    return migrateState({});
+  }
 }
 function save(){
   // ?memorial=1 過場期間不寫存檔，避免 DEMO 污染 86400.v1
@@ -1100,7 +1114,20 @@ function applyPressure(){
   s.setProperty('--accent', ok(r.neon));
   s.setProperty('--accent-deep', ok(r.neon));
   s.setProperty('--accent-tint', ok(r.neon, (0.08 + p*0.12).toFixed(2)));
+    // accent 亮就配深字、accent 暗就配淺字。寫死成深字的話，淺色主題的
+    // 「中／EN」與實心按鈕會變成深字壓在深色 accent 上，糊成一團。
+    s.setProperty('--on-accent', r.neon[0] > 0.6 ? '#0b0f14' : '#f4f6f8');
+    // 迷彩的斑塊／鋼板以前寫死深色，淺色主題會整片蓋掉底色。改成從當前底色推導。
+    const blotch = (dL, C, H) => ok([Math.min(0.97, Math.max(0.05, r.bg[0] + (sk.light ? -dL : dL))), C, H]);
+    [['a',0.08,0.070,125],['b',-0.02,0.055,70],['c',-0.07,0.050,45],
+     ['d',0.04,0.060,110],['e',-0.04,0.040,95],['h1',0.10,0.070,125],['h2',0.00,0.055,85],
+     ['h3',-0.05,0.045,55],['h4',0.06,0.060,110],['t1',-0.07,0.035,100],['t2',-0.11,0.030,90]
+    ].forEach(([k,dL,C,H]) => s.setProperty('--camo-'+k, blotch(dL,C,H)));
+    s.setProperty('--camo-line', sk.light ? 'rgba(74,80,40,.45)' : 'rgba(190,200,120,.45)');
+    s.setProperty('--camo-plate', sk.light ? 'rgba(255,255,255,.45)' : 'rgba(0,0,0,.35)');
   if(sk.light){
+    // 畫面各處需要自訂透明度的地方一律用 rgba(var(--ink-rgb),X)，才會跟著明暗翻轉
+    s.setProperty('--ink-rgb', '28,26,23');
     s.setProperty('--ink', '#1c1a17');
     s.setProperty('--ink-55', 'rgba(28,26,23,.55)');
     s.setProperty('--ink-48', 'rgba(28,26,23,.48)');
@@ -1112,6 +1139,7 @@ function applyPressure(){
     s.setProperty('--on-dark', '#1c1a17');
     s.setProperty('--field', ok([Math.max(0.88, r.bg[0]-0.06), r.bg[1], r.bg[2]]));
   }else{
+    s.setProperty('--ink-rgb', '233,237,244');
     s.setProperty('--ink', '#e9edf4');
     s.setProperty('--ink-55', 'rgba(233,237,244,.55)');
     s.setProperty('--ink-48', 'rgba(233,237,244,.48)');
@@ -1353,10 +1381,17 @@ function exportBackup(){
 function migrateState(raw){
   const s = Object.assign(JSON.parse(JSON.stringify(DEFAULTS)), raw || {});
   s.notif = Object.assign({}, DEFAULTS.notif, s.notif || {});
-  if(typeof s.days !== 'object' || !s.days) s.days = {};
-  Object.keys(s.days).forEach(k => (s.days[k].blocks || []).forEach(b => {
-    if(b.startedAt === undefined) b.startedAt = b.startAt;
-  }));
+  if(typeof s.days !== 'object' || !s.days || Array.isArray(s.days)) s.days = {};
+  // 壞掉的一天只丟那一天，不能連累整份存檔（以前這裡會丟例外，load() 就整個清空）
+  Object.keys(s.days).forEach(k => {
+    const day = s.days[k];
+    if(!day || typeof day !== 'object' || Array.isArray(day)){ delete s.days[k]; return; }
+    if(!Array.isArray(day.blocks)) day.blocks = [];
+    if(!Array.isArray(day.tomorrow)) day.tomorrow = [];
+    if(!day.anchor || typeof day.anchor !== 'object') day.anchor = { text:'', state:'doing' };
+    day.blocks = day.blocks.filter(b => b && typeof b === 'object');
+    day.blocks.forEach(b => { if(b.startedAt === undefined) b.startedAt = b.startAt; });
+  });
   if(s.active){ s.activeId = s.active.id; delete s.active; }
   if(typeof s.night !== 'boolean') s.night = true;
   // 缺值／壞值才回遊客開局額；不抬既有餘額
@@ -1594,6 +1629,16 @@ function fuseFallbackPetId(){
     return id;
   }
   return null;
+}
+// 補算舊日子時 endedOn 是過去的日期，新陪伴要從「牠死掉的隔天」算起，
+// 不能用 dayKey()，否則紀念卡會出現開始日期晚於結束日期
+function nextDayKey(k){
+  const [y,m,d] = String(k).split('-').map(Number);
+  if(!y || !m || !d) return dayKey();
+  const dt = new Date(y, m-1, d);
+  dt.setDate(dt.getDate() + 1);
+  const nk = dayKey(dt);
+  return nk > dayKey() ? dayKey() : nk;      // 不會排到未來
 }
 function startFuseFallback(onDay){
   const id = fuseFallbackPetId() || 'bomb';
@@ -1850,7 +1895,7 @@ function explodeCompanion(endedOn){
     S.pendingMemorialId = entry.id;
   }
   // 寵物仍在 ownedPets；引線換到沒有復活閘的角色（炸彈自己死了就不要再放回去）
-  startFuseFallback(dayKey());
+  startFuseFallback(nextDayKey(endK));
   showPetToast(tFill('pet_blown_note', {name}));
 }
 /* 這個區塊到 at 為止，計畫時間是否已經跑完 */
@@ -2118,12 +2163,12 @@ function fuseBombVisual(p, out, r, tip, shell){
   const anim = out ? 'n-rattle .22s linear infinite' : p > 0.75 ? 'n-bombpulse 1.4s ease-in-out infinite' : 'none';
   if(pet.id === 'bomb'){
     return '<div id="fuseBomb" style="flex:none;width:22px;height:22px;position:relative;animation:'+anim+'">'
-      + '<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(233,237,244,'+(0.34+p*0.2).toFixed(2)+')"></div>'
+      + '<div style="position:absolute;right:-8px;top:9px;width:10px;height:4px;background:rgba(var(--ink-rgb),'+(0.34+p*0.2).toFixed(2)+')"></div>'
       + '<div style="position:absolute;left:1px;top:1px;width:20px;height:20px;border-radius:50%;'
       +   'background:radial-gradient(circle at 34% 32%, '+ok([r.bg[0]+0.1,r.bg[1],r.bg[2]])+', '+shell+' 75%);'
       +   'border:1px solid '+tip+';'
       +   'box-shadow:inset 0 -3px 6px rgba(0,0,0,.7), 0 0 '+(6+p*22+(out?18:0)).toFixed(0)+'px '+ok(r.neon,(0.15+p*0.6).toFixed(2))+'"></div>'
-      + '<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(233,237,244,.26)"></div>'
+      + '<div style="position:absolute;left:6px;top:6px;width:4px;height:4px;border-radius:50%;background:rgba(var(--ink-rgb),.26)"></div>'
       + '</div>';
   }
   // 其他角色：emoji 佔位，仍接在引線左端
@@ -2249,7 +2294,7 @@ function anchorChip(mode){
     return '<div style="'+base+'border:1px solid var(--accent);color:var(--accent-deep)">'+txt+'</div>';
   return '<div id="anchorStatus" style="font:400 10px/1 var(--fb);flex:none;color:'
     + (ui.anchorDraft !== null && ui.anchorDraft !== today().anchor.text
-        ? 'var(--accent-deep)' : 'rgba(233,237,244,.45)')+'">'+txt+'</div>';
+        ? 'var(--accent-deep)' : 'rgba(var(--ink-rgb),.45)')+'">'+txt+'</div>';
 }
 // 文字左邊的狀態方塊：空框 / 打勾 / 劃掉
 function anchorMark(mode){
@@ -2260,8 +2305,8 @@ function anchorMark(mode){
       + '<span style="font:400 11px/1 var(--fb);color:var(--bg)">✓</span></div>';
   if(mode === 'dropped')
     return '<div style="'+box+'border:1px solid var(--hair)">'
-      + '<span style="width:8px;height:1px;background:rgba(233,237,244,.42);display:block"></span></div>';
-  return '<div style="'+box+'border:1px solid rgba(233,237,244,.35)"></div>';
+      + '<span style="width:8px;height:1px;background:rgba(var(--ink-rgb),.42);display:block"></span></div>';
+  return '<div style="'+box+'border:1px solid rgba(var(--ink-rgb),.35)"></div>';
 }
 function anchorHtml(){
   const a = today().anchor;
@@ -2270,7 +2315,7 @@ function anchorHtml(){
 
   // 卡片本身也跟著狀態變：完成是淡藍底，不再重要整張退到背景去
   const skin = mode === 'done'    ? 'background:var(--accent-tint);border-color:var(--accent)'
-             : mode === 'dropped' ? 'background:transparent;border-color:rgba(233,237,244,.10)'
+             : mode === 'dropped' ? 'background:transparent;border-color:rgba(var(--ink-rgb),.10)'
              : 'background:transparent';
   const head = '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'
     + '<div class="kicker" style="padding-top:2px">TODAY ANCHOR</div>' + anchorChip(mode) + '</div>';
@@ -2278,7 +2323,7 @@ function anchorHtml(){
   let body, actions, foot = '';
   if(mode === 'edit'){
     const shown = ui.anchorDraft !== null ? ui.anchorDraft : a.text;
-    body = '<div style="font:400 11.5px/1.55 var(--fb);color:rgba(233,237,244,.5);margin-top:10px">'+esc(t('anchor_q'))+'</div>'
+    body = '<div style="font:400 11.5px/1.55 var(--fb);color:rgba(var(--ink-rgb),.5);margin-top:10px">'+esc(t('anchor_q'))+'</div>'
       + '<input id="anchorInput" class="line" style="font:500 18px/1.4 var(--fb);margin-top:8px" '
       + 'placeholder="'+esc(t('anchor_ph'))+'" value="'+esc(shown)+'">';
     actions = '<button id="anchorSave" class="btn'+(dirty?' btn-fill':'')+'" data-act="anchor-save" '
@@ -2295,14 +2340,14 @@ function anchorHtml(){
     if(mode === 'doing'){
       actions = '<button class="btn" data-act="anchor-done" style="font-size:12px">'+esc(t('mark_done'))+'</button>'
         + '<button class="btn btn-ghost" data-act="anchor-drop" style="font-size:12px">'+esc(t('drop'))+'</button>'
-        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(233,237,244,.5)">'+esc(t('anchor_edit'))+'</button>';
+        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(var(--ink-rgb),.5)">'+esc(t('anchor_edit'))+'</button>';
       foot = '<div class="foot" style="margin-top:9px">'+esc(t('anchor_foot'))+'</div>';
     }else if(mode === 'done'){
       actions = '<button class="btn btn-ghost" data-act="anchor-done" style="font-size:12px">'+esc(t('mark_undone'))+'</button>'
-        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(233,237,244,.5)">'+esc(t('anchor_edit'))+'</button>';
+        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(var(--ink-rgb),.5)">'+esc(t('anchor_edit'))+'</button>';
     }else{
       actions = '<button class="btn btn-ghost" data-act="anchor-drop" style="font-size:12px">'+esc(t('restore'))+'</button>'
-        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(233,237,244,.5)">'+esc(t('anchor_edit'))+'</button>';
+        + '<button class="btn btn-ghost" data-act="anchor-edit" style="font-size:12px;margin-left:auto;color:rgba(var(--ink-rgb),.5)">'+esc(t('anchor_edit'))+'</button>';
     }
   }
   return '<div class="blueprint" style="margin-top:26px;padding:15px 15px 13px;'+skin+'">' + corners()
@@ -2338,20 +2383,20 @@ function activeHtml(){
   const total = Math.max(1, Math.round((a.endAt - a.startedAt)/1000));
   const w = ((total - remain)/total*100).toFixed(2);
   return '<div class="blueprint" id="activeCard" style="margin-top:26px;padding:16px;background:var(--field);'
-    + 'color:var(--on-dark);border-color:rgba(233,237,244,.28)">' + corners('rgba(233,237,244,.5)')
+    + 'color:var(--on-dark);border-color:rgba(var(--ink-rgb),.28)">' + corners('rgba(var(--ink-rgb),.5)')
     + '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
     + '<div style="font:600 10px/1 var(--fh);letter-spacing:.18em;text-transform:uppercase;color:var(--on-dark-accent)">'+esc(t('st_doing'))+'</div>'
-    + '<div style="font:400 10px/1 var(--fb);color:rgba(233,237,244,.55)">'+esc(catName(a.cat))+' · '+clock(a.endAt)+'</div></div>'
+    + '<div style="font:400 10px/1 var(--fb);color:rgba(var(--ink-rgb),.55)">'+esc(catName(a.cat))+' · '+clock(a.endAt)+'</div></div>'
     + '<div style="font:500 19px/1.35 var(--fb);margin-top:9px">'+esc(a.name)+'</div>'
     + '<div style="display:flex;align-items:flex-end;gap:8px;margin-top:12px">'
     + '<div id="acNum" class="num" style="font:600 46px/.86 var(--fh)">'+comma(remain)+'</div>'
-    + '<div style="font:400 11px/1 var(--fb);color:rgba(233,237,244,.6);padding-bottom:6px">'+esc(t('sec'))+'</div></div>'
-    + '<div style="height:1px;background:rgba(233,237,244,.25);margin-top:12px;position:relative">'
+    + '<div style="font:400 11px/1 var(--fb);color:rgba(var(--ink-rgb),.6);padding-bottom:6px">'+esc(t('sec'))+'</div></div>'
+    + '<div style="height:1px;background:rgba(var(--ink-rgb),.25);margin-top:12px;position:relative">'
     + '<div id="acBar" style="position:absolute;top:0;left:0;height:1px;background:var(--on-dark-accent);width:'+w+'%"></div></div>'
-    + '<div id="acLine" style="font:400 11px/1.6 var(--fb);color:rgba(233,237,244,.6);margin-top:10px">'+esc(activeLine())+'</div>'
+    + '<div id="acLine" style="font:400 11px/1.6 var(--fb);color:rgba(var(--ink-rgb),.6);margin-top:10px">'+esc(activeLine())+'</div>'
     + '<div style="display:flex;gap:8px;margin-top:13px">'
     + '<button data-act="end-early" style="flex:1;background:var(--on-dark);color:var(--field);border:none;padding:12px 0;font:600 12.5px var(--fh);letter-spacing:.04em">'+esc(t('end_early'))+'</button>'
-    + '<button data-act="extend" style="flex:1;background:transparent;color:var(--on-dark);border:1px solid rgba(233,237,244,.4);padding:12px 0;font:600 12.5px var(--fh);letter-spacing:.04em">'+esc(t('extend15'))+'</button></div></div>';
+    + '<button data-act="extend" style="flex:1;background:transparent;color:var(--on-dark);border:1px solid rgba(var(--ink-rgb),.4);padding:12px 0;font:600 12.5px var(--fh);letter-spacing:.04em">'+esc(t('extend15'))+'</button></div></div>';
 }
 function activeLine(){
   const a = activeBlock(); if(!a) return '';
@@ -2369,7 +2414,7 @@ function namedListHtml(){
     rows = st.done.slice().sort((a,b)=>a.startedAt-b.startedAt).map(b => {
       const dur = blockDur(b);
       const wl  = b.worth ? t(b.worth) : '';
-      const wc  = b.worth === 'w_v' ? 'var(--accent-deep)' : 'rgba(233,237,244,.45)';
+      const wc  = b.worth === 'w_v' ? 'var(--accent-deep)' : 'rgba(var(--ink-rgb),.45)';
       return '<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--hair-3)">'
         + '<div style="width:5px;height:26px;flex:none;background:'+catTone(b.cat)+'"></div>'
         + '<div style="flex:1;min-width:0">'
@@ -2386,9 +2431,9 @@ function namedListHtml(){
     + '<div class="num" style="font:600 14px/1 var(--fh)">'+hmDur(st.named)+'</div></div>'
     + rows
     + '<div style="display:flex;align-items:center;gap:11px;padding:11px 0">'
-    + '<div style="width:5px;height:26px;flex:none;background:rgba(233,237,244,.09)"></div>'
+    + '<div style="width:5px;height:26px;flex:none;background:rgba(var(--ink-rgb),.09)"></div>'
     + '<div style="flex:1"><div style="font:500 13.5px/1.35 var(--fb);color:var(--ink-55)">'+esc(t('unnamed'))+'</div>'
-    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(233,237,244,.4)">'+esc(t('unnamed_sub'))+'</div></div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(var(--ink-rgb),.4)">'+esc(t('unnamed_sub'))+'</div></div>'
     + '<div id="unnamedVal" class="num" style="font:600 14px/1 var(--fh);color:var(--ink-55)">'+hmDur(st.unnamed)+'</div></div></div>';
 }
 /* 已排定但還沒開始的小區塊 */
@@ -2407,7 +2452,7 @@ function upcomingHtml(){
       +   (late ? ' · '+esc(t('waiting_prev')) : '')+'</div></div>'
       + '<div style="display:flex;gap:6px;flex:none">'
       + '<button class="btn" data-act="start-now" data-id="'+b.id+'" style="font-size:11.5px;padding:7px 9px;min-height:34px">'+esc(t('start_now'))+'</button>'
-      + '<button class="btn btn-ghost" data-act="drop-block" data-id="'+b.id+'" style="font-size:11.5px;padding:7px 4px;min-height:34px;color:rgba(233,237,244,.45)">'+esc(t('remove'))+'</button>'
+      + '<button class="btn btn-ghost" data-act="drop-block" data-id="'+b.id+'" style="font-size:11.5px;padding:7px 4px;min-height:34px;color:rgba(var(--ink-rgb),.45)">'+esc(t('remove'))+'</button>'
       + '</div></div>';
   }).join('');
   return '<div style="margin-top:26px">'
@@ -2441,14 +2486,14 @@ function receiptCard(k){
     const w = st.named ? (st.byCat[c]/st.named*100) : 0;
     return '<div style="display:flex;align-items:center;gap:9px;padding:3px 0">'
       + '<div style="width:58px;flex:none;font:400 11.5px/1.5 var(--fb);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(catName(c))+'</div>'
-      + '<div style="flex:1;height:7px;background:rgba(233,237,244,.06)"><div style="height:7px;background:'+catTone(c)+';width:'+w.toFixed(1)+'%"></div></div>'
-      + '<div class="num" style="width:52px;text-align:right;font:400 11px/1.5 var(--fb);color:rgba(233,237,244,.6);flex:none">'+minDur(st.byCat[c])+'</div></div>';
+      + '<div style="flex:1;height:7px;background:rgba(var(--ink-rgb),.06)"><div style="height:7px;background:'+catTone(c)+';width:'+w.toFixed(1)+'%"></div></div>'
+      + '<div class="num" style="width:52px;text-align:right;font:400 11px/1.5 var(--fb);color:rgba(var(--ink-rgb),.6);flex:none">'+minDur(st.byCat[c])+'</div></div>';
   }).join('') || '<div class="foot">'+esc(t('named_empty'))+'</div>';
 
   const worthCells = WORTHS.map((w,i) => {
     const n = st.counts[w];
     return '<div style="flex:'+(i===0?2:1)+';text-align:center;border:1px solid var(--hair);padding:7px 2px;min-width:0">'
-      + '<div class="num" style="font:600 17px/1 var(--fh)'+(n?'':';color:rgba(233,237,244,.35)')+'">'+n+'</div>'
+      + '<div class="num" style="font:600 17px/1 var(--fh)'+(n?'':';color:rgba(var(--ink-rgb),.35)')+'">'+n+'</div>'
       + '<div style="font:400 9.5px/1.4 var(--fb);color:var(--ink-55)">'+esc(t(w))+'</div></div>';
   }).join('');
 
@@ -2459,27 +2504,27 @@ function receiptCard(k){
     + 'style="font-size:11px;padding:6px 9px">'+esc(catName(c))+'</button>').join('');
 
   return '<div style="background:var(--sheet-bg);border:1px solid var(--hair-2);box-shadow:var(--glow-box);padding:20px 18px;margin-top:14px">'
-    + '<div style="text-align:center;border-bottom:1px dashed rgba(233,237,244,.3);padding-bottom:14px">'
-    + '<div style="font:400 10px/1.4 var(--fb);letter-spacing:.2em;color:rgba(233,237,244,.5)">'+esc(t(isToday?'received_today':'received_day'))+'</div>'
+    + '<div style="text-align:center;border-bottom:1px dashed rgba(var(--ink-rgb),.3);padding-bottom:14px">'
+    + '<div style="font:400 10px/1.4 var(--fb);letter-spacing:.2em;color:rgba(var(--ink-rgb),.5)">'+esc(t(isToday?'received_today':'received_day'))+'</div>'
     + '<div class="num" style="font:600 44px/1 var(--fh);margin-top:4px">86,400</div>'
-    + '<div style="font:400 10.5px/1.4 var(--fb);color:rgba(233,237,244,.5);margin-top:4px">'+esc(dateFull(k))+'</div></div>'
+    + '<div style="font:400 10.5px/1.4 var(--fb);color:rgba(var(--ink-rgb),.5);margin-top:4px">'+esc(dateFull(k))+'</div></div>'
 
-    + '<div class="num" style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
+    + '<div class="num" style="padding:12px 0;border-bottom:1px dashed rgba(var(--ink-rgb),.3)">'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb)"><span>'+esc(t(isToday?'elapsed_today':'elapsed_day'))+'</span><span>'+comma(st.passed)+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb)"><span>'+esc(t(isToday?'left_plain':'left_day'))+'</span><span id="rcLeft">'+comma(isToday?secLeft():0)+'</span></div></div>'
 
-    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
+    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(var(--ink-rgb),.3)">'
     + '<div class="kicker-s">TODAY ANCHOR</div>'
     + '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:6px;font:500 13.5px/1.5 var(--fb)">'
-    + '<span>'+esc(anchorTxt)+'</span><span style="flex:none;color:rgba(233,237,244,.5);font-weight:400">'+esc(anchorSt)+'</span></div></div>'
+    + '<span>'+esc(anchorTxt)+'</span><span style="flex:none;color:rgba(var(--ink-rgb),.5);font-weight:400">'+esc(anchorSt)+'</span></div></div>'
 
-    + '<div class="num" style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
+    + '<div class="num" style="padding:12px 0;border-bottom:1px dashed rgba(var(--ink-rgb),.3)">'
     + '<div style="display:flex;justify-content:space-between;font:500 12.5px/1.9 var(--fb)"><span>'+esc(t('named_time'))+'</span><span>'+hmDur(st.named)+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb);color:var(--ink-55)"><span>'+esc(t('unnamed'))+'</span><span id="rcUnnamed">'+hmDur(st.unnamed)+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;font:400 12.5px/1.9 var(--fb);color:var(--ink-55)"><span>'+esc(t('times_named'))+'</span><span>'+st.done.length+'</span></div></div>'
 
     + (st.done.length
-        ? '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
+        ? '<div style="padding:12px 0;border-bottom:1px dashed rgba(var(--ink-rgb),.3)">'
           + '<div class="kicker-s" style="margin-bottom:8px">'+esc(t('named_time'))+'</div>'
           + st.done.slice().sort((a,b)=>a.startedAt-b.startedAt).map(b =>
               '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;font:400 12.5px/1.5 var(--fb)">'
@@ -2492,10 +2537,10 @@ function receiptCard(k){
           + '</div>'
         : '')
 
-    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
+    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(var(--ink-rgb),.3)">'
     + '<div class="kicker-s" style="margin-bottom:9px">'+esc(t('by_category'))+'</div>' + catRows + '</div>'
 
-    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(233,237,244,.3)">'
+    + '<div style="padding:12px 0;border-bottom:1px dashed rgba(var(--ink-rgb),.3)">'
     + '<div class="kicker-s" style="margin-bottom:8px">'+esc(t('worth_dist'))+'</div>'
     + '<div style="display:flex;gap:6px">'+worthCells+'</div></div>'
 
@@ -2525,7 +2570,7 @@ function screenReceipt(){
       + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-48);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
       +   esc(d.anchor.text || t('no_anchor'))+'</div></div>'
       + '<div style="text-align:right;flex:none"><div class="num" style="font:600 13px/1 var(--fh)">'+hmDur(s.named)+'</div>'
-      + '<div style="font:400 10px/1.5 var(--fb);color:rgba(233,237,244,.45)">'+esc(note)+'</div></div></button>';
+      + '<div style="font:400 10px/1.5 var(--fb);color:rgba(var(--ink-rgb),.45)">'+esc(note)+'</div></div></button>';
   }).join('') : '<div class="foot" style="padding:14px 0">'+esc(t('past_none'))+'</div>';
 
   return '<div style="padding:16px 0 4px;display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
@@ -2558,10 +2603,10 @@ function screenInsights(){
     const lbl = EN() ? WD_EN[d.getDay()] : WD_ZH[d.getDay()];
     const tone = isToday ? 'var(--accent)'
       : s.named ? ok(ramp(pressure()).neon, s.named > maxNamed*0.6 ? '0.7' : '0.4')
-      : 'rgba(233,237,244,.14)';
+      : 'rgba(var(--ink-rgb),.14)';
     return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0">'
       + '<div style="width:100%;height:'+Math.max(3,h)+'px;background:'+tone+'"></div>'
-      + '<span style="font:'+(isToday?'600':'400')+' 10px/1 var(--fb);color:'+(isToday?'var(--ink)':'rgba(233,237,244,.5)')+'">'+esc(lbl)+'</span></div>';
+      + '<span style="font:'+(isToday?'600':'400')+' 10px/1 var(--fb);color:'+(isToday?'var(--ink)':'rgba(var(--ink-rgb),.5)')+'">'+esc(lbl)+'</span></div>';
   }).join('');
 
   // 「很值得」比例：以類別為單位
@@ -2577,7 +2622,7 @@ function screenInsights(){
     const pct = Math.round(agg[c].v/agg[c].n*100);
     return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0">'
       + '<div style="width:52px;flex:none;font:400 12px/1.5 var(--fb);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(catName(c))+'</div>'
-      + '<div style="flex:1;height:9px;background:rgba(233,237,244,.06)"><div style="height:9px;width:'+pct+'%;background:'+shareTone(i)+'"></div></div>'
+      + '<div style="flex:1;height:9px;background:rgba(var(--ink-rgb),.06)"><div style="height:9px;width:'+pct+'%;background:'+shareTone(i)+'"></div></div>'
       + '<div class="num" style="width:36px;text-align:right;font:600 11.5px/1 var(--fh)">'+pct+'%</div></div>';
   }).join('') || '<div class="foot" style="padding:6px 0">'+esc(t('week_empty'))+'</div>';
 
@@ -2588,7 +2633,7 @@ function screenInsights(){
   const momentRows = moments.slice(0,3).map(m =>
     '<div style="padding:12px 0;border-bottom:1px solid var(--hair-3)">'
     + '<div style="font:400 13.5px/1.6 var(--fb)">「'+esc(m.b.note)+'」</div>'
-    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(233,237,244,.45);margin-top:4px">'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(var(--ink-rgb),.45);margin-top:4px">'
     +   esc(dateShort(m.k)) + ' · ' + esc(catName(m.b.cat)) + ' · '
     +   minDur(blockDur(m.b)) + '</div></div>').join('')
     || '<div class="foot" style="padding:12px 0">'+esc(t('three_none'))+'</div>';
@@ -2600,13 +2645,13 @@ function screenInsights(){
   const range = dateShort(keys[0]) + ' — ' + dateShort(keys[6]);
 
   return '<div style="padding:16px 0 0"><div class="h-screen">'+esc(t('week'))+'</div>'
-    + '<div style="font:400 11px/1.5 var(--fb);color:rgba(233,237,244,.5);margin-top:4px">'+esc(range)+'</div></div>'
+    + '<div style="font:400 11px/1.5 var(--fb);color:rgba(var(--ink-rgb),.5);margin-top:4px">'+esc(range)+'</div></div>'
     + '<div class="blueprint" style="margin-top:18px;padding:16px 14px 12px">' + corners()
     + '<div class="kicker">'+esc(t('named_each_day'))+'</div>'
     + '<div style="display:flex;align-items:flex-end;gap:9px;height:126px;margin-top:14px">'+bars+'</div></div>'
     + '<div style="display:flex;gap:10px;margin-top:14px">'
     + '<div style="flex:1;border:1px solid var(--hair);padding:13px"><div class="num" style="font:600 30px/1 var(--fh)">'+anchorDone
-    +   '<span style="font-size:15px;color:rgba(233,237,244,.45)">/7</span></div>'
+    +   '<span style="font-size:15px;color:rgba(var(--ink-rgb),.45)">/7</span></div>'
     + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-55);margin-top:5px">'+esc(t('anchor_days'))+'</div></div>'
     + '<div style="flex:1;border:1px solid var(--hair);padding:13px"><div class="num" style="font:600 30px/1 var(--fh)">'+hmDur(totalNamed)+'</div>'
     + '<div style="font:400 10.5px/1.5 var(--fb);color:var(--ink-55);margin-top:5px">'+esc(t('named_total'))+'</div></div></div>'
@@ -2668,7 +2713,7 @@ function screenSettings(){
         '<button class="chip'+(S.memorialForm===id?' on':'')+'" data-act="mem-form" data-v="'+id+'">'+esc(t(lbl))+'</button>').join('')
     + '</div></div>'
 
-    + '<div style="padding:14px 0;border-top:1px solid rgba(233,237,244,.14)">'
+    + '<div style="padding:14px 0;border-top:1px solid rgba(var(--ink-rgb),.14)">'
     + '<div style="font:400 13.5px/1.5 var(--fb);margin-bottom:10px">'+esc(t('display'))+'</div>'
     + '<div class="seg">'
     + ['sec','hms','hm'].map(m => '<button data-act="disp" data-v="'+m+'"'+(S.disp===m?' class="on"':'')+'>'+esc(t('d_'+m))+'</button>').join('')
@@ -2679,7 +2724,7 @@ function screenSettings(){
     + swHtml(S.night,'night') + '</div>'
 
     + '<div class="row"><div><div class="k">'+esc(t('ticking'))+'</div>'
-    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(233,237,244,.45)">'+esc(t('ticking_sub'))+'</div></div>'
+    + '<div style="font:400 10.5px/1.5 var(--fb);color:rgba(var(--ink-rgb),.45)">'+esc(t('ticking_sub'))+'</div></div>'
     + swHtml(S.tick,'tick') + '</div>'
 
     + '<div class="row" style="cursor:pointer" data-act="cats-open"><span class="k">'+esc(t('cats_row'))+'</span>'
@@ -2687,13 +2732,13 @@ function screenSettings(){
     + (ui.catsOpen ? '<div style="padding:0 0 14px"><div class="foot" style="margin-bottom:9px">'+esc(t('cats_hint'))+'</div>'
         + '<div style="display:flex;gap:7px;flex-wrap:wrap">'+catChips+'</div></div>' : '')
 
-    + '<div style="padding:16px 0 6px;border-top:1px solid rgba(233,237,244,.14)">'
+    + '<div style="padding:16px 0 6px;border-top:1px solid rgba(var(--ink-rgb),.14)">'
     + '<div class="kicker">'+esc(t('notif'))+'</div>'
     + '<div class="foot" style="margin-top:6px">'+esc(t('notif_sub'))+'</div>'
     + '<div class="foot" style="margin-top:2px">'+esc(t('notif_web'))+'</div>'
     + [['wake','n_wake'],['three','n_3h'],['sleep','n_sleep'],['rite','n_rite']].map(([k,lbl]) =>
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0">'
-        + '<span style="font:400 12.5px/1.5 var(--fb)'+(S.notif[k]?'':';color:rgba(233,237,244,.5)')+'">'+esc(t(lbl))+'</span>'
+        + '<span style="font:400 12.5px/1.5 var(--fb)'+(S.notif[k]?'':';color:rgba(var(--ink-rgb),.5)')+'">'+esc(t(lbl))+'</span>'
         + swHtml(S.notif[k],'notif:'+k) + '</div>').join('')
     + '</div>'
 
@@ -2708,7 +2753,7 @@ function screenSettings(){
           + '<input id="importFile" type="file" accept="application/json,.json" hidden>'
           + '<button class="btn btn-wide" data-act="demo" style="margin-top:8px">'+esc(S.demo ? t('demo_off') : t('demo_on'))+'</button>'
           + '<button class="btn btn-wide" data-act="redo-ob" style="margin-top:8px">'+esc(t('redo_ob'))+'</button>'
-          + '<button class="btn btn-wide btn-ghost" data-act="wipe" style="margin-top:8px;color:rgba(233,237,244,.5)">'+esc(t('delete_all'))+'</button>'
+          + '<button class="btn btn-wide btn-ghost" data-act="wipe" style="margin-top:8px;color:rgba(var(--ink-rgb),.5)">'+esc(t('delete_all'))+'</button>'
           + '</div>'
         : '')
     + '<div class="foot" style="margin-top:18px">'+esc(t('install_hint'))+'</div>';
@@ -2776,9 +2821,9 @@ function sheetSpend(){
     + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">'+catChips+'</div></div>'
     + whenBlock
     + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;padding:13px 0;'
-    + 'border-top:1px solid rgba(233,237,244,.14);border-bottom:1px solid rgba(233,237,244,.14)">'
+    + 'border-top:1px solid rgba(var(--ink-rgb),.14);border-bottom:1px solid rgba(var(--ink-rgb),.14)">'
     + '<span style="font:400 13px/1.5 var(--fb)">'+esc(t('link_anchor'))+'</span>' + swHtml(sp.link,'spend-link') + '</div>'
-    + '<div id="spendPreview" style="font:400 13.5px/1.8 var(--fb);color:rgba(233,237,244,.72);margin-top:18px">'
+    + '<div id="spendPreview" style="font:400 13.5px/1.8 var(--fb);color:rgba(var(--ink-rgb),.72);margin-top:18px">'
     +   spendPreviewHtml()+'</div>'
     + '<button id="spendStartBtn" class="btn btn-fill btn-wide" data-act="start" style="margin-top:18px">'
     +   esc(later ? t('schedule_btn') : t('start'))+'</button>'
@@ -2822,11 +2867,11 @@ function sheetWorth(){
   return '<div class="scrim" style="z-index:85"><div class="sheet" data-stop="1">'
     + '<div class="kicker">WORTH IT</div>'
     + '<div style="font:400 20px/1.45 var(--fb);margin-top:12px">'+esc(t('worth_title'))+'</div>'
-    + '<div style="font:400 11.5px/1.6 var(--fb);color:rgba(233,237,244,.5);margin-top:6px">'+esc(subject)+'</div>'
+    + '<div style="font:400 11.5px/1.6 var(--fb);color:rgba(var(--ink-rgb),.5);margin-top:6px">'+esc(subject)+'</div>'
     + '<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">'+opts+'</div>'
     + '<div style="margin-top:16px"><div class="kicker">'+esc(t('worth_note'))+'</div>'
     + '<input id="worthNote" class="line" style="font-size:15px;margin-top:8px" value="'+esc(ui.worth.note)+'"></div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;padding:13px 0;border-top:1px solid rgba(233,237,244,.14)">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;padding:13px 0;border-top:1px solid rgba(var(--ink-rgb),.14)">'
     + '<span style="font:400 13px/1.5 var(--fb)">'+esc(t('worth_again'))+'</span>' + swHtml(ui.worth.again,'worth-again') + '</div>'
     + '<div style="display:flex;gap:8px;margin-top:14px">'
     + '<button class="btn" data-act="worth-skip" style="flex:1;padding:15px 0;font-size:13px">'+esc(t('skip'))+'</button>'
@@ -2863,7 +2908,7 @@ function skinPreview(sk){
           + 'radial-gradient(34px 22px at 68% 20%,'+ok([b[0]+0.03,b[1],110])+' 0 99%,transparent 100%),'
           + 'radial-gradient(32px 25px at 46% 80%,'+ok([b[0]+0.16,b[1]+0.03,100])+' 0 99%,transparent 100%),'
           + ok([b[0]+0.08,b[1]+0.02,105]);
-    ink = '#EDE9D6'; extra = 'text-shadow:0 1px 3px rgba(0,0,0,.5);';
+    ink = sk.light ? '#2B2A1C' : '#EDE9D6'; extra = 'text-shadow:0 1px 3px rgba(0,0,0,.5);';
   }else if(sk.light){
     bgCss = 'repeating-linear-gradient(0deg,transparent 0 15px,'+ok(a,'0.22')+' 15px 16px),'+ok(b);
     ink = ok(hot);
@@ -3435,23 +3480,33 @@ function tabBtn(id, icon, label){
   return '<button data-act="tab" data-v="'+id+'"'+(S.tab===id?' class="on"':'')+'>'
     + icon + '<span class="lbl">'+esc(label)+'</span></button>';
 }
+/* render() 是整段換掉 innerHTML，捲動位置會被歸零 —— 設定頁每按一個開關就跳回最上面，
+   感覺就像「捲不下去」。同一個分頁內要把位置接回去，換分頁／換收據才回到最上面。
+   紀念過場與 onboarding／登入是整頁蓋掉，離開時本來就該從頭看起。 */
+let renderedAt = null;
 function render(){
   const app = document.getElementById('app');
+  const prevScroll = document.getElementById('scroll');
+  const here = S.tab + '|' + (ui.receiptDay || '');
+  const keepTop = (prevScroll && renderedAt === here) ? prevScroll.scrollTop : 0;
+  renderedAt = here;
   // ?memorial=1 記憶體 DEMO：可蓋過 onboarding／登入，且不碰存檔
   if(ui.demoMemorial){
     app.className = 'app' + (S.night ? '' : ' night-off');
     app.innerHTML = screenMemorialMorning() + petToastHtml();
     playMemorialBoom();
+    renderedAt = null;
     return;
   }
-  if(!S.onboarded){ app.innerHTML = sheetOnboarding() + petToastHtml(); return; }
-  if(needsLogin()){ app.innerHTML = sheetLogin() + petToastHtml(); return; }
+  if(!S.onboarded){ app.innerHTML = sheetOnboarding() + petToastHtml(); renderedAt = null; return; }
+  if(needsLogin()){ app.innerHTML = sheetLogin() + petToastHtml(); renderedAt = null; return; }
 
   // 隔天紀念過場蓋過一般分頁（ash／bone，無霓虹）
   if(memorialPendingFallen()){
     app.className = 'app' + (S.night ? '' : ' night-off');
     app.innerHTML = screenMemorialMorning() + petToastHtml();
     playMemorialBoom();
+    renderedAt = null;
     return;
   }
 
@@ -3483,6 +3538,8 @@ function render(){
     + (ui.sheet === 'pet-memo' ? sheetPetMemo() : '')
     + petToastHtml()
     + '<div class="scan"></div><div class="vig"></div>';
+
+  if(keepTop){ const sc = document.getElementById('scroll'); if(sc) sc.scrollTop = keepTop; }
 
   const sn = document.getElementById('spendName');
   if(sn && ui.focusSpend){ sn.focus(); ui.focusSpend = false; }
@@ -3608,6 +3665,8 @@ document.addEventListener('click', e => {
     case 'redo-ob': ui.ob = 0; ui.auth = { name:'', pass:'', pass2:'', mode:'register', err:'' };
                     setState(()=>{ S.onboarded = false; S.homeTip = true; }); break;
     case 'wipe':   if(confirm(t('confirm_delete'))){ localStorage.removeItem(KEY);
+                     localStorage.removeItem(KEY_BROKEN);   // 「刪除全部」要連壞掉的那份一起清
+                     loadFailed = false;
                      S = migrateState({}); resetUiState(); lastSkin = '';
                      save(); applyPressure(); render(); } break;
     case 'open-shop': setState(()=>{ S.tab = 'shop'; ui.sheet = null; }); break;
@@ -3695,7 +3754,7 @@ document.addEventListener('input', e => {
     const dirty = el.value !== today().anchor.text;
     const st = document.getElementById('anchorStatus');
     if(st){ st.textContent = anchorStatusText();
-            st.style.color = dirty ? 'var(--accent-deep)' : 'rgba(233,237,244,.45)'; }
+            st.style.color = dirty ? 'var(--accent-deep)' : 'rgba(var(--ink-rgb),.45)'; }
     const btn = document.getElementById('anchorSave');
     if(btn){ btn.style.display = dirty ? '' : 'none';
              btn.classList.toggle('btn-fill', dirty); }
@@ -3907,6 +3966,8 @@ ensureFiredDay();
 applyPressure();
 render();
 heartbeat();
+// 存檔讀不起來時要讓人看見；先畫完畫面再說，不要卡在白屏上
+if(loadFailed) setTimeout(() => alert(t('load_broken')), 60);
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(pwaBits); else pwaBits();
 </script>
 </body>
