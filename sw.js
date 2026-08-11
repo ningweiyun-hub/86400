@@ -1,5 +1,6 @@
-/* 86,400 — Service Worker：殼層離線；HTML／SW 一律網路優先，避免分頁順序卡舊版 */
-const CACHE = '86400-v31';
+/* 86,400 — Service Worker: the shell works offline, while HTML and the SW itself
+   always go to the network first so a stale shell cannot stick around. */
+const CACHE = '86400-v32';
 const ASSETS = ['./', './index.html', './sw.js'];
 
 self.addEventListener('install', event => {
@@ -39,7 +40,8 @@ self.addEventListener('fetch', event => {
     || (event.request.headers.get('accept') || '').indexOf('text/html') >= 0
     || /\/index\.html$/.test(url.pathname)
     || url.pathname === '/' || url.pathname.endsWith('/');
-  // HTML：網路優先，離線回退 index；sw.js：網路優先，離線只回自己的快取（不拿 HTML 頂替）
+  // HTML: network first, falling back to the cached index when offline.
+  // sw.js: network first, and offline it only answers from its own cache so HTML never stands in for it.
   if(isHtml || isSw){
     event.respondWith(networkFirst(event.request, isSw ? null : './index.html'));
     return;
