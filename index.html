@@ -306,19 +306,21 @@ html[data-lang="en"] .row .v{font-size:13.5px}
 
 
 /* ── 商店（貨架佈局）───────────────────────────────────────────────────
-   例外：這一頁用固定貨架色票（不跟 applyPressure 跑），刻意跟主畫面壓力色階分開。
-   「夜間強度」關掉時仍會拿掉 chrome／錢包光暈（.night-off），不全開壓力升溫。 */
-.shop{--s-bg:#07090B;--s-panel:#0E1316;--s-neon:#35F0A0;--s-gold:#FFC24B;
-  --s-ink:#EAF2EE;--s-dim:rgba(234,242,238,.45);--s-line:rgba(255,255,255,.08);
+   商店的 chrome 跟著主題走（--s-gold 由 applyPressure() 依明暗給）。
+   例外：.mem-art.skin-* 是紀念外觀的「材質色」（青瓷／木紋／花崗…），
+   那是材質不是介面，不跟主題換。
+   「夜間強度」關掉時仍會拿掉 chrome／錢包光暈（.night-off）。 */
+.shop{--s-bg:var(--bg);--s-panel:var(--field);--s-neon:var(--accent);
+  --s-ink:var(--ink);--s-dim:rgba(var(--ink-rgb),.45);--s-line:var(--hair-3);
   font-family:'Noto Sans TC',system-ui,sans-serif;color:var(--s-ink);
   margin:0 -20px;padding:0 0 8px;background:var(--s-bg);min-height:100%}
 .shop .mono{font-family:'JetBrains Mono',monospace}
 .shop .pix{font-family:Silkscreen,monospace}
 .shop-pad{padding:0 18px}
 .shop-wallet{border-radius:20px;padding:16px 18px;margin-bottom:24px;position:relative;overflow:hidden;
-  background:linear-gradient(135deg,#0F2019,#0A1113);border:1px solid rgba(53,240,160,.24)}
+  background:linear-gradient(135deg,var(--field),var(--bg));border:1px solid var(--accent-24)}
 .shop-wallet::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;
-  border-radius:999px;background:radial-gradient(circle,rgba(53,240,160,.22),transparent 70%);pointer-events:none}
+  border-radius:999px;background:radial-gradient(circle,var(--accent-24),transparent 70%);pointer-events:none}
 /* 貨架：外層捲動、內層 track 撐出寬度；觸控走原生橫滑，不被 button 的 manipulation 吃掉 */
 .shop-rail{
   overflow-x:scroll;overflow-y:hidden;margin:0 0 8px;padding:0 0 14px;
@@ -338,18 +340,18 @@ html[data-lang="en"] .row .v{font-size:13.5px}
 .app.on-shop .scroll{overflow-x:hidden}
 .shop-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 18px;margin-bottom:10px}
 .shop-head .t{font-size:14px;font-weight:700}
-.shop-head .t span{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(234,242,238,.56)}
-.shop-card{flex:none;background:var(--s-panel);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:10px}
+.shop-head .t span{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(var(--ink-rgb),.56)}
+.shop-card{flex:none;background:var(--s-panel);border:1px solid var(--hair);border-radius:18px;padding:10px}
 .shop-btn{border-radius:12px;padding:10px;font-size:12.5px;font-weight:700;text-align:center;
   border:1px solid transparent;background:var(--s-neon);color:var(--s-bg)}
-.shop-btn.ghost{background:transparent;border-color:rgba(53,240,160,.3);color:var(--s-neon);font-weight:600}
+.shop-btn.ghost{background:transparent;border-color:var(--accent-30);color:var(--s-neon);font-weight:600}
 .shop-pet{flex:none;width:118px;background:transparent;border:none;padding:0;text-align:left;color:inherit;display:block}
-.shop-pet .art{width:118px;height:118px;border-radius:16px;border:1px solid rgba(255,255,255,.12);
-  background:linear-gradient(165deg,#1A2228 0%,#0E1316 70%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+.shop-pet .art{width:118px;height:118px;border-radius:16px;border:1px solid var(--hair);
+  background:linear-gradient(165deg,var(--field) 0%,var(--bg) 70%);
+  box-shadow:inset 0 1px 0 rgba(var(--ink-rgb),.06);
   display:grid;place-items:center;font-size:46px;margin-bottom:8px}
-.shop-pet.own .art{border-color:rgba(53,240,160,.45);
-  box-shadow:inset 0 0 0 1px rgba(53,240,160,.14), 0 0 16px rgba(53,240,160,.12)}
+.shop-pet.own .art{border-color:var(--accent-40);
+  box-shadow:inset 0 0 0 1px var(--accent-24), 0 0 16px var(--accent-24)}
 .shop-pet .nm{font-size:12px;font-weight:600}
 .shop-pet .pr{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--s-neon);margin-top:3px}
 /* 買不起／鎖定才降透明度；預設貨架不要斜線「假 disabled」 */
@@ -384,31 +386,18 @@ html[data-lang="en"] .row .v{font-size:13.5px}
 .shop .mem-art.skin-iron{background:#1E2226 !important}
 .shop .mem-art.skin-terra{background:#3A2418 !important}
 .shop .mem-art.skin-sand{background:#3A3424 !important}
-.shop-consum{display:flex;align-items:center;gap:13px;border-radius:16px;border:1px solid rgba(255,255,255,.07);
+.shop-consum{display:flex;align-items:center;gap:13px;border-radius:16px;border:1px solid var(--hair-3);
   background:var(--s-panel);padding:14px;margin:0 18px 26px;width:calc(100% - 36px);box-sizing:border-box;
   cursor:pointer;color:inherit;text-align:left}
 
 /* 停在商店分頁時，上下導覽列也跟著換成商店的色，不要跟主畫面的壓力色打架 */
-.app.on-shop{background:#07090B}
-.app.on-shop .bar{background:#07090B}
-.app.on-shop .brand{color:#35F0A0;text-shadow:0 0 18px rgba(53,240,160,.45);border:none;padding:0;background:transparent;box-shadow:none}
+/* 商店改成跟著主題之後，上下導覽列不再壓成固定深色；只保留迷彩的邊框不要蓋過去 */
+.app.on-shop .brand{border:none;padding:0;background:transparent;box-shadow:none}
 .app.on-shop .brand::before{content:none}
-.app.on-shop .date{color:rgba(234,242,238,.42)}
-.app.on-shop .langsw{border-color:rgba(255,255,255,.14)}
-/* 商店把 chrome 壓成固定深色，未選中的語言鍵原本沿用 var(--ink)，
-   淺色主題下就變成深字壓在近黑的列上。比照下面 .tabs button 給它自己的色。 */
-.app.on-shop .langsw button{color:rgba(234,242,238,.55)}
-.app.on-shop .langsw button.on{background:#35F0A0;color:#07090B}
-.app.on-shop .tabs{background:rgba(7,9,11,.92);border-top-color:rgba(255,255,255,.07)}
-.app.on-shop .tabs button{color:rgba(234,242,238,.38);letter-spacing:.06em;text-transform:none;font-size:9.5px;font-weight:500}
-.app.on-shop .tabs button.on{color:#35F0A0;text-shadow:0 0 12px rgba(53,240,160,.4)}
 .app.on-shop .scan{opacity:.25}
-/* 夜間強度關掉：拿掉商店 chrome／錢包光暈，貨架底色仍固定 */
-.app.on-shop.night-off .brand,.app.on-shop.night-off .tabs button.on{text-shadow:none;color:#9ec9b4}
-.app.on-shop.night-off .langsw button.on{background:#9ec9b4;color:#07090B}
-.app.on-shop.night-off .shop-wallet{border-color:rgba(255,255,255,.1)}
+/* 夜間強度關掉：拿掉錢包光暈。配色本身已由主題的 p=0 平靜階提供，不再另外壓色。 */
+.app.on-shop.night-off .shop-wallet{border-color:var(--hair)}
 .app.on-shop.night-off .shop-wallet::after{opacity:0}
-.app.on-shop.night-off .shop{--s-neon:#9ec9b4}
 
 /* ── sheets ──────────────────────────────────────────────────────────── */
 .scrim{position:fixed;inset:0;z-index:80;background:rgba(29,45,61,.45);display:flex;align-items:flex-end}
@@ -418,21 +407,7 @@ html[data-lang="en"] .row .v{font-size:13.5px}
   max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;
   animation:up .22s ease-out}
 .sheet-x{border:none;background:transparent;font:400 11px var(--fb);color:var(--ink-42)}
-/* 商店開的彈層跟貨架同一套深色，不要跟 litérati 等主題的 --bg 打架 */
-.app.on-shop .scrim{background:rgba(0,0,0,.62)}
-.app.on-shop .sheet{
-  background:#0E1316;color:#EAF2EE;border-top-color:rgba(255,255,255,.12);
-  --bg:#0E1316;--ink:#EAF2EE;
-  --ink-55:rgba(234,242,238,.55);--ink-48:rgba(234,242,238,.48);--ink-42:rgba(234,242,238,.42);
-  --hair:rgba(255,255,255,.10);--hair-2:rgba(255,255,255,.16);--hair-3:rgba(255,255,255,.08);
-  --fill:rgba(255,255,255,.06);
-  --accent:#35F0A0;--accent-deep:#35F0A0;--accent-tint:rgba(53,240,160,.14);
-  --on-accent:#07090B;--glow-sm:0 0 12px rgba(53,240,160,.35);--glow:0 0 22px rgba(53,240,160,.4);
-}
-.app.on-shop.night-off .sheet{
-  --accent:#9ec9b4;--accent-deep:#9ec9b4;--accent-tint:rgba(158,201,180,.14);
-  --glow-sm:none;--glow:none;
-}
+/* 商店的彈層也跟著主題走（原本整塊寫死深色，淺色主題下一開彈層就跳回黑的） */
 html[data-skin="camo"] .app.on-shop .sheet .btn-fill{
   background:var(--accent);border:none;box-shadow:none;color:var(--on-accent);
 }
@@ -1114,6 +1089,12 @@ function applyPressure(){
   s.setProperty('--accent', ok(r.neon));
   s.setProperty('--accent-deep', ok(r.neon));
   s.setProperty('--accent-tint', ok(r.neon, (0.08 + p*0.12).toFixed(2)));
+  // 商店用的 accent 透明階（accent 是 oklch 字串，沒辦法在 CSS 端再加 alpha）
+  s.setProperty('--accent-24', ok(r.neon, 0.24));
+  s.setProperty('--accent-30', ok(r.neon, 0.30));
+  s.setProperty('--accent-40', ok(r.neon, 0.40));
+  // 金幣維持「貨幣＝金色」的語意，但淺色主題要壓深才看得到
+  s.setProperty('--s-gold', sk.light ? '#8A6212' : '#FFC24B');
     // accent 亮就配深字、accent 暗就配淺字。寫死成深字的話，淺色主題的
     // 「中／EN」與實心按鈕會變成深字壓在深色 accent 上，糊成一團。
     s.setProperty('--on-accent', r.neon[0] > 0.6 ? '#0b0f14' : '#f4f6f8');
@@ -2932,7 +2913,7 @@ function screenShop(){
     +   esc(t('shop_balance'))+'</div>'
     + '<div style="position:relative;display:flex;align-items:flex-end;gap:8px;margin-bottom:14px">'
     + '<span class="mono" style="font-size:38px;font-weight:700;line-height:1;color:var(--s-neon);'
-    +   'text-shadow:0 0 24px rgba(53,240,160,.35)">◎ '+comma(S.coins|0)+'</span></div>'
+    +   'text-shadow:var(--glow-sm)">◎ '+comma(S.coins|0)+'</span></div>'
     + '<div style="position:relative;display:flex;gap:8px">'
     + '<button class="shop-btn" data-act="open-cabinet" style="flex:1">'+esc(t('pet_cabinet'))+'</button></div>'
     + '<div class="shop-earn" style="position:relative;margin-top:12px;font-size:11px;color:var(--s-dim)">'
@@ -2989,17 +2970,17 @@ function screenShop(){
   return '<div class="shop">'
     + '<div class="shop-pad" style="padding-top:16px">'
     + '<div class="pix" style="font-size:22px;letter-spacing:.06em;margin-bottom:16px">SHOP '
-    +   '<span class="shop-title-sub" style="font-family:\'Noto Sans TC\',system-ui,sans-serif;font-size:12px;letter-spacing:.2em;color:rgba(234,242,238,.4)">'
+    +   '<span class="shop-title-sub" style="font-family:\'Noto Sans TC\',system-ui,sans-serif;font-size:12px;letter-spacing:.2em;color:rgba(var(--ink-rgb),.4)">'
     +   esc(t('pet_shop'))+'</span></div></div>'
     + wallet
     + shopRail(t('shop_tab_pets'), 'shop_rail_pets', petCards)
     + shopRail(t('shop_tab_skins'), 'shop_rail_themes', skinCards)
     + shopRail(t('shop_tab_mem'), 'shop_rail_mem', memSkinCards)
     + '<button class="shop-consum" data-act="open-cabinet">'
-    + '<div style="flex:none;width:42px;height:42px;border-radius:12px;background:rgba(94,170,255,.12);'
-    +   'border:1px solid rgba(94,170,255,.3);display:grid;place-items:center;font-size:22px">'+pet.emoji+'</div>'
+    + '<div style="flex:none;width:42px;height:42px;border-radius:12px;background:var(--accent-tint);'
+    +   'border:1px solid var(--accent-30);display:grid;place-items:center;font-size:22px">'+pet.emoji+'</div>'
     + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">'+esc(petName(pet.id))+'</div>'
-    + '<div style="font-size:11px;color:rgba(234,242,238,.48);margin-top:2px">'
+    + '<div style="font-size:11px;color:rgba(var(--ink-rgb),.48);margin-top:2px">'
     +   esc(tFill('pet_days',{n:S.companion.days|0}))+'</div></div>'
     + '<div style="font-size:18px;color:var(--s-dim)">›</div></button>'
     + '</div>';
