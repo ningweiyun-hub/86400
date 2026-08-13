@@ -626,8 +626,8 @@ const T = {
   delete_all:      ['刪除全部資料','Delete all data'],
   confirm_delete:  ['刪除之後無法復原，確定嗎？','This cannot be undone. Delete everything?'],
   confirm_import:  ['匯入會覆蓋這台裝置上的現有資料，確定嗎？','Import will replace the data on this device. Continue?'],
-  load_broken:     ['讀不到這台裝置上的存檔，已經先開一份空白的。\n\n壞掉的原始資料沒有被刪除，留在瀏覽器裡的 86400.v1.broken，還有機會救回來——在覆蓋之前先匯出一份備份。',
-                    'The saved data on this device could not be read, so a blank one was started.\n\nThe damaged original was not deleted — it is kept in the browser as 86400.v1.broken and may still be recoverable. Export a backup before overwriting it.'],
+  load_broken:     ['讀不到這台裝置上的存檔，已經先開一份暫時的空白資料。\n\n壞掉的原始資料沒有被刪除，而且在完成救援前不會被覆蓋。按「確定」立即下載原始資料；之後可匯入有效備份，或到設定刪除全部資料重新開始。',
+                    'The saved data on this device could not be read, so temporary blank data was opened.\n\nThe damaged original was not deleted and will not be overwritten while recovery is pending. Press OK to download the original data now; afterwards, import a valid backup or delete all data in Settings to start over.'],
   tab_today:       ['今天','Today'],
   tab_receipt:     ['收據','Receipt'],
   tab_insights:    ['洞察','Insights'],
@@ -969,6 +969,9 @@ function dayEndMs(k){
   return d.getTime();
 }
 
+// 這兩個旗標必須先於 load() 初始化；load() 的 catch 會直接寫入它們
+let loadFailed = false;
+let brokenRaw = null;
 let S = load();
 let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
            anchorDraft:null, anchorEdit:false, anchorCancelling:false,
@@ -982,7 +985,6 @@ let ui = { sheet:null, ob:0, receiptDay:null, catsOpen:false, privacyOpen:false,
            auth:{ name:'', pass:'', pass2:'', mode:'register', err:'' } };
 
 // 存檔壞掉時絕不無聲清空：原始字串先搬到 KEY_BROKEN 留著救，開機後再明講一次
-let loadFailed = false;
 function load(){
   let raw = null;
   try{
@@ -990,14 +992,15 @@ function load(){
     if(!raw) return migrateState({});
     return migrateState(JSON.parse(raw));
   }catch(e){
-    try{ if(raw) localStorage.setItem(KEY_BROKEN, raw); }catch(e2){}
+    brokenRaw = raw;
+    try{ if(raw !== null) localStorage.setItem(KEY_BROKEN, raw); }catch(e2){}
     loadFailed = true;
     return migrateState({});
   }
 }
 function save(){
-  // ?memorial=1 過場期間不寫存檔，避免 DEMO 污染 86400.v1
-  if(ui && ui.demoMemorial) return;
+  // 救援完成前不可用暫時空白資料覆蓋原檔；DEMO 過場也不寫入 86400.v1
+  if(loadFailed || (ui && ui.demoMemorial)) return;
   try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
 }
 
@@ -1352,10 +1355,16 @@ function toggleDemo(){
   setState(()=>{});
 }
 function exportBackup(){
-  const blob = new Blob([JSON.stringify(S,null,2)], {type:'application/json'});
+  let recoveryRaw = brokenRaw;
+  if(loadFailed && recoveryRaw === null){
+    try{ recoveryRaw = localStorage.getItem(KEY_BROKEN); }catch(e){}
+  }
+  const recovering = loadFailed && recoveryRaw !== null;
+  const content = recovering ? recoveryRaw : JSON.stringify(S,null,2);
+  const blob = new Blob([content], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = '86400-backup-' + dayKey() + '.json';
+  a.download = '86400-' + (recovering ? 'recovery-' : 'backup-') + dayKey() + '.json';
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
 }
@@ -1484,6 +1493,8 @@ function importBackup(file){
       if(data.days !== undefined && (typeof data.days !== 'object' || Array.isArray(data.days)))
         throw new Error('days');
       S = migrateState(data);
+      loadFailed = false;
+      brokenRaw = null;
       resetUiState();
       lastSkin = ''; lastStage = null;
       save(); applyPressure(); render();
@@ -3648,6 +3659,7 @@ document.addEventListener('click', e => {
     case 'wipe':   if(confirm(t('confirm_delete'))){ localStorage.removeItem(KEY);
                      localStorage.removeItem(KEY_BROKEN);   // 「刪除全部」要連壞掉的那份一起清
                      loadFailed = false;
+                     brokenRaw = null;
                      S = migrateState({}); resetUiState(); lastSkin = '';
                      save(); applyPressure(); render(); } break;
     case 'open-shop': setState(()=>{ S.tab = 'shop'; ui.sheet = null; }); break;
@@ -3947,8 +3959,8 @@ ensureFiredDay();
 applyPressure();
 render();
 heartbeat();
-// 存檔讀不起來時要讓人看見；先畫完畫面再說，不要卡在白屏上
-if(loadFailed) setTimeout(() => alert(t('load_broken')), 60);
+// 存檔讀不起來時要讓人看見並可立即下載原始資料；先畫完畫面再說，不要卡在白屏上
+if(loadFailed) setTimeout(() => { if(confirm(t('load_broken'))) exportBackup(); }, 60);
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(pwaBits); else pwaBits();
 </script>
 </body>
