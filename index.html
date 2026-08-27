@@ -51,8 +51,12 @@
     .screen { height: 100%; display: flex; flex-direction: column; overflow: hidden; background: var(--background); }
     .screen.night-screen { background: var(--night); color: var(--surface); }
     .status { height: 44px; flex: none; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 600; }
-    .system-icons { display: flex; align-items: center; gap: 6px; }
-    .system-icons img { display: block; object-fit: contain; }
+    .status-time { min-width: 42px; font: inherit; font-variant-numeric: tabular-nums; }
+    .system-icons { width: 69px; flex: 0 0 69px; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    .system-icons img { display: block; flex: none; max-width: none; object-fit: contain; object-position: center; }
+    .system-icons .signal-icon { width: 17px; height: 11px; }
+    .system-icons .wifi-icon { width: 15px; height: 11px; }
+    .system-icons .battery-icon { width: 25px; height: 11px; }
     .night-screen .system-icons { filter: brightness(0) invert(1); }
     .screen-scroll { flex: 1; overflow: auto; padding: 12px 20px 28px; overscroll-behavior: contain; scrollbar-width: none; }
     .screen-scroll::-webkit-scrollbar { display: none; }
@@ -291,7 +295,13 @@
     function completedCount() { return state.tasks.filter(item => item.done).length; }
     function progress(value) { return `<div class="progress"><span style="width:${Math.max(0, Math.min(100, value))}%"></span></div>`; }
     function pill(text, tone = "") { return `<span class="pill ${tone}">${escapeHTML(text)}</span>`; }
-    function statusBar() { return `<div class="status"><span>9:41</span><span class="system-icons"><img width="17" height="11" src="${IMAGE.signal}" alt=""><img width="15" height="11" src="${IMAGE.wifi}" alt=""><img width="25" height="11" src="${IMAGE.battery}" alt=""></span></div>`; }
+    function statusTime(date = new Date()) {
+      const hour12 = new Intl.DateTimeFormat(undefined, { hour: "numeric" }).resolvedOptions().hour12;
+      const hour = hour12 ? date.getHours() % 12 || 12 : String(date.getHours()).padStart(2, "0");
+      return `${hour}:${String(date.getMinutes()).padStart(2, "0")}`;
+    }
+    function statusBar() { const now = new Date(); return `<div class="status"><time class="status-time" datetime="${now.toISOString()}">${escapeHTML(statusTime(now))}</time><span class="system-icons" aria-hidden="true"><img class="signal-icon" width="17" height="11" src="${IMAGE.signal}" alt=""><img class="wifi-icon" width="15" height="11" src="${IMAGE.wifi}" alt=""><img class="battery-icon" width="25" height="11" src="${IMAGE.battery}" alt=""></span></div>`; }
+    function refreshStatusTime() { const element = document.querySelector(".status-time"); if (!element) return; const now = new Date(); element.dateTime = now.toISOString(); element.textContent = statusTime(now); }
     function homeIndicator() { return '<div class="home-indicator"></div>'; }
     function navHeader(title, backAction = "", right = "") { const left = backAction ? `<button class="icon-button" data-action="${backAction}" aria-label="Back"><span aria-hidden="true">‹</span></button>` : `<span></span>`; return `<div class="nav-header">${left}<div class="nav-title">${escapeHTML(title)}</div>${right || "<span></span>"}</div>`; }
     function header(eyebrow, title, right = "") { return `<header class="screen-header">${eyebrow ? `<div class="eyebrow">${escapeHTML(eyebrow)}</div>` : ""}<div class="row between"><h1 class="page-title">${escapeHTML(title)}</h1>${right}</div></header>`; }
@@ -682,8 +692,10 @@
       if (event.target.id !== "evidence-file") return; const file = event.target.files?.[0]; if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl); photoPreviewUrl = file ? URL.createObjectURL(file) : ""; state.evidence.photo = file ? file.name : ""; state.evidence.error = ""; saveState(); render();
     });
     window.setInterval(() => { if (state.view === "focus" && state.running && state.timer > 0) { state.timer -= 1; saveState(); render(); } }, 1000);
+    window.setInterval(refreshStatusTime, 30_000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshStatusTime(); });
     render();
-    if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("./sw.js?v=65", { updateViaCache: "none" }).catch(error => console.warn("Offline support could not be registered.", error));
+    if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("./sw.js?v=66", { updateViaCache: "none" }).catch(error => console.warn("Offline support could not be registered.", error));
   </script>
 </body>
 </html>
