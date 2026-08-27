@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
   ApiProblem,
+  PLAN_SCHEMA,
   extractOutputText,
   handlePlan,
   normalizeNextActionPayload,
@@ -76,6 +77,13 @@ test("plan payload preserves the frontend contract", () => {
   assert.deepEqual(payload.sideTasks, []);
 });
 
+test("plan schema keeps every visible planning field concise", () => {
+  assert.equal(PLAN_SCHEMA.properties.weeklySprintGoal.maxLength, 100);
+  assert.equal(PLAN_SCHEMA.properties.successCriteria.items.maxLength, 96);
+  assert.equal(PLAN_SCHEMA.properties.todayAction.properties.description.maxLength, 120);
+  assert.equal(PLAN_SCHEMA.properties.todayAction.properties.minimumCompletion.maxLength, 64);
+});
+
 test("next-action payload advances by exactly one day", () => {
   const payload = normalizeNextActionPayload({
     nextAction: {
@@ -107,9 +115,11 @@ test("plan endpoint returns 503 when the server-side key is absent", async () =>
 
 test("plan endpoint sends a strict schema request and returns the frontend contract", async () => {
   const originalKey = process.env.OPENAI_API_KEY;
+  const originalModel = process.env.OPENAI_MODEL;
   const originalFetch = globalThis.fetch;
   let providerRequest;
   process.env.OPENAI_API_KEY = "test-only-key";
+  process.env.OPENAI_MODEL = "gpt-5-mini";
   globalThis.fetch = async (_url, options) => {
     providerRequest = JSON.parse(options.body);
     return {
@@ -152,9 +162,14 @@ test("plan endpoint sends a strict schema request and returns the frontend contr
     assert.equal(providerRequest.text.format.type, "json_schema");
     assert.equal(providerRequest.text.format.strict, true);
     assert.equal(providerRequest.store, false);
+    assert.equal(providerRequest.model, "gpt-5.6-luna");
+    assert.equal(providerRequest.reasoning.effort, "none");
+    assert.equal(providerRequest.max_output_tokens, 600);
   } finally {
     globalThis.fetch = originalFetch;
     if (originalKey === undefined) delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY = originalKey;
+    if (originalModel === undefined) delete process.env.OPENAI_MODEL;
+    else process.env.OPENAI_MODEL = originalModel;
   }
 });

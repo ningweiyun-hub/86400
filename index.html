@@ -210,6 +210,7 @@
     const DESIGN_VERSION = 257;
     const PLAN_API_URL = "/api/plan";
     const NEXT_ACTION_API_URL = "/api/next-action";
+    const AI_REQUEST_TIMEOUT_MS = 55_000;
     const ASSET = "assets/figma/";
     const V257 = ASSET + "v257/";
     const IMAGE = {
@@ -233,7 +234,7 @@
     ];
     const DEFAULT_STATE = {
       version: STATE_VERSION, designVersion: DESIGN_VERSION, onboarded: false, onboardingStep: -1, tab: "today", view: "", toast: "",
-      brief: "", goalError: "", planStatus: "idle", planError: "", aiPlan: null, selectedSideTasks: [], nextActionStatus: "idle", nextActionError: "", nextAction: null, tokens: 340, streak: 5,
+      brief: "", goalError: "", planStatus: "idle", planError: "", aiPlan: null, selectedSideTasks: [], nextActionStatus: "idle", nextActionError: "", nextAction: null, tokens: 340, streak: 0,
       current: "day-1", timer: 900, running: false, firstCompletion: false, completionCommitted: false, lastCompletion: null,
       hatchStep: 0, hatched: false, pet: { species: "", name: "", nameDraft: "", nameError: "", status: "neutral" },
       evidence: { method: "", photo: "", link: "", note: "", self: false, error: "", items: [] },
@@ -264,6 +265,8 @@
       next.eod = Object.assign(clone(DEFAULT_STATE.eod), source.eod || {}); next.weeklyFlow = Object.assign(clone(DEFAULT_STATE.weeklyFlow), source.weeklyFlow || {}); next.journey = Object.assign(clone(DEFAULT_STATE.journey), source.journey || {});
       next.tasks = Array.isArray(source.tasks) && source.tasks.length ? clone(source.tasks) : clone(DEFAULT_STATE.tasks);
       next.owned = Array.isArray(source.owned) ? clone(source.owned) : []; next.equipped = Array.isArray(source.equipped) ? clone(source.equipped) : []; next.logs = Array.isArray(source.logs) ? clone(source.logs) : [];
+      const hasCompletedAction = next.tasks.some(item => item?.done) || next.logs.some(item => item?.type === "action");
+      next.streak = hasCompletedAction ? Math.max(1, Number(next.streak) || 1) : 0;
       next.planStatus = "idle"; next.planError = ""; next.nextActionStatus = "idle"; next.nextActionError = "";
       if (!sameDesign || !sameSchema) return clone(DEFAULT_STATE);
       return next;
@@ -350,6 +353,16 @@
       const minutes = Math.min(10, Math.max(5, Number(item?.duration || item?.durationMinutes) || 10));
       return `Work on this action for ${minutes} minutes.`;
     }
+    function todayLabel() {
+      return new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(new Date());
+    }
+    function streakLabel() { return `${state.streak} ${state.streak === 1 ? "day" : "days"} streak`; }
+    async function fetchWithTimeout(url, options) {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), AI_REQUEST_TIMEOUT_MS);
+      try { return await fetch(url, { ...options, signal: controller.signal }); }
+      finally { window.clearTimeout(timeout); }
+    }
     function paceMessage(plan) {
       return String(plan?.coachMessage || plan?.kiboMessage || "Only today's one action is visible. Tomorrow can wait.")
         .trim()
@@ -360,7 +373,7 @@
     function planErrorMessage(status, payload) {
       const serviceMessage = payload?.error?.message;
       if (status === 400) return serviceMessage || "Please check the goal and try again.";
-      if (status === 502) return "The AI provider could not create a plan right now. Please try again.";
+      if (status === 502) return serviceMessage || "The AI provider could not create a plan right now. Please try again.";
       if (status === 503) return "The AI planning service is not configured yet. Add OPENAI_API_KEY in Vercel Project Settings, redeploy, and try again.";
       return serviceMessage || `The planning service returned error ${status}. Please try again.`;
     }
@@ -374,7 +387,7 @@
       const requestId = ++planRequestId;
       mutate(() => { state.goalError = ""; state.planError = ""; state.planStatus = "loading"; });
       try {
-        const response = await fetch(PLAN_API_URL, {
+        const response = await fetchWithTimeout(PLAN_API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -390,7 +403,9 @@
         mutate(() => { state.aiPlan = plan; state.selectedSideTasks = []; state.planStatus = "idle"; state.planError = ""; state.onboardingStep = 1; });
       } catch (error) {
         if (requestId !== planRequestId) return;
-        const message = error.status
+        const message = error.name === "AbortError"
+          ? "Pace took too long to create a plan. Please try again."
+          : error.status
           ? error.message
           : error.message?.startsWith("The planning service returned")
             ? error.message
@@ -408,7 +423,7 @@
       const requestId = ++nextActionRequestId;
       mutate(() => { state.nextActionStatus = "loading"; state.nextActionError = ""; });
       try {
-        const response = await fetch(NEXT_ACTION_API_URL, {
+        const response = await fetchWithTimeout(NEXT_ACTION_API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -430,7 +445,9 @@
         mutate(() => { state.nextAction = nextAction; state.nextActionStatus = "idle"; state.nextActionError = ""; state.eod.step = 5; });
       } catch (error) {
         if (requestId !== nextActionRequestId) return;
-        const message = error.status
+        const message = error.name === "AbortError"
+          ? "Pace took too long to create the next action. Please try again."
+          : error.status
           ? error.message
           : error.message?.startsWith("The planning service returned")
             ? error.message
@@ -460,7 +477,7 @@
     function todayScreen() {
       const currentTask = task(); const done = completedCount();
       const hero = state.hatched ? `${petScene("compact")}<h2 class="center">${escapeHTML(petDisplayName())}</h2><div class="center" style="margin-top:7px">${pill(state.pet.status === "celebrating" ? "Great Job!" : "Neutral", state.pet.status === "celebrating" ? "sage" : "outline")}</div>` : `<img class="egg-art" style="height:210px" src="${IMAGE.egg}" alt="Unhatched companion egg"><h3 class="center">Hatch your companion!</h3><p class="body-copy center" style="margin-top:6px">Complete your first action to meet your companion.</p>`;
-      return page(`${navHeader("Today", "", `<button class="icon-button soft" data-action="settings" aria-label="Settings">⋯</button>`)}<div class="row between"><div><h1>Good morning</h1><p class="small-copy" style="margin-top:4px">Tuesday, October 24</p></div>${pill(`${state.streak} day streak`, "sage")}</div><div style="margin:14px 0">${hero}</div><div class="label">Today's one action</div><div class="card coral-border" style="margin-top:8px"><div class="row between"><div class="grow"><h3>${escapeHTML(currentTask.title)}</h3><div class="small-copy" style="margin-top:3px">${currentTask.duration} min</div></div>${pill(currentTask.done ? "Complete" : "Ready", currentTask.done ? "sage" : "")}</div><div class="minimum" style="margin-top:12px"><span class="label">Minimum complete</span>${escapeHTML(minimumCopy(currentTask))}</div><button class="button" data-action="focus" style="margin-top:14px">${currentTask.done ? "Review Completion" : "Start Action"}</button></div><button class="plain-row" data-action="tab" data-value="tasks" style="margin-top:12px"><span>Today's Plan · ${done ? "complete" : "one action"}</span><span class="chevron">›</span></button><button class="plain-row" data-action="side-log" style="margin-top:10px"><span><strong>Log something extra</strong><span class="small-copy" style="display:block;margin-top:3px">Optional — this never affects today's goal</span></span><span class="chevron">›</span></button><button class="text-button" data-action="end-day" style="width:100%;margin-top:8px">End-of-day check-in</button>`, { nav: true });
+      return page(`${navHeader("Today", "", `<button class="icon-button soft" data-action="settings" aria-label="Settings">⋯</button>`)}<div class="row between"><div><h1>Good morning</h1><p class="small-copy" style="margin-top:4px">${escapeHTML(todayLabel())}</p></div>${pill(streakLabel(), "sage")}</div><div style="margin:14px 0">${hero}</div><div class="label">Today's one action</div><div class="card coral-border" style="margin-top:8px"><div class="row between"><div class="grow"><h3>${escapeHTML(currentTask.title)}</h3><div class="small-copy" style="margin-top:3px">${currentTask.duration} min</div></div>${pill(currentTask.done ? "Complete" : "Ready", currentTask.done ? "sage" : "")}</div><div class="minimum" style="margin-top:12px"><span class="label">Minimum complete</span>${escapeHTML(minimumCopy(currentTask))}</div><button class="button" data-action="focus" style="margin-top:14px">${currentTask.done ? "Review Completion" : "Start Action"}</button></div><button class="plain-row" data-action="tab" data-value="tasks" style="margin-top:12px"><span>Today's Plan · ${done ? "complete" : "one action"}</span><span class="chevron">›</span></button><button class="plain-row" data-action="side-log" style="margin-top:10px"><span><strong>Log something extra</strong><span class="small-copy" style="display:block;margin-top:3px">Optional — this never affects today's goal</span></span><span class="chevron">›</span></button><button class="text-button" data-action="end-day" style="width:100%;margin-top:8px">End-of-day check-in</button>`, { nav: true });
     }
     function tasksScreen() { return page(`${navHeader("Tasks")}${header("One action at a time", "Today", pill(completedCount() ? "Complete" : "1 focus", "sage"))}<div class="stack">${state.tasks.map(item => taskRow(item, item.id === state.current)).join("")}</div><div class="notice sage" style="margin-top:16px">Future days stay hidden until the end-of-day check-in. You only need to handle what is here now.</div><button class="button secondary" data-action="weekly-review" style="margin-top:16px">Weekly Check-in</button>`, { nav: true }); }
     function focusScreen() { const currentTask = task(); return page(`${navHeader(currentTask.title, "today")}<div class="center"><div class="eyebrow">Focus in progress</div><p class="body-copy">Stay with the smallest version that still counts.</p></div><div class="timer"><div><strong>${state.timer}</strong><span>seconds ${state.running ? "remaining" : "ready"}</span></div></div><div class="minimum center"><span class="label">Minimum complete standard</span>${escapeHTML(minimumCopy(currentTask))}</div><div class="card row" style="margin-top:16px"><img class="avatar" src="${state.hatched ? petImage("neutral") : IMAGE.egg}" alt=""><div><div class="label">${escapeHTML(petDisplayName())}</div><p class="body-copy">I'm focused with you. One honest step at a time.</p></div></div>`, { footer: `<footer class="footer"><div class="two-buttons"><button class="button secondary" data-action="timer">${state.running ? "Pause" : "Start"}</button><button class="button" data-action="start-completion">Finish</button></div><button class="button ghost" data-action="adjust-action">Make this action smaller</button>${homeIndicator()}</footer>` }); }
@@ -485,12 +502,12 @@
     function reflectionScreen() { const moods = [["Energized", "⚡"], ["Satisfied", "😊"], ["Neutral", "😐"], ["Frustrated", "😣"], ["Drained", "😴"]]; return page(`${navHeader("Reflection", "evidence-method")}${header("After the action", "How did this feel?")}<div class="mood-grid">${moods.map(([mood, emoji]) => `<button class="mood-choice ${state.reflection.mood === mood ? "selected" : ""}" data-action="mood" data-value="${mood}"><span>${emoji}</span>${mood}</button>`).join("")}</div><div class="form-group" style="margin-top:20px"><label>Outcome or learning · Required</label><textarea class="field ${state.reflection.error ? "error" : ""}" data-bind="reflection-learning" placeholder="What changed, surprised you, or felt difficult?">${escapeHTML(state.reflection.learning)}</textarea>${state.reflection.error ? `<div class="error-copy">${escapeHTML(state.reflection.error)}</div>` : ""}</div><div class="form-group"><label>Next smallest step · Optional</label><textarea class="field" data-bind="reflection-next" placeholder="The next step could be…">${escapeHTML(state.reflection.next)}</textarea></div>`, { footer: footer("Save Reflection", "save-reflection", { secondaryLabel: "Skip and Record as Skipped", secondaryAction: "skip-reflection" }) }); }
     function commitCompletion(skipped = false) {
       const currentTask = task(); if (state.completionCommitted && state.lastCompletion?.taskId === currentTask.id) return;
-      state.lastCompletion = { taskId: currentTask.id, previousDone: currentTask.done, previousTokens: state.tokens, previousProgress: state.journey.progress, previousEvidence: state.journey.evidence, wasFirst: !state.firstCompletion };
-      currentTask.done = true; state.tokens += 10; state.journey.progress = Math.min(100, state.journey.progress + 12); state.journey.evidence += state.evidence.items.length; state.journey.days = Math.min(7, state.journey.days + 1);
+      state.lastCompletion = { taskId: currentTask.id, previousDone: currentTask.done, previousTokens: state.tokens, previousStreak: state.streak, previousProgress: state.journey.progress, previousEvidence: state.journey.evidence, previousDays: state.journey.days, wasFirst: !state.firstCompletion };
+      currentTask.done = true; state.tokens += 10; state.streak = Math.max(1, state.streak + 1); state.journey.progress = Math.min(100, state.journey.progress + 12); state.journey.evidence += state.evidence.items.length; state.journey.days = Math.min(7, state.journey.days + 1);
       state.logs.push({ type: "action", task: currentTask.id, evidence: clone(state.evidence.items), mood: skipped ? "" : state.reflection.mood, learning: skipped ? "" : state.reflection.learning, reflectionSkipped: skipped, at: new Date().toISOString() });
       state.reflection.skipped = skipped; state.completionCommitted = true; state.firstCompletion = true; state.pet.status = "celebrating"; state.view = "completion-summary";
     }
-    function completionSummaryScreen() { return page(`${navHeader("Action Complete")}<div class="success-banner"><span>✓ Evidence logged successfully</span><button class="undo" data-action="undo-completion">Undo</button></div><div class="reward-banner" style="margin-top:14px"><span>Daily streak maintained</span><span>+10 tokens</span></div><div class="card center" style="margin-top:14px"><img class="hero-art small" src="${state.hatched ? petImage("celebrating") : IMAGE.egg}" alt=""><h2>${escapeHTML(task().title)}</h2><p class="body-copy" style="margin-top:6px">${state.reflection.skipped ? "Reflection was skipped and recorded." : `You felt ${escapeHTML(state.reflection.mood.toLowerCase())}: “${escapeHTML(state.reflection.learning)}”`}</p></div><div class="card" style="margin-top:14px"><div class="row between"><span class="label">Journey progress</span><strong class="safe-copy">${state.journey.progress}%</strong></div><div style="margin-top:10px">${progress(state.journey.progress)}</div><div class="small-copy" style="margin-top:8px">${state.evidence.items.length} evidence item${state.evidence.items.length === 1 ? "" : "s"} added</div></div>`, { footer: footer("Continue", "completion-done") }); }
+    function completionSummaryScreen() { const streakCopy = state.streak === 1 ? "1 day streak started" : `${state.streak} day streak maintained`; return page(`${navHeader("Action Complete")}<div class="success-banner"><span>✓ Evidence logged successfully</span><button class="undo" data-action="undo-completion">Undo</button></div><div class="reward-banner" style="margin-top:14px"><span>${escapeHTML(streakCopy)}</span><span>+10 tokens</span></div><div class="card center" style="margin-top:14px"><img class="hero-art small" src="${state.hatched ? petImage("celebrating") : IMAGE.egg}" alt=""><h2>${escapeHTML(task().title)}</h2><p class="body-copy" style="margin-top:6px">${state.reflection.skipped ? "Reflection was skipped and recorded." : `You felt ${escapeHTML(state.reflection.mood.toLowerCase())}: “${escapeHTML(state.reflection.learning)}”`}</p></div><div class="card" style="margin-top:14px"><div class="row between"><span class="label">Journey progress</span><strong class="safe-copy">${state.journey.progress}%</strong></div><div style="margin-top:10px">${progress(state.journey.progress)}</div><div class="small-copy" style="margin-top:8px">${state.evidence.items.length} evidence item${state.evidence.items.length === 1 ? "" : "s"} added</div></div>`, { footer: footer("Continue", "completion-done") }); }
     function hatchScreen() {
       const pet = ensurePet(); const step = state.hatchStep;
       if (step === 0) return page(`${navHeader("")}<div class="center"><div class="task-status done" style="margin:30px auto 18px">✓</div><h1>First Action Complete!</h1><p class="body-copy" style="margin-top:8px">Something special is about to happen…</p><img class="egg-art" src="${IMAGE.egg}" alt="Opaque companion egg"></div>`, { footer: footer("Continue", "hatch-next") });
@@ -592,7 +609,7 @@
         case "mood": mutate(() => { state.reflection.mood = value; state.reflection.error = ""; }); break;
         case "save-reflection": mutate(() => { if (state.reflection.learning.trim().length < 8) state.reflection.error = "Add a short outcome or learning before saving."; else { state.reflection.error = ""; commitCompletion(false); } }); break;
         case "skip-reflection": mutate(() => { commitCompletion(true); }); break;
-        case "undo-completion": mutate(() => { const last = state.lastCompletion; if (!last) return; task(last.taskId).done = last.previousDone; state.tokens = last.previousTokens; state.journey.progress = last.previousProgress; state.journey.evidence = last.previousEvidence; state.logs.pop(); state.firstCompletion = !last.wasFirst; state.completionCommitted = false; state.lastCompletion = null; state.pet.status = "neutral"; state.view = "standard-check"; }, "Completion undone"); break;
+        case "undo-completion": mutate(() => { const last = state.lastCompletion; if (!last) return; task(last.taskId).done = last.previousDone; state.tokens = last.previousTokens; state.streak = Number.isFinite(last.previousStreak) ? last.previousStreak : Math.max(0, state.streak - 1); state.journey.progress = last.previousProgress; state.journey.evidence = last.previousEvidence; state.journey.days = Number.isFinite(last.previousDays) ? last.previousDays : Math.max(0, state.journey.days - 1); state.logs.pop(); state.firstCompletion = !last.wasFirst; state.completionCommitted = false; state.lastCompletion = null; state.pet.status = "neutral"; state.view = "standard-check"; }, "Completion undone"); break;
         case "completion-done": if (state.lastCompletion?.wasFirst && !state.hatched) mutate(() => { ensurePet(); state.hatchStep = 0; state.view = "hatch"; }); else mutate(() => { const next = state.tasks.find(item => !item.done); if (next) state.current = next.id; resetCompletionDraft(); state.view = ""; state.tab = "today"; }); break;
         case "hatch-next": mutate(() => { ensurePet(); state.hatchStep = Math.min(5, state.hatchStep + 1); }); break;
         case "hatch-back": mutate(() => { state.hatchStep = Math.max(2, state.hatchStep - 1); }); break;
@@ -666,7 +683,7 @@
     });
     window.setInterval(() => { if (state.view === "focus" && state.running && state.timer > 0) { state.timer -= 1; saveState(); render(); } }, 1000);
     render();
-    if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("./sw.js?v=64", { updateViaCache: "none" }).catch(error => console.warn("Offline support could not be registered.", error));
+    if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("./sw.js?v=65", { updateViaCache: "none" }).catch(error => console.warn("Offline support could not be registered.", error));
   </script>
 </body>
 </html>
