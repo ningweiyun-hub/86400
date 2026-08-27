@@ -4,9 +4,11 @@
 
 ## 不可違反
 
-1. **單檔、無建置、無相依。** 不要引入框架、打包工具、npm 套件、後端。
-   唯一的外部資源是 Google Fonts 的 `<link>`。雙擊 `index.html` 就要能跑。
-   例外：同目錄的 `sw.js` 只做離線快取（http/https）；`file://` 開檔不用它。
+1. **前端單檔、無建置、無相依。** 不要引入框架、打包工具或 npm 套件。
+   唯一的前端外部資源是 Google Fonts 的 `<link>`。雙擊 `index.html` 可瀏覽靜態流程，
+   完整 AI 流程則透過 `api/` 內的零相依 Vercel Functions 運作。共用伺服器程式可放
+   `server/`；任何 API key 都只能讀取伺服器端環境變數，絕不可出現在 `index.html`。
+   同目錄的 `sw.js` 只做離線快取（http/https）；`file://` 開檔不用它。
 2. **資料只存在 localStorage**（key `86400.v1`），沒有帳號、沒有雲端。
    改動資料結構時要在 `migrateState()` / `load()` 裡寫相容處理，不能讓舊資料炸掉。
    匯入備份走同一條遷移路徑。
@@ -56,6 +58,15 @@ p   = raw ^ 2.2          // 09:00 前 0，約 20:00 到 0.5，午夜 1.0
 | `4. 動作` | 區塊的建立／排定／開始／結束、示範資料、匯出 |
 | `5. 畫面` | 各分頁與面板的 render 函式 |
 | `6. Render` | `render()`、事件委派、`heartbeat()`、PWA |
+
+## Vercel API
+
+- `api/plan.js`：將自由輸入目標轉為本週方向與今天唯一行動。
+- `api/next-action.js`：依完成狀態與晚間回顧產生下一個唯一行動。
+- `server/pace.js`：共用驗證、OpenAI Responses API 與 Structured Outputs schema。
+- 前端只呼叫同網域 `/api/*`，不得寫死 localhost 或公開 API key。
+- `OPENAI_API_KEY` 只設在 Vercel Project Settings 或未提交的本機環境檔。
+- 保留 `backend/` 的 Fluxzero 版本作遷移參考，不納入 Vercel 部署。
 
 ## 資料模型
 

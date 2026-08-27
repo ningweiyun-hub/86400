@@ -1,5 +1,9 @@
 .DS_Store
 *.log
+.env
+.env.*
+!.env.example
+.vercel
 
 # 設計原始檔已解壓到 design_handoff/
 *.zip
