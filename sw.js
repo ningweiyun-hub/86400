@@ -1,5 +1,5 @@
 /* 86,400 — Service Worker：殼層離線；HTML／SW 一律網路優先，避免分頁順序卡舊版 */
-const CACHE = '86400-v66';
+const CACHE = '86400-v69';
 const ASSETS = [
   './', './index.html', './sw.js',
   './assets/figma/icon-signal.svg',
@@ -11,6 +11,24 @@ const ASSETS = [
   './assets/figma/icon-compass.svg',
   './assets/figma/icon-growth.svg',
   './assets/figma/v257/egg-watercolor-v3.png',
+  './assets/figma/v257/pets/capybara-neutral.png',
+  './assets/figma/v257/pets/capybara-celebrating.png',
+  './assets/figma/v257/pets/red-panda-neutral.png',
+  './assets/figma/v257/pets/red-panda-celebrating.png',
+  './assets/figma/v257/pets/sea-otter-neutral.png',
+  './assets/figma/v257/pets/sea-otter-celebrating.png',
+  './assets/figma/v257/pets/fennec-fox-neutral.png',
+  './assets/figma/v257/pets/fennec-fox-celebrating.png',
+  './assets/figma/v257/pets/lop-rabbit-neutral.png',
+  './assets/figma/v257/pets/lop-rabbit-celebrating.png',
+  './assets/figma/v257/pets/axolotl-neutral.png',
+  './assets/figma/v257/pets/axolotl-celebrating.png',
+  './assets/figma/v257/pets/hedgehog-neutral.png',
+  './assets/figma/v257/pets/hedgehog-celebrating.png',
+  './assets/figma/v257/pets/shiba-inu-neutral.png',
+  './assets/figma/v257/pets/shiba-inu-celebrating.png',
+  './assets/figma/v257/pets/beaver-neutral.png',
+  './assets/figma/v257/pets/beaver-celebrating.png',
   './assets/figma/v257/capybara.png',
   './assets/figma/v257/red-panda.png',
   './assets/figma/v257/sea-otter.png',

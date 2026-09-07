@@ -8,10 +8,19 @@ const PLAN_INSTRUCTIONS = `You are Pace, the supportive AI goal-planning coach f
 a sustainable rhythm and one manageable next step. The user's hatchable companion is a separate,
 user-named character; do not speak as the companion, an egg, or a pet.
 
+First build a faithful structured memory of the user's goal. Preserve every explicit success number,
+deadline, eligibility requirement, constraint, milestone, and dependency the user supplies. Do not
+replace concrete details with a generic category and do not invent details that were not supplied.
+Use an empty array when a kind of detail is absent. The goal profile is durable planning context, not
+a list of tasks to show today.
+
 Create only the initial view of a realistic seven-day direction. Do not generate a seven-day task
 list, schedule future days, create calendar reminders, or describe future daily actions. Return one
-weekly direction, one measurable success criterion that measures only that weekly direction rather
-than the user's entire long-term goal, and exactly one current action for today.
+weekly direction and one measurable success criterion that measures only that weekly direction rather
+than the user's entire long-term goal. Always return one primary current action in todayAction. Return
+zero additionalTodayActions by default. Return one or two additional current actions only when the user
+explicitly asks to maintain multiple independent required tracks (for example both language practice
+and job applications). Never split one action into artificial sub-tasks just to fill the array.
 
 The weekly direction must be 5 to 14 words, contain one behavior and one realistic frequency, and
 omit rationale, dates, schedules, logging instructions, and secondary goals. The success criterion
@@ -31,12 +40,16 @@ outcome as the minimum. Use realistic durations and difficulty must be easy, med
 text without emojis, decorative symbols, or quotation marks. The coach message must be one brief, warm
 sentence from Pace and must not mention Kibo or Kobi. Write all user-facing content in the requested locale.`;
 
-const NEXT_ACTION_INSTRUCTIONS = `You are Pace, the supportive AI goal-planning coach for the 86400 app. Create exactly one next daily
-action after reviewing the user's previous action and end-of-day check-in. Do not create a task list,
-a weekly schedule, calendar reminders, side tasks, or multiple alternatives. Adapt the next action
+const NEXT_ACTION_INSTRUCTIONS = `You are Pace, the supportive AI goal-planning coach for the 86400 app. Create the next day's required
+main action or actions after reviewing the user's previous action record. Use the structured goal
+profile as durable context: the next action must not contradict or silently drop a supplied success
+measure, deadline, constraint, milestone, or dependency. Always return one primary next action in
+nextAction. Return zero additionalNextActions by default. Return one or two additional actions only
+when the goal profile contains multiple independent required tracks that must stay active. Do not
+create a weekly schedule, calendar reminders, side tasks, or alternative choices. Adapt the actions
 downward when the previous action was not completed or the mood/reflection suggests low capacity. The
-action must be something the user can do on the next day, not planning or scheduling several future
-actions. Its title must contain one imperative verb phrase of no more than 10 words and must not use
+actions must be things the user can do on the next day, not planning or scheduling several future
+days. Each title must contain one imperative verb phrase of no more than 10 words and must not use
 "and", "or", a slash, or a conditional alternative. The description must have no more than 18 words
 and describe one observable outcome. Prefer a 10 to 30 minute next action and reduce it further after
 an incomplete or low-capacity day. minimumCompletion must be 3 to 9 words, measurable, and materially
@@ -59,11 +72,46 @@ const DAILY_ACTION_SCHEMA = {
   }
 };
 
+const GOAL_PROFILE_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["objective", "successMeasures", "deadlines", "constraints", "milestones", "dependencies"],
+  properties: {
+    objective: { type: "string", minLength: 3, maxLength: 180 },
+    successMeasures: {
+      type: "array",
+      maxItems: 6,
+      items: { type: "string", minLength: 2, maxLength: 140 }
+    },
+    deadlines: {
+      type: "array",
+      maxItems: 6,
+      items: { type: "string", minLength: 2, maxLength: 140 }
+    },
+    constraints: {
+      type: "array",
+      maxItems: 6,
+      items: { type: "string", minLength: 2, maxLength: 140 }
+    },
+    milestones: {
+      type: "array",
+      maxItems: 8,
+      items: { type: "string", minLength: 2, maxLength: 140 }
+    },
+    dependencies: {
+      type: "array",
+      maxItems: 6,
+      items: { type: "string", minLength: 2, maxLength: 140 }
+    }
+  }
+};
+
 const PLAN_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["goalClassification", "reasoning", "weeklySprintGoal", "successCriteria", "todayAction", "coachMessage"],
+  required: ["goalProfile", "goalClassification", "reasoning", "weeklySprintGoal", "successCriteria", "todayAction", "additionalTodayActions", "coachMessage"],
   properties: {
+    goalProfile: GOAL_PROFILE_SCHEMA,
     goalClassification: { type: "string", minLength: 2, maxLength: 48 },
     reasoning: { type: "string", minLength: 3, maxLength: 120 },
     weeklySprintGoal: { type: "string", minLength: 3, maxLength: 100 },
@@ -74,6 +122,11 @@ const PLAN_SCHEMA = {
       items: { type: "string", minLength: 3, maxLength: 96 }
     },
     todayAction: DAILY_ACTION_SCHEMA,
+    additionalTodayActions: {
+      type: "array",
+      maxItems: 2,
+      items: DAILY_ACTION_SCHEMA
+    },
     coachMessage: { type: "string", minLength: 3, maxLength: 120 }
   }
 };
@@ -81,9 +134,14 @@ const PLAN_SCHEMA = {
 const NEXT_ACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["nextAction", "coachMessage"],
+  required: ["nextAction", "additionalNextActions", "coachMessage"],
   properties: {
     nextAction: DAILY_ACTION_SCHEMA,
+    additionalNextActions: {
+      type: "array",
+      maxItems: 2,
+      items: DAILY_ACTION_SCHEMA
+    },
     coachMessage: { type: "string", minLength: 3, maxLength: 120 }
   }
 };
@@ -98,6 +156,42 @@ class ApiProblem extends Error {
 
 function textOr(value, fallback) {
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
+
+const GOAL_PROFILE_ARRAY_FIELDS = ["successMeasures", "deadlines", "constraints", "milestones", "dependencies"];
+
+function normalizeGoalProfile(profile, fallbackObjective = "") {
+  const source = profile && typeof profile === "object" && !Array.isArray(profile) ? profile : {};
+  return {
+    objective: textOr(source.objective, fallbackObjective),
+    ...Object.fromEntries(GOAL_PROFILE_ARRAY_FIELDS.map(field => [
+      field,
+      Array.isArray(source[field])
+        ? source[field].filter(value => typeof value === "string" && value.trim()).map(value => value.trim())
+        : []
+    ]))
+  };
+}
+
+function validateGoalProfile(profile) {
+  if (profile == null) return null;
+  if (!profile || typeof profile !== "object" || Array.isArray(profile)) {
+    throw new ApiProblem(400, "INVALID_GOAL_PROFILE", "Goal profile must be an object");
+  }
+  const allowed = new Set(["objective", ...GOAL_PROFILE_ARRAY_FIELDS]);
+  if (Object.keys(profile).some(key => !allowed.has(key))) {
+    throw new ApiProblem(400, "INVALID_GOAL_PROFILE", "Goal profile contains an unknown field");
+  }
+  if (typeof profile.objective !== "string" || !profile.objective.trim() || profile.objective.length > 500) {
+    throw new ApiProblem(400, "INVALID_GOAL_PROFILE", "Goal profile objective is invalid");
+  }
+  for (const field of GOAL_PROFILE_ARRAY_FIELDS) {
+    const values = profile[field];
+    if (!Array.isArray(values) || values.length > 12 || values.some(value => typeof value !== "string" || !value.trim() || value.length > 500)) {
+      throw new ApiProblem(400, "INVALID_GOAL_PROFILE", `Goal profile ${field} is invalid`);
+    }
+  }
+  return normalizeGoalProfile(profile);
 }
 
 function validatePlanRequest(body) {
@@ -144,6 +238,7 @@ function validateNextActionRequest(body) {
     previousActionCompleted: Boolean(body.previousActionCompleted),
     reflection: textOr(body.reflection, "No reflection provided"),
     mood: textOr(body.mood, "Not provided"),
+    goalProfile: validateGoalProfile(body.goalProfile),
     currentDay,
     locale: textOr(body.locale, "en"),
     timezone: textOr(body.timezone, "UTC")
@@ -233,14 +328,16 @@ async function requestStructuredOutput({ instructions, input, schema, schemaName
   }
 }
 
-function normalizePlanPayload(payload) {
+function normalizePlanPayload(payload, fallbackGoal = "") {
   if (!payload?.todayAction || !payload.weeklySprintGoal) throw new Error("Incomplete plan payload");
+  const actions = [payload.todayAction, ...(Array.isArray(payload.additionalTodayActions) ? payload.additionalTodayActions : [])].slice(0, 3);
   return {
+    goalProfile: normalizeGoalProfile(payload.goalProfile, fallbackGoal || String(payload.reasoning || "")),
     goalClassification: String(payload.goalClassification),
     reasoning: String(payload.reasoning),
     weeklySprintGoal: String(payload.weeklySprintGoal),
     successCriteria: payload.successCriteria.map(String),
-    dailyActionPlan: [{ day: 1, ...payload.todayAction }],
+    dailyActionPlan: actions.map(action => ({ day: 1, ...action })),
     sideTasks: [],
     coachMessage: String(payload.coachMessage)
   };
@@ -249,9 +346,11 @@ function normalizePlanPayload(payload) {
 function normalizeNextActionPayload(payload, currentDay) {
   if (!payload?.nextAction) throw new Error("Incomplete next-action payload");
   const day = currentDay + 1;
+  const actions = [payload.nextAction, ...(Array.isArray(payload.additionalNextActions) ? payload.additionalNextActions : [])].slice(0, 3);
   return {
     day,
     nextAction: { day, ...payload.nextAction },
+    dailyActionPlan: actions.map(action => ({ day, ...action })),
     coachMessage: String(payload.coachMessage)
   };
 }
@@ -282,9 +381,9 @@ async function handlePlan(request, response) {
       input: `Goal:\n${input.goal}\n\nLocale: ${input.locale}\nTimezone: ${input.timezone}`,
       schema: PLAN_SCHEMA,
       schemaName: "pace_initial_plan",
-      maxOutputTokens: 600
+      maxOutputTokens: 900
     });
-    return sendJson(response, 200, normalizePlanPayload(payload));
+    return sendJson(response, 200, normalizePlanPayload(payload, input.goal));
   } catch (error) {
     return sendProblem(response, error);
   }
@@ -299,10 +398,10 @@ async function handleNextAction(request, response) {
     const input = validateNextActionRequest(await readBody(request));
     const payload = await requestStructuredOutput({
       instructions: NEXT_ACTION_INSTRUCTIONS,
-      input: `Original goal:\n${input.goal}\n\nWeekly direction:\n${input.weeklySprintGoal}\n\nPrevious action: ${input.previousActionTitle}\nPrevious action completed: ${input.previousActionCompleted}\nEnd-of-day mood: ${input.mood}\nEnd-of-day reflection: ${input.reflection}\nCurrent day: ${input.currentDay}\nLocale: ${input.locale}\nTimezone: ${input.timezone}`,
+      input: `Original goal:\n${input.goal}\n\nStructured goal profile:\n${JSON.stringify(input.goalProfile || {})}\n\nWeekly direction:\n${input.weeklySprintGoal}\n\nPrevious action: ${input.previousActionTitle}\nPrevious action completed: ${input.previousActionCompleted}\nEnd-of-day mood: ${input.mood}\nEnd-of-day reflection: ${input.reflection}\nCurrent day: ${input.currentDay}\nLocale: ${input.locale}\nTimezone: ${input.timezone}`,
       schema: NEXT_ACTION_SCHEMA,
       schemaName: "pace_next_action",
-      maxOutputTokens: 450
+      maxOutputTokens: 650
     });
     return sendJson(response, 200, normalizeNextActionPayload(payload, input.currentDay));
   } catch (error) {
@@ -312,6 +411,7 @@ async function handleNextAction(request, response) {
 
 module.exports = {
   ApiProblem,
+  GOAL_PROFILE_SCHEMA,
   PLAN_SCHEMA,
   NEXT_ACTION_SCHEMA,
   extractOutputText,
@@ -319,7 +419,9 @@ module.exports = {
   handleNextAction,
   normalizePlanPayload,
   normalizeNextActionPayload,
+  normalizeGoalProfile,
   requestStructuredOutput,
   validatePlanRequest,
-  validateNextActionRequest
+  validateNextActionRequest,
+  validateGoalProfile
 };

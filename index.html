@@ -120,6 +120,27 @@
     .minimum .label { display: block; margin-bottom: 4px; }
     .plain-row, .task-row, .method-row { width: 100%; min-height: 56px; display: flex; align-items: center; gap: 11px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 12px 14px; text-align: left; }
     .plain-row { justify-content: space-between; }
+    .goal-detail { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+    .goal-detail:first-child { border-top: 0; padding-top: 0; }
+    .goal-detail:last-child { padding-bottom: 0; }
+    .goal-detail strong { font-size: 13px; line-height: 1.45; }
+    .goal-more { margin-top: 10px; }
+    .goal-more summary { cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .goal-more[open] summary { margin-bottom: 10px; }
+    .segment { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; border-radius: 12px; background: var(--line); padding: 4px; }
+    .segment button { min-height: 38px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 700; }
+    .segment button.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 4px var(--shadow); }
+    .report-banner { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--sage); border-radius: 14px; background: var(--sage-soft); padding: 13px 14px; text-align: left; }
+    .report-banner strong { display: block; color: var(--sage); font-size: 13px; }
+    .result-choice { width: 100%; display: flex; align-items: center; gap: 11px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 13px 14px; text-align: left; }
+    .result-choice.selected { border: 2px solid var(--coral); background: var(--coral-soft); }
+    .result-dot { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; color: transparent; }
+    .result-choice.selected .result-dot { border-color: var(--coral); background: var(--coral); color: var(--surface); }
+    .task-actions { display: flex; flex: none; align-items: center; gap: 7px; }
+    .task-actions .button { width: auto; }
+    .metric-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+    .metric-row:last-child { border-bottom: 0; }
+    .empty-state { min-height: 330px; display: grid; place-items: center; text-align: center; }
     .task-row.current { border: 2px solid var(--coral); }
     .task-status { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 7px; font-size: 12px; font-weight: 700; }
     .task-status.done { border-color: var(--sage); background: var(--sage-soft); color: var(--sage); }
@@ -136,6 +157,7 @@
     .error-copy { margin-top: 5px; color: var(--danger); font-size: 11px; line-height: 1.4; }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .chip { border: 1px solid var(--line); border-radius: 100px; background: var(--surface); padding: 7px 12px; color: var(--muted); font-size: 13px; }
+    .chip.selected { border-color: var(--coral); background: var(--coral-soft); color: var(--ink); font-weight: 700; }
     .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .choice { min-height: 48px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 9px; color: var(--muted); font-size: 13px; font-weight: 600; }
     .choice.selected { border: 2px solid var(--coral); background: var(--coral-soft); color: var(--ink); }
@@ -210,13 +232,14 @@
     "use strict";
     const STORAGE_KEY = "86400.v1";
     const LEGACY_KEYS = ["86400.v2"];
-    const STATE_VERSION = 8;
-    const DESIGN_VERSION = 257;
+    const STATE_VERSION = 9;
+    const DESIGN_VERSION = 267;
     const PLAN_API_URL = "/api/plan";
     const NEXT_ACTION_API_URL = "/api/next-action";
     const AI_REQUEST_TIMEOUT_MS = 55_000;
     const ASSET = "assets/figma/";
     const V257 = ASSET + "v257/";
+    const PET_ART = V257 + "pets/";
     const IMAGE = {
       signal: ASSET + "icon-signal.svg", wifi: ASSET + "icon-wifi.svg", battery: ASSET + "icon-battery.svg",
       sparkle: ASSET + "icon-sparkles.svg", calendar: ASSET + "icon-calendar.svg", compass: ASSET + "icon-compass.svg", list: ASSET + "icon-list.svg", growth: ASSET + "icon-growth.svg",
@@ -226,30 +249,32 @@
       equippedHero: V257 + "equipped-hero.png", equippedHat: V257 + "equipped-hat.png", equippedForest: V257 + "equipped-forest.png", tinyHatTransparent: V257 + "tiny-hat-transparent-v2.png"
     };
     const PET_SPECIES = [
-      { id: "capybara", name: "Capybara", image: V257 + "capybara.png", traits: ["Patient", "Social", "Calm"], copy: "Calm, social, and endlessly patient — ready to build steady momentum with you." },
-      { id: "red-panda", name: "Red Panda", image: V257 + "red-panda.png", traits: ["Curious", "Playful", "Independent"], copy: "Curious and playful, always ready to explore the next tiny step." },
-      { id: "sea-otter", name: "Sea Otter", image: V257 + "sea-otter.png", traits: ["Resourceful", "Affectionate", "Creative"], copy: "Resourceful and creative, happiest when progress stays within reach." },
-      { id: "fennec-fox", name: "Fennec Fox", image: V257 + "fennec-fox.png", traits: ["Alert", "Adaptable", "Energetic"], copy: "Alert and adaptable, ready to turn small openings into momentum." },
-      { id: "lop-rabbit", name: "Lop Rabbit", image: V257 + "lop-rabbit.png", traits: ["Gentle", "Steady", "Persistent"], copy: "Gentle and persistent, a calming presence that keeps your daily work moving." },
-      { id: "axolotl", name: "Axolotl", image: V257 + "axolotl.png", traits: ["Resilient", "Cheerful", "Unique"], copy: "Cheerful and resilient, always willing to begin again with a smaller step." },
-      { id: "hedgehog", name: "Hedgehog", image: V257 + "hedgehog.png", traits: ["Thoughtful", "Brave", "Reliable"], copy: "Thoughtful and reliable, prepared to protect the focus you have earned." },
-      { id: "shiba-inu", name: "Shiba Inu", image: V257 + "shiba-inu.png", traits: ["Loyal", "Spirited", "Dedicated"], copy: "Loyal and spirited, bringing dedication to every action on your journey." },
-      { id: "beaver", name: "Beaver", image: V257 + "beaver.png", traits: ["Industrious", "Methodical", "Builder"], copy: "The ultimate industrious builder — methodically turning plans into something real." }
+      { id: "capybara", name: "Capybara", hatchImage: V257 + "capybara.png", image: PET_ART + "capybara-neutral.png", celebratingImage: PET_ART + "capybara-celebrating.png", traits: ["Patient", "Social", "Calm"], copy: "Calm, social, and endlessly patient — ready to build steady momentum with you." },
+      { id: "red-panda", name: "Red Panda", hatchImage: V257 + "red-panda.png", image: PET_ART + "red-panda-neutral.png", celebratingImage: PET_ART + "red-panda-celebrating.png", traits: ["Curious", "Playful", "Independent"], copy: "Curious and playful, always ready to explore the next tiny step." },
+      { id: "sea-otter", name: "Sea Otter", hatchImage: V257 + "sea-otter.png", image: PET_ART + "sea-otter-neutral.png", celebratingImage: PET_ART + "sea-otter-celebrating.png", traits: ["Resourceful", "Affectionate", "Creative"], copy: "Resourceful and creative, happiest when progress stays within reach." },
+      { id: "fennec-fox", name: "Fennec Fox", hatchImage: V257 + "fennec-fox.png", image: PET_ART + "fennec-fox-neutral.png", celebratingImage: PET_ART + "fennec-fox-celebrating.png", traits: ["Alert", "Adaptable", "Energetic"], copy: "Alert and adaptable, ready to turn small openings into momentum." },
+      { id: "lop-rabbit", name: "Lop Rabbit", hatchImage: V257 + "lop-rabbit.png", image: PET_ART + "lop-rabbit-neutral.png", celebratingImage: PET_ART + "lop-rabbit-celebrating.png", traits: ["Gentle", "Steady", "Persistent"], copy: "Gentle and persistent, a calming presence that keeps your daily work moving." },
+      { id: "axolotl", name: "Axolotl", hatchImage: V257 + "axolotl.png", image: PET_ART + "axolotl-neutral.png", celebratingImage: PET_ART + "axolotl-celebrating.png", traits: ["Resilient", "Cheerful", "Unique"], copy: "Cheerful and resilient, always willing to begin again with a smaller step." },
+      { id: "hedgehog", name: "Hedgehog", hatchImage: V257 + "hedgehog.png", image: PET_ART + "hedgehog-neutral.png", celebratingImage: PET_ART + "hedgehog-celebrating.png", traits: ["Thoughtful", "Brave", "Reliable"], copy: "Thoughtful and reliable, prepared to protect the focus you have earned." },
+      { id: "shiba-inu", name: "Shiba Inu", hatchImage: V257 + "shiba-inu.png", image: PET_ART + "shiba-inu-neutral.png", celebratingImage: PET_ART + "shiba-inu-celebrating.png", traits: ["Loyal", "Spirited", "Dedicated"], copy: "Loyal and spirited, bringing dedication to every action on your journey." },
+      { id: "beaver", name: "Beaver", hatchImage: V257 + "beaver.png", image: PET_ART + "beaver-neutral.png", celebratingImage: PET_ART + "beaver-celebrating.png", traits: ["Industrious", "Methodical", "Builder"], copy: "The ultimate industrious builder — methodically turning plans into something real." }
     ];
+    const requestedOnboardingVariant = new URLSearchParams(window.location.search).get("onboarding") === "b" ? "b" : "a";
     const DEFAULT_STATE = {
-      version: STATE_VERSION, designVersion: DESIGN_VERSION, onboarded: false, onboardingStep: -1, tab: "today", view: "", toast: "",
-      brief: "", goalError: "", planStatus: "idle", planError: "", aiPlan: null, selectedSideTasks: [], nextActionStatus: "idle", nextActionError: "", nextAction: null, tokens: 340, streak: 0,
-      current: "day-1", timer: 900, running: false, firstCompletion: false, completionCommitted: false, lastCompletion: null,
+      version: STATE_VERSION, designVersion: DESIGN_VERSION, onboarded: false, onboardingStep: -1, onboardingVariant: requestedOnboardingVariant, tab: "today", taskView: "active", view: "", toast: "",
+      brief: "", goalError: "", planStatus: "idle", planError: "", aiPlan: null, planEdited: false, selectedSideTasks: [], nextActionStatus: "idle", nextActionError: "", nextAction: null, tokens: 340, streak: 0,
+      current: "day-1", activeDate: "", tomorrowTasks: [], dailyStreakAwardedFor: "", timer: 900, running: false, firstCompletion: false, completionCommitted: false, completionResult: "completed", lastCompletion: null,
       hatchStep: 0, hatched: false, pet: { species: "", name: "", nameDraft: "", nameError: "", status: "neutral" },
       evidence: { method: "", photo: "", link: "", note: "", self: false, error: "", items: [] },
-      reflection: { mood: "Satisfied", learning: "", next: "", skipped: false, error: "" },
+      reflection: { mood: "", learning: "", next: "", note: "", skipped: false, error: "" },
+      planSettings: { weeklyDays: 5, dailyMinutes: 30 }, taskDraft: "", chatDraft: "", chatMessages: [],
+      potion: { active: false, usedAt: "", expiresAt: "" }, weeklyReportViewedFor: "",
       sideDraft: { title: "", category: "Learning", duration: 20, mood: "Satisfied", outcome: "", note: "", evidence: "", journey: "Current Journey", error: "" }, sideSaved: null,
       eod: { step: 0, mood: "Good", reflection: "", skipped: false }, weeklyFlow: { step: 0, mood: "Proud", reflection: "" },
       shopSection: "featured", selectedProduct: "tiny-hat", owned: [], equipped: [], logs: [], settingsReturn: "today",
       tasks: [
-        { id: "day-1", day: 1, title: "Start with a 10-minute stretch", duration: 15, min: "Complete ten minutes of gentle stretching and note how your body feels.", required: "Photo, note, or honest self-confirmation", done: false, optional: false },
-        { id: "day-2", day: 2, title: "Add meditation and quiet focus", duration: 20, min: "Meditate for ten minutes without switching to another task.", required: "Written note or self-confirmation", done: false, optional: false },
-        { id: "day-3", day: 3, title: "Build a complete morning sequence", duration: 25, min: "Complete one short movement, focus, and breakfast sequence.", required: "Photo or written note", done: false, optional: false }
+        { id: "day-1-task-1", day: 1, title: "Start with a 10-minute stretch", duration: 15, min: "Stretch for ten minutes.", done: false, status: "active", optional: false },
+        { id: "day-1-task-2", day: 1, title: "Add ten minutes of quiet focus", duration: 10, min: "Focus quietly for five minutes.", done: false, status: "active", optional: false }
       ],
       journey: { goal: "Establish a 30-minute morning routine 5 of 7 days.", progress: 35, evidence: 3, days: 5, status: "neutral" }
     };
@@ -258,8 +283,6 @@
     function mergeState(source) {
       const next = clone(DEFAULT_STATE);
       if (!source || typeof source !== "object") return next;
-      const sameDesign = source.designVersion === DESIGN_VERSION;
-      const sameSchema = source.version === STATE_VERSION;
       Object.assign(next, source);
       next.version = STATE_VERSION; next.designVersion = DESIGN_VERSION;
       next.pet = Object.assign(clone(DEFAULT_STATE.pet), source.pet || {});
@@ -267,12 +290,15 @@
       next.reflection = Object.assign(clone(DEFAULT_STATE.reflection), source.reflection || {});
       next.sideDraft = Object.assign(clone(DEFAULT_STATE.sideDraft), source.sideDraft || {});
       next.eod = Object.assign(clone(DEFAULT_STATE.eod), source.eod || {}); next.weeklyFlow = Object.assign(clone(DEFAULT_STATE.weeklyFlow), source.weeklyFlow || {}); next.journey = Object.assign(clone(DEFAULT_STATE.journey), source.journey || {});
-      next.tasks = Array.isArray(source.tasks) && source.tasks.length ? clone(source.tasks) : clone(DEFAULT_STATE.tasks);
+      next.planSettings = Object.assign(clone(DEFAULT_STATE.planSettings), source.planSettings || {}); next.potion = Object.assign(clone(DEFAULT_STATE.potion), source.potion || {});
+      next.chatMessages = Array.isArray(source.chatMessages) ? clone(source.chatMessages) : [];
+      next.tomorrowTasks = Array.isArray(source.tomorrowTasks) ? clone(source.tomorrowTasks) : [];
+      next.tasks = Array.isArray(source.tasks) && source.tasks.length ? clone(source.tasks).map((item, index) => ({ ...item, id: item.id || `task-${index + 1}`, status: item.done ? "completed" : item.status || "active", optional: Boolean(item.optional) })) : clone(DEFAULT_STATE.tasks);
       next.owned = Array.isArray(source.owned) ? clone(source.owned) : []; next.equipped = Array.isArray(source.equipped) ? clone(source.equipped) : []; next.logs = Array.isArray(source.logs) ? clone(source.logs) : [];
-      const hasCompletedAction = next.tasks.some(item => item?.done) || next.logs.some(item => item?.type === "action");
-      next.streak = hasCompletedAction ? Math.max(1, Number(next.streak) || 1) : 0;
+      next.streak = Math.max(0, Number(source.streak) || 0);
       next.planStatus = "idle"; next.planError = ""; next.nextActionStatus = "idle"; next.nextActionError = "";
-      if (!sameDesign || !sameSchema) return clone(DEFAULT_STATE);
+      next.activeDate = source.activeDate || localDateKey(new Date());
+      next.onboardingVariant = source.onboardingVariant === "b" || requestedOnboardingVariant === "b" ? "b" : "a";
       return next;
     }
     function loadState() {
@@ -286,13 +312,51 @@
     let photoPreviewUrl = "";
     let planRequestId = 0;
     let nextActionRequestId = 0;
+    if (!state.activeDate) state.activeDate = localDateKey(new Date());
     function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (error) { console.warn("Prototype data could not be saved.", error); } }
     function task(id = state.current) { return state.tasks.find(item => item.id === id) || state.tasks[0]; }
     function petSpecies() { return PET_SPECIES.find(item => item.id === state.pet.species) || PET_SPECIES[0]; }
     function ensurePet() { if (!state.pet.species) state.pet.species = PET_SPECIES[Math.floor(Math.random() * PET_SPECIES.length)].id; return petSpecies(); }
     function petDisplayName() { return state.pet.name || (state.hatched ? petSpecies().name : "Your companion"); }
-    function petImage(status = state.pet.status) { const pet = petSpecies(); if (pet.id === "capybara" && status === "celebrating") return IMAGE.todayCelebrating; if (pet.id === "capybara" && status === "neutral") return IMAGE.todayNeutral; return pet.image; }
-    function completedCount() { return state.tasks.filter(item => item.done).length; }
+    function petImage(status = state.pet.status) { const pet = petSpecies(); return status === "celebrating" ? pet.celebratingImage : pet.image; }
+    function requiredTasks() { return state.tasks.filter(item => !item.optional); }
+    function completedCount() { return requiredTasks().filter(item => item.done).length; }
+    function allRequiredDone() { const required = requiredTasks(); return required.length > 0 && required.every(item => item.done); }
+    function pendingTasks() { return requiredTasks().filter(item => !item.done); }
+    function nextPendingTask() { return pendingTasks()[0] || null; }
+    function taskStatus(item) { return item.done ? "completed" : item.status === "skipped" ? "skipped" : item.status === "incomplete" ? "incomplete" : "active"; }
+    function setCurrentTask(item) { if (!item) return; state.current = item.id; state.timer = Math.max(1, Number(item.duration) || 10) * 60; }
+    function localDateKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`; }
+    function weeklyStats(now = new Date()) {
+      const end = new Date(now); end.setHours(23, 59, 59, 999);
+      const start = new Date(end); start.setDate(end.getDate() - 6); start.setHours(0, 0, 0, 0);
+      const datedLogs = state.logs.map(log => ({ log, date: new Date(log.at) })).filter(item => Number.isFinite(item.date.getTime()) && item.date >= start && item.date <= end);
+      const actionLogs = datedLogs.filter(item => item.log.type === "action" && item.log.result !== "incomplete");
+      const activeDates = new Set(datedLogs.filter(item => item.log.type === "day-complete").map(item => localDateKey(item.date)));
+      const moodByDate = new Map();
+      datedLogs.forEach(({ log, date }) => { if (log.type === "action" && log.mood && String(log.mood).trim()) moodByDate.set(localDateKey(date), String(log.mood).trim()); });
+      const moodCounts = new Map();
+      moodByDate.forEach(mood => moodCounts.set(mood, (moodCounts.get(mood) || 0) + 1));
+      const days = Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(start); date.setDate(start.getDate() + index);
+        return { label: new Intl.DateTimeFormat("en-US", { weekday: "narrow" }).format(date), active: activeDates.has(localDateKey(date)) };
+      });
+      const formatDate = date => new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
+      return {
+        dateLabel: `${formatDate(start)} – ${formatDate(end)}`,
+        daysCompleted: activeDates.size,
+        actionsCompleted: actionLogs.length,
+        sideActivities: datedLogs.filter(item => item.log.type === "side").length,
+        moods: Array.from(moodCounts, ([mood, count]) => ({ mood, count })).sort((a, b) => b.count - a.count),
+        days
+      };
+    }
+    function weeklyReportAvailable() {
+      const day = new Date().getDay();
+      const completedDates = new Set(state.logs.filter(log => log.type === "day-complete" && log.at).map(log => localDateKey(new Date(log.at))));
+      return completedDates.size > 0 && (day === 0 || day === 1 || completedDates.size >= 5);
+    }
+    function potionIsActive() { return Boolean(state.potion.active && new Date(state.potion.expiresAt).getTime() > Date.now()); }
     function progress(value) { return `<div class="progress"><span style="width:${Math.max(0, Math.min(100, value))}%"></span></div>`; }
     function pill(text, tone = "") { return `<span class="pill ${tone}">${escapeHTML(text)}</span>`; }
     function statusTime(date = new Date()) {
@@ -308,8 +372,14 @@
     function footer(primaryLabel, primaryAction, options = {}) { const disabled = options.disabled ? 'disabled aria-disabled="true" aria-busy="true"' : ""; const secondary = options.secondaryLabel ? `<button class="button secondary" data-action="${options.secondaryAction}">${escapeHTML(options.secondaryLabel)}</button>` : ""; return `<footer class="footer"><button class="button ${options.tone || ""}" data-action="${primaryAction}" ${disabled}>${escapeHTML(primaryLabel)}</button>${secondary}${homeIndicator()}</footer>`; }
     function tabs() { const items = [["today", IMAGE.calendar, "Today"], ["tasks", IMAGE.list, "Tasks"], ["journey", IMAGE.compass, "Journey"], ["shop", IMAGE.sparkle, "Shop"]]; return `<nav class="tabs">${items.map(([id, icon, label]) => `<button class="tab ${state.tab === id ? "active" : ""}" data-action="tab" data-value="${id}"><img src="${icon}" alt=""><span>${label}</span></button>`).join("")}</nav>`; }
     function page(body, options = {}) { const night = options.night ? " night-screen" : ""; return `<section class="screen${night}">${statusBar()}<div class="screen-scroll ${options.flush ? "flush" : ""} ${options.centered ? "centered" : ""}">${body}</div>${options.footer || ""}${options.nav ? tabs() : (!options.footer ? homeIndicator() : "")}${state.toast ? `<div class="toast">${escapeHTML(state.toast)}</div>` : ""}</section>`; }
-    function stepDots(active, total = 5) { return `<div class="step-dots">${Array.from({ length: total }, (_, index) => `<i class="${index === active ? "active" : ""}"></i>`).join("")}</div>`; }
+    function stepDots(active, total = 3) { return `<div class="step-dots">${Array.from({ length: total }, (_, index) => `<i class="${index === active ? "active" : ""}"></i>`).join("")}</div>`; }
     function showToast(message) { state.toast = message; saveState(); render(); window.setTimeout(() => { if (state.toast === message) { state.toast = ""; saveState(); render(); } }, 1700); }
+    function markPlanEdited() {
+      state.planEdited = true;
+      const buttons = document.querySelectorAll(".footer .button");
+      if (buttons[0]) { buttons[0].dataset.action = "review-plan-edits"; buttons[0].textContent = "Let Pace Organize My Edits"; }
+      if (buttons[1]) { buttons[1].dataset.action = "onboarding-start"; buttons[1].textContent = "Use My Edits Directly"; }
+    }
     function mutate(change, message = "") { change(); saveState(); render(); if (message) showToast(message); }
     function go(view = "", tab) { state.view = view; if (tab) state.tab = tab; state.running = false; saveState(); render(); }
     function petScene(size = "") {
@@ -317,11 +387,36 @@
       const hatEquipped = state.equipped.includes("tiny-hat");
       return `<div class="pet-scene ${size}">${roomEquipped ? `<img class="pet-scene-room" src="${IMAGE.cozyForest}" alt="">` : ""}<img class="pet-scene-pet" src="${petImage("neutral")}" alt="${escapeHTML(petDisplayName())}">${hatEquipped ? `<img class="pet-scene-hat" src="${IMAGE.tinyHatTransparent}" alt="Tiny Hat equipped">` : ""}</div>`;
     }
+    function normalizeGoalProfile(profile, fallbackObjective = "") {
+      const source = profile && typeof profile === "object" && !Array.isArray(profile) ? profile : {};
+      const arrayFields = ["successMeasures", "deadlines", "constraints", "milestones", "dependencies"];
+      const normalized = { objective: String(source.objective || fallbackObjective || "Your goal").trim() };
+      arrayFields.forEach(field => { normalized[field] = Array.isArray(source[field]) ? source[field].filter(item => typeof item === "string" && item.trim()).map(item => item.trim()) : []; });
+      return normalized;
+    }
+    function goalConfirmationItems(plan) {
+      const profile = normalizeGoalProfile(plan?.goalProfile, plan?.reasoning);
+      const groups = [
+        ["Success", profile.successMeasures],
+        ["Deadline", profile.deadlines],
+        ["Constraint", profile.constraints],
+        ["Depends on", profile.dependencies],
+        ["Milestone", profile.milestones]
+      ];
+      const seen = new Set();
+      return groups.flatMap(([label, values]) => values.map(value => ({ label, value }))).filter(item => {
+        const key = item.value.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
     function normalizePlan(payload) {
       if (!payload || typeof payload !== "object") throw new Error("The planning service returned an empty response.");
       const dailyActionPlan = Array.isArray(payload.dailyActionPlan) ? payload.dailyActionPlan.filter(item => item && item.title && item.description) : payload.todayAction?.title ? [payload.todayAction] : [];
       if (!payload.weeklySprintGoal || !dailyActionPlan.length) throw new Error("The planning service returned an incomplete plan.");
       return {
+        goalProfile: normalizeGoalProfile(payload.goalProfile, payload.reasoning || payload.goalClassification),
         goalClassification: String(payload.goalClassification || "Personal Growth"),
         reasoning: String(payload.reasoning || "Pace created a smaller direction from your goal."),
         weeklySprintGoal: String(payload.weeklySprintGoal),
@@ -345,14 +440,25 @@
     function normalizeNextAction(payload) {
       const item = payload?.nextAction;
       if (!item?.title || !item?.description) throw new Error("The planning service returned an incomplete next action.");
-      const durationMinutes = Math.max(5, Number(item.durationMinutes) || 10);
+      const sourceActions = Array.isArray(payload.dailyActionPlan) && payload.dailyActionPlan.length
+        ? payload.dailyActionPlan
+        : [item, ...(Array.isArray(payload.additionalNextActions) ? payload.additionalNextActions : [])];
+      const actions = sourceActions.filter(action => action?.title && action?.description).slice(0, 3).map((action, index) => {
+        const durationMinutes = Math.max(5, Number(action.durationMinutes) || 10);
+        return {
+          day: Math.max(1, Number(payload.day) || Number(action.day) || 1),
+          title: String(action.title),
+          description: String(action.description),
+          minimumCompletion: String(action.minimumCompletion || `Work on this action for ${Math.min(10, durationMinutes)} minutes.`),
+          durationMinutes,
+          difficulty: String(action.difficulty || "gentle"),
+          index
+        };
+      });
+      const primary = actions[0];
       return {
-        day: Math.max(1, Number(payload.day) || Number(item.day) || 1),
-        title: String(item.title),
-        description: String(item.description),
-        minimumCompletion: String(item.minimumCompletion || `Work on this action for ${Math.min(10, durationMinutes)} minutes.`),
-        durationMinutes,
-        difficulty: String(item.difficulty || "gentle"),
+        ...primary,
+        actions,
         coachMessage: String(payload.coachMessage || "Tomorrow only needs one manageable beginning.")
       };
     }
@@ -387,9 +493,10 @@
       if (status === 503) return "The AI planning service is not configured yet. Add OPENAI_API_KEY in Vercel Project Settings, redeploy, and try again.";
       return serviceMessage || `The planning service returned error ${status}. Please try again.`;
     }
-    async function requestAiPlan() {
-      const goal = state.brief.trim(); if (state.planStatus === "loading") return;
-      if (goal.length < 10) { mutate(() => { state.goalError = "Tell us a little more about what you want to achieve."; }); return; }
+    async function requestAiPlan(adjustment = "", returnStep = 1) {
+      const baseGoal = state.brief.trim(); if (state.planStatus === "loading") return;
+      if (baseGoal.length < 10) { mutate(() => { state.goalError = "Tell us a little more about what you want to achieve."; }); return; }
+      const goal = adjustment.trim() ? `${baseGoal}\n\nThe user added this onboarding adjustment:\n${adjustment.trim()}` : baseGoal;
       if (window.location.protocol === "file:") {
         mutate(() => { state.planError = "Open the app through Vercel or Vercel Dev before using AI planning. A file:// preview cannot call the secure server-side API."; });
         return;
@@ -410,7 +517,14 @@
         if (!response.ok) throw Object.assign(new Error(planErrorMessage(response.status, payload)), { status: response.status });
         const plan = normalizePlan(payload);
         if (requestId !== planRequestId) return;
-        mutate(() => { state.aiPlan = plan; state.selectedSideTasks = []; state.planStatus = "idle"; state.planError = ""; state.onboardingStep = 1; });
+        mutate(() => {
+          state.aiPlan = plan; state.planEdited = false; state.selectedSideTasks = []; state.planStatus = "idle"; state.planError = ""; state.onboardingStep = returnStep;
+          if (state.onboardingVariant === "b") {
+            if (adjustment.trim()) state.chatMessages.push({ role: "user", text: adjustment.trim() });
+            state.chatMessages.push({ role: "pace", text: `I organized this into ${plan.dailyActionPlan.length} main ${plan.dailyActionPlan.length === 1 ? "task" : "tasks"} and kept your key constraints.` });
+            state.chatDraft = "";
+          }
+        });
       } catch (error) {
         if (requestId !== planRequestId) return;
         const message = error.name === "AbortError"
@@ -424,7 +538,7 @@
       }
     }
     async function requestNextAction() {
-      if (state.nextActionStatus === "loading") return;
+      if (state.nextActionStatus === "loading" || state.nextAction) return;
       if (window.location.protocol === "file:") {
         mutate(() => { state.nextActionError = "Open the app through Vercel or Vercel Dev before asking Pace for tomorrow's action."; });
         return;
@@ -438,11 +552,12 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             goal: state.brief.trim() || state.journey.goal,
+            goalProfile: state.aiPlan?.goalProfile || null,
             weeklySprintGoal: state.aiPlan?.weeklySprintGoal || state.journey.goal,
-            previousActionTitle: currentTask.title,
-            previousActionCompleted: Boolean(currentTask.done),
-            reflection: state.eod.skipped ? "" : state.eod.reflection.trim(),
-            mood: state.eod.skipped ? "" : state.eod.mood,
+            previousActionTitle: requiredTasks().map(item => item.title).join("; "),
+            previousActionCompleted: allRequiredDone(),
+            reflection: state.reflection.note.trim() || state.reflection.learning.trim(),
+            mood: state.reflection.mood,
             currentDay: Math.max(1, Number(currentTask.day) || state.journey.days || 1),
             locale: "en-US",
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
@@ -452,7 +567,11 @@
         if (!response.ok) throw Object.assign(new Error(planErrorMessage(response.status, payload)), { status: response.status });
         const nextAction = normalizeNextAction(payload);
         if (requestId !== nextActionRequestId) return;
-        mutate(() => { state.nextAction = nextAction; state.nextActionStatus = "idle"; state.nextActionError = ""; state.eod.step = 5; });
+        mutate(() => {
+          state.nextAction = nextAction;
+          state.tomorrowTasks = nextAction.actions.map((action, index) => ({ id: `day-${action.day}-task-${index + 1}`, day: action.day, title: action.title, description: action.description, duration: action.durationMinutes, min: action.minimumCompletion, done: false, status: "upcoming", optional: false, difficulty: action.difficulty }));
+          state.nextActionStatus = "idle"; state.nextActionError = "";
+        });
       } catch (error) {
         if (requestId !== nextActionRequestId) return;
         const message = error.name === "AbortError"
@@ -467,30 +586,121 @@
     }
     function applyPlanToProduct() {
       const plan = state.aiPlan; if (!plan) return;
-      const first = plan.dailyActionPlan[0];
-      const today = { id: "day-1", day: 1, title: first.title, description: first.description, duration: first.durationMinutes, min: first.minimumCompletion, required: "Photo, link, written note, or honest self-confirmation", done: false, optional: false, difficulty: first.difficulty };
-      state.tasks = [today]; state.current = today.id; state.timer = today.duration * 60; state.journey.goal = plan.weeklySprintGoal; state.journey.progress = 0; state.journey.evidence = 0; state.journey.days = 0;
+      state.tasks = plan.dailyActionPlan.slice(0, 3).map((item, index) => ({ id: `day-1-task-${index + 1}`, day: 1, title: item.title, description: item.description, duration: item.durationMinutes, min: item.minimumCompletion, done: false, status: "active", optional: false, difficulty: item.difficulty }));
+      setCurrentTask(state.tasks[0]); state.activeDate = localDateKey(new Date()); state.tomorrowTasks = []; state.nextAction = null; state.dailyStreakAwardedFor = "";
+      state.journey.goal = plan.weeklySprintGoal; state.journey.progress = 0; state.journey.evidence = 0; state.journey.days = 0;
+    }
+    function rollOverDayIfNeeded() {
+      const today = localDateKey(new Date());
+      if (!state.activeDate) { state.activeDate = today; return true; }
+      if (state.activeDate === today || potionIsActive() || !state.tomorrowTasks.length) return false;
+      const previousComplete = allRequiredDone();
+      if (!previousComplete) {
+        requiredTasks().filter(item => !item.done).forEach(item => {
+          const alreadyClosed = state.logs.some(log => log.type === "task-status" && log.task === item.id && log.closedForDate === state.activeDate);
+          if (!alreadyClosed) state.logs.push({ type: "task-status", result: "incomplete", task: item.id, title: item.title, closedForDate: state.activeDate, at: new Date().toISOString() });
+        });
+        state.streak = 0;
+      }
+      state.tasks = state.tomorrowTasks.map(item => ({ ...item, done: false, status: "active" }));
+      state.tomorrowTasks = []; state.nextAction = null; state.nextActionStatus = "idle"; state.nextActionError = "";
+      state.activeDate = today; state.dailyStreakAwardedFor = ""; state.potion.active = false;
+      state.completionCommitted = false; state.lastCompletion = null; state.reflection = clone(DEFAULT_STATE.reflection);
+      setCurrentTask(state.tasks[0]); state.view = ""; state.tab = "today"; state.pet.status = "neutral";
+      return true;
     }
     function welcomeScreen() { return page(`<div class="welcome"><div class="welcome-logo">86400</div><p class="body-copy" style="margin-top:14px;font-size:16px">Your AI-powered action companion</p><img class="welcome-art" src="${IMAGE.welcome}" alt="86400 companion egg illustration"></div>`, { footer: footer("Get Started", "onboarding-begin") }); }
     function onboardingGoals() {
       const loading = state.planStatus === "loading";
-      return page(`${navHeader("", "onboarding-welcome")}${stepDots(0)}<h1>What do you want to achieve?</h1><div class="form-group" style="margin-top:18px"><textarea class="field goal-field ${state.goalError ? "error" : ""}" data-bind="brief" maxlength="800" ${loading ? "disabled" : ""} placeholder="Describe your goal in your own words…">${escapeHTML(state.brief)}</textarea><div class="row between" style="margin-top:6px"><span id="goal-error" class="error-copy" style="margin:0">${escapeHTML(state.goalError)}</span><span id="goal-count" class="small-copy">${state.brief.length} / 800</span></div></div>${loading ? `<div class="card center" role="status" aria-live="polite"><div class="eyebrow">Creating your plan…</div><h2>Turning your goal into a realistic week.</h2><p class="body-copy" style="margin-top:8px">Pace is turning your goal into one manageable next step.</p></div>` : `<div class="section-label">Need inspiration?</div><div class="chips"><button class="chip" data-action="goal-template" data-value="habits">Build healthy habits</button><button class="chip" data-action="goal-template" data-value="productivity">Boost daily productivity</button><button class="chip" data-action="goal-template" data-value="sleep">Improve deep sleep</button></div>${state.planError ? `<div class="notice" role="alert" style="margin-top:18px"><strong>Plan not created</strong><br>${escapeHTML(state.planError)}</div>` : `<div class="notice sage" style="margin-top:18px">Your goal is sent securely to Pace through this app's server-side API. No API key is stored in the frontend.</div>`}`}`, { footer: footer(loading ? "Creating Your Plan…" : state.planError ? "Try Again" : "Continue", "onboarding-next", { disabled: loading }) });
+      const status = loading
+        ? `<div class="card center" role="status" aria-live="polite"><div class="eyebrow">Reading your goal…</div><h2>Finding your first step</h2><p class="body-copy" style="margin-top:7px">Keeping your important details in view.</p></div>`
+        : state.planError
+          ? `<div class="notice" role="alert"><strong>Plan not created</strong><br>${escapeHTML(state.planError)}</div>`
+          : "";
+      return page(`${navHeader("", "onboarding-welcome")}${stepDots(0)}<h1>What do you want to make progress on?</h1><p class="body-copy" style="margin-top:7px">Include any deadline, target number, or constraint that matters.</p><div class="form-group" style="margin-top:16px"><textarea class="field goal-field ${state.goalError ? "error" : ""}" data-bind="brief" maxlength="800" ${loading ? "disabled" : ""} placeholder="Describe your goal in your own words…">${escapeHTML(state.brief)}</textarea><div class="row between" style="margin-top:6px"><span id="goal-error" class="error-copy" style="margin:0">${escapeHTML(state.goalError)}</span><span id="goal-count" class="small-copy">${state.brief.length} / 800</span></div></div>${status}`, { footer: footer(loading ? "Finding Your First Step…" : state.planError ? "Try Again" : "Continue", "onboarding-next", { disabled: loading }) });
     }
-    function onboardingClassification() { const plan = state.aiPlan; if (!plan) return onboardingGoals(); return page(`${navHeader("Goal Direction", "onboarding-back")}${stepDots(1)}${header("Suggested focus", plan.goalClassification)}<div class="card coral-card"><div class="label">What I heard</div><p class="body-copy" style="margin-top:6px;color:var(--ink)">${escapeHTML(plan.reasoning)}</p></div><div class="notice sage" style="margin-top:14px"><div class="label">A note from Pace</div><p class="body-copy" style="margin-top:6px;color:var(--ink)">${escapeHTML(paceMessage(plan))}</p></div>`, { footer: footer("Continue", "onboarding-next", { secondaryLabel: "Edit My Goal", secondaryAction: "onboarding-edit" }) }); }
-    function onboardingWeekly() { const plan = state.aiPlan; const direction = plan.weeklySprintGoal.replace(/^This week,\s*/i, ""); const title = direction.charAt(0).toUpperCase() + direction.slice(1); return page(`${navHeader("Weekly Direction", "onboarding-back")}${stepDots(2)}${header("Keep it light", "One goal for this week")}<div class="card coral-border"><div class="label">This week</div><h2 style="margin-top:10px">${escapeHTML(title)}</h2></div><div class="notice sage" style="margin-top:16px"><strong>Enough for a good week:</strong><br>${escapeHTML(plan.successCriteria[0])}</div>`, { footer: footer("Use This Goal", "onboarding-next") }); }
-    function onboardingDaily() { const plan = state.aiPlan; const first = plan.dailyActionPlan[0]; return page(`${navHeader("Today's Action", "onboarding-back")}${stepDots(3)}${header("Only one thing is visible", "Start with this")}<div class="card coral-border"><div class="row between"><div class="label">Today's focus</div>${pill(`${first.durationMinutes} min`, "sage")}</div><h2 style="margin-top:10px">${escapeHTML(first.title)}</h2><p class="body-copy" style="margin-top:8px">${escapeHTML(first.description)}</p></div><div class="notice sage" style="margin-top:16px">Tomorrow's action will appear after today's check-in. You do not need to plan the whole week now.</div>`, { footer: footer("Review & Start", "onboarding-next") }); }
-    function onboardingSideTasks() { const plan = state.aiPlan; return page(`${navHeader("Optional Side Tasks", "onboarding-back")}${stepDots(4)}${header("Complement your main action", "Choose only what feels helpful")}<p class="body-copy">Side tasks are optional and will not affect your streak.</p><div class="stack" style="margin-top:18px">${plan.sideTasks.map(item => { const selected = state.selectedSideTasks.includes(item.title); return `<div class="plain-row"><div><h3>${escapeHTML(item.title)}</h3><div class="small-copy">${item.durationMinutes} min · ${escapeHTML(item.difficulty)}</div></div><button class="toggle ${selected ? "on" : ""}" data-action="toggle-side" data-value="${escapeHTML(item.title)}" aria-label="${selected ? "Remove" : "Add"} optional task"></button></div>`; }).join("")}</div><div class="notice sage" style="margin-top:16px">Selected: ${state.selectedSideTasks.length}. You can change this later.</div>`, { footer: footer("Review Plan", "onboarding-next") }); }
-    function onboardingReview() { const plan = state.aiPlan; const first = plan.dailyActionPlan[0]; return page(`${navHeader("Ready for Today", "onboarding-back")}${stepDots(4)}<h1>One week. One action today.</h1><div class="card" style="margin-top:20px"><div class="label">Weekly direction</div><h3 style="margin-top:5px">${escapeHTML(plan.weeklySprintGoal)}</h3><div class="divider"></div><div class="row between"><div><div class="label">Today</div><h3 style="margin-top:5px">${escapeHTML(first.title)}</h3></div>${pill(`${first.durationMinutes} min`, "sage")}</div></div><div class="notice sage" style="margin-top:18px"><div class="label">A note from Pace</div><p class="body-copy" style="margin-top:6px;color:var(--ink)">${escapeHTML(paceMessage(plan))}</p></div>`, { footer: footer("Start Today's Action", "onboarding-complete") }); }
+    function onboardingClassification() {
+      const plan = state.aiPlan; if (!plan) return onboardingGoals();
+      const profile = normalizeGoalProfile(plan.goalProfile, plan.reasoning);
+      const details = goalConfirmationItems(plan);
+      const visibleDetails = details.slice(0, 6); const remainingDetails = details.slice(6);
+      const detailRows = visibleDetails.length
+        ? `<div class="card" style="margin-top:14px">${visibleDetails.map(item => `<div class="goal-detail"><span class="label">${escapeHTML(item.label)}</span><strong>${escapeHTML(item.value)}</strong></div>`).join("")}</div>`
+        : "";
+      const moreRows = remainingDetails.length
+        ? `<details class="card goal-more"><summary>View ${remainingDetails.length} more saved detail${remainingDetails.length === 1 ? "" : "s"}</summary>${remainingDetails.map(item => `<div class="goal-detail"><span class="label">${escapeHTML(item.label)}</span><strong>${escapeHTML(item.value)}</strong></div>`).join("")}</details>`
+        : "";
+      return page(`${navHeader("Your Goal", "onboarding-back")}${stepDots(1)}<h1>Did Pace understand this correctly?</h1><div class="card coral-border" style="margin-top:16px"><div class="label">Main outcome</div><h2 style="margin-top:7px">${escapeHTML(profile.objective)}</h2></div>${detailRows}${moreRows}`, { footer: footer("Yes, Continue", "onboarding-next", { secondaryLabel: "Edit My Goal", secondaryAction: "onboarding-edit" }) });
+    }
+    function onboardingDaily() {
+      const plan = state.aiPlan; const loading = state.planStatus === "loading";
+      const tasks = plan.dailyActionPlan.map((item, index) => `<div class="card ${index === 0 ? "coral-border" : ""}" style="margin-top:12px"><div class="row between"><div class="label">${index === 0 ? "First action" : `Main task ${index + 1}`}</div>${pill(`${item.durationMinutes} min`, index === 0 ? "sage" : "outline")}</div><input class="field" style="margin-top:9px;font-weight:700" data-bind="plan-task-title" data-index="${index}" value="${escapeHTML(item.title)}" aria-label="Main task ${index + 1} title" ${loading ? "disabled" : ""}><textarea class="field" style="min-height:76px;margin-top:8px" data-bind="plan-task-description" data-index="${index}" aria-label="Main task ${index + 1} description" ${loading ? "disabled" : ""}>${escapeHTML(item.description)}</textarea><div class="form-group" style="margin-top:8px;margin-bottom:0"><label>Smallest version</label><input class="field" data-bind="plan-task-minimum" data-index="${index}" value="${escapeHTML(item.minimumCompletion)}" ${loading ? "disabled" : ""}></div></div>`).join("");
+      const aiStatus = loading ? `<div class="notice sage" role="status" style="margin-top:14px"><strong>Pace is organizing your edits…</strong><br>Your wording and required tracks stay in the plan.</div>` : state.planError ? `<div class="notice danger" role="alert" style="margin-top:14px">${escapeHTML(state.planError)}</div>` : "";
+      const primaryLabel = loading ? "Organizing Edits…" : state.planEdited ? "Let Pace Organize My Edits" : "Start My Journey";
+      const primaryAction = state.planEdited ? "review-plan-edits" : "onboarding-start";
+      const secondaryLabel = state.planEdited ? "Use My Edits Directly" : state.onboardingVariant === "b" ? "Back to Pace" : "Check My Goal";
+      const secondaryAction = state.planEdited ? "onboarding-start" : "onboarding-back";
+      return page(`${navHeader("Review Plan", "onboarding-back")}${stepDots(2)}<h1>Your plan, in your words</h1><p class="body-copy" style="margin-top:7px">Edit anything before you begin. Pace will keep the structure; you keep control.</p><div class="form-group" style="margin-top:16px"><label>This week's direction</label><textarea class="field" style="min-height:78px" data-bind="plan-weekly-goal" ${loading ? "disabled" : ""}>${escapeHTML(plan.weeklySprintGoal)}</textarea></div>${tasks}${plan.dailyActionPlan.length < 3 ? `<button class="button secondary" data-action="add-plan-task" style="margin-top:12px" ${loading ? "disabled" : ""}>Add Another Main Task</button>` : ""}${aiStatus}`, { footer: footer(primaryLabel, primaryAction, { disabled: loading, secondaryLabel, secondaryAction }) });
+    }
+    function onboardingConversation() {
+      const plan = state.aiPlan; if (!plan) return onboardingGoals();
+      const messages = state.chatMessages.map(message => `<div class="card compact-card ${message.role === "pace" ? "sage-card" : ""}" style="margin-top:8px"><div class="label">${message.role === "pace" ? "Pace" : "You"}</div><p class="body-copy" style="margin-top:4px;color:var(--ink)">${escapeHTML(message.text)}</p></div>`).join("");
+      const loading = state.planStatus === "loading";
+      return page(`${navHeader("Plan with Pace", "onboarding-back")}${stepDots(1)}<h1>Adjust it in conversation</h1><p class="body-copy" style="margin-top:7px">Only this onboarding step changes the plan conversationally.</p>${messages}<div class="card" style="margin-top:12px"><div class="label">Current structure</div><h3 style="margin-top:6px">${escapeHTML(plan.weeklySprintGoal)}</h3><p class="small-copy" style="margin-top:5px">${plan.dailyActionPlan.length} main ${plan.dailyActionPlan.length === 1 ? "task" : "tasks"} · ${plan.dailyActionPlan.reduce((total, item) => total + item.durationMinutes, 0)} min today</p></div><div class="form-group" style="margin-top:14px"><label>Tell Pace what to change</label><textarea class="field" data-bind="chat-draft" maxlength="500" ${loading ? "disabled" : ""} placeholder="For example: keep the deadline, but separate exam study and job applications.">${escapeHTML(state.chatDraft)}</textarea></div>${state.planError ? `<div class="notice danger" role="alert">${escapeHTML(state.planError)}</div>` : ""}<button class="button secondary" data-action="chat-adjust" ${loading || !state.chatDraft.trim() ? "disabled" : ""}>${loading ? "Updating Plan…" : "Send Adjustment"}</button>`, { footer: footer("Review Structured Plan", "conversation-review", { disabled: loading }) });
+    }
+    function editedPlanAdjustment() {
+      const plan = state.aiPlan;
+      return `The user edited the onboarding plan. Preserve these required tracks and organize the wording without adding unrelated work.\nWeekly direction: ${plan.weeklySprintGoal}\nToday's required main tasks:\n${plan.dailyActionPlan.map((item, index) => `${index + 1}. ${item.title} — ${item.description} — smallest version: ${item.minimumCompletion}`).join("\n")}`;
+    }
     function onboardingComplete() { const first = state.aiPlan?.dailyActionPlan?.[0]; return page(`${navHeader("Welcome!")}<div class="center"><img class="egg-art" src="${IMAGE.egg}" alt="Your opaque companion egg"><h1 style="margin-top:12px">You're All Set!</h1><p class="body-copy" style="margin-top:10px">Your first action is ready. Complete it to hatch your companion egg!</p></div><div class="card coral-border" style="margin-top:22px"><div class="label">Today's first action</div><h3 style="margin-top:7px">${escapeHTML(first?.title || "Take one small step toward your goal.")}</h3></div>`, { footer: footer("Go to Today", "enter-app") }); }
-    function onboarding() { if (state.view === "onboarding-complete") return onboardingComplete(); if (state.onboardingStep < 0) return welcomeScreen(); if (state.onboardingStep === 0) return onboardingGoals(); if (state.onboardingStep === 1) return onboardingClassification(); if (state.onboardingStep === 2) return onboardingWeekly(); if (state.onboardingStep === 3) return onboardingDaily(); return onboardingReview(); }
-    function taskRow(item, current = false) { return `<button class="task-row ${current ? "current" : ""}" data-action="select-task" data-id="${item.id}"><span class="task-status ${item.done ? "done" : ""}">${item.done ? "✓" : ""}</span><div class="grow"><h3>${escapeHTML(item.title)}</h3><div class="small-copy">${item.optional ? "Optional" : "Today"} · ${item.duration} min</div></div>${current ? pill("Focus") : ""}</button>`; }
-    function todayScreen() {
-      const currentTask = task(); const done = completedCount();
-      const hero = state.hatched ? `${petScene("compact")}<h2 class="center">${escapeHTML(petDisplayName())}</h2><div class="center" style="margin-top:7px">${pill(state.pet.status === "celebrating" ? "Great Job!" : "Neutral", state.pet.status === "celebrating" ? "sage" : "outline")}</div>` : `<img class="egg-art" style="height:210px" src="${IMAGE.egg}" alt="Unhatched companion egg"><h3 class="center">Hatch your companion!</h3><p class="body-copy center" style="margin-top:6px">Complete your first action to meet your companion.</p>`;
-      return page(`${navHeader("Today", "", `<button class="icon-button soft" data-action="settings" aria-label="Settings">⋯</button>`)}<div class="row between"><div><h1>Good morning</h1><p class="small-copy" style="margin-top:4px">${escapeHTML(todayLabel())}</p></div>${pill(streakLabel(), "sage")}</div><div style="margin:14px 0">${hero}</div><div class="label">Today's one action</div><div class="card coral-border" style="margin-top:8px"><div class="row between"><div class="grow"><h3>${escapeHTML(currentTask.title)}</h3><div class="small-copy" style="margin-top:3px">${currentTask.duration} min</div></div>${pill(currentTask.done ? "Complete" : "Ready", currentTask.done ? "sage" : "")}</div><div class="minimum" style="margin-top:12px"><span class="label">Minimum complete</span>${escapeHTML(minimumCopy(currentTask))}</div><button class="button" data-action="focus" style="margin-top:14px">${currentTask.done ? "Review Completion" : "Start Action"}</button></div><button class="plain-row" data-action="tab" data-value="tasks" style="margin-top:12px"><span>Today's Plan · ${done ? "complete" : "one action"}</span><span class="chevron">›</span></button><button class="plain-row" data-action="side-log" style="margin-top:10px"><span><strong>Log something extra</strong><span class="small-copy" style="display:block;margin-top:3px">Optional — this never affects today's goal</span></span><span class="chevron">›</span></button><button class="text-button" data-action="end-day" style="width:100%;margin-top:8px">End-of-day check-in</button>`, { nav: true });
+    function onboarding() { if (state.view === "onboarding-complete") return onboardingComplete(); if (state.onboardingStep < 0) return welcomeScreen(); if (state.onboardingStep === 0) return onboardingGoals(); if (state.onboardingStep === 1) return state.onboardingVariant === "b" ? onboardingConversation() : onboardingClassification(); return onboardingDaily(); }
+    function taskRow(item, current = false, upcoming = false) {
+      const status = upcoming ? "upcoming" : taskStatus(item);
+      const statusLabel = status === "completed" ? "Completed" : status === "incomplete" ? "Incomplete" : status === "skipped" ? "Skipped · still due" : upcoming ? "Upcoming" : current ? "Next action" : "Today";
+      return `<div class="task-row ${current && !item.done ? "current" : ""}"><span class="task-status ${item.done ? "done" : ""}">${item.done ? "✓" : ""}</span><div class="grow"><h3>${escapeHTML(item.title)}</h3><div class="small-copy">${escapeHTML(statusLabel)} · ${item.duration} min</div></div>${upcoming ? "" : `<button class="button small secondary" data-action="open-task" data-id="${item.id}">${item.done ? "View" : "Open"}</button>`}</div>`;
     }
-    function tasksScreen() { return page(`${navHeader("Tasks")}${header("One action at a time", "Today", pill(completedCount() ? "Complete" : "1 focus", "sage"))}<div class="stack">${state.tasks.map(item => taskRow(item, item.id === state.current)).join("")}</div><div class="notice sage" style="margin-top:16px">Future days stay hidden until the end-of-day check-in. You only need to handle what is here now.</div><button class="button secondary" data-action="weekly-review" style="margin-top:16px">Weekly Check-in</button>`, { nav: true }); }
-    function focusScreen() { const currentTask = task(); return page(`${navHeader(currentTask.title, "today")}<div class="center"><div class="eyebrow">Focus in progress</div><p class="body-copy">Stay with the smallest version that still counts.</p></div><div class="timer"><div><strong>${state.timer}</strong><span>seconds ${state.running ? "remaining" : "ready"}</span></div></div><div class="minimum center"><span class="label">Minimum complete standard</span>${escapeHTML(minimumCopy(currentTask))}</div><div class="card row" style="margin-top:16px"><img class="avatar" src="${state.hatched ? petImage("neutral") : IMAGE.egg}" alt=""><div><div class="label">${escapeHTML(petDisplayName())}</div><p class="body-copy">I'm focused with you. One honest step at a time.</p></div></div>`, { footer: `<footer class="footer"><div class="two-buttons"><button class="button secondary" data-action="timer">${state.running ? "Pause" : "Start"}</button><button class="button" data-action="start-completion">Finish</button></div><button class="button ghost" data-action="adjust-action">Make this action smaller</button>${homeIndicator()}</footer>` }); }
+    function todayScreen() {
+      const required = requiredTasks(); const done = completedCount(); const complete = allRequiredDone(); const currentTask = nextPendingTask() || task();
+      const report = weeklyReportAvailable() && state.weeklyReportViewedFor !== weeklyStats().dateLabel ? `<button class="report-banner" data-action="weekly-report"><span><strong>Your weekly report is ready</strong><span class="small-copy">Automatically created from your records</span></span><span class="chevron">›</span></button>` : "";
+      if (complete) {
+        const tomorrow = state.nextAction;
+        const tomorrowCard = state.nextActionStatus === "loading" ? `<div class="card center" role="status"><strong>Pace is preparing tomorrow…</strong><p class="small-copy" style="margin-top:5px">You can leave this screen. It will keep working.</p></div>` : tomorrow ? `<div class="card"><div class="label">Tomorrow preview</div><h3 style="margin-top:6px">${escapeHTML(tomorrow.title)}</h3><div class="small-copy" style="margin-top:4px">${tomorrow.durationMinutes} min${tomorrow.actions?.length > 1 ? ` · plus ${tomorrow.actions.length - 1} more required ${tomorrow.actions.length === 2 ? "task" : "tasks"}` : ""} · available tomorrow</div></div>` : state.nextActionError ? `<div class="notice danger">${escapeHTML(state.nextActionError)}<button class="text-button" data-action="retry-next-action">Try again</button></div>` : "";
+        return page(`${navHeader("Today", "", `<button class="icon-button soft" data-action="settings" aria-label="Settings">⋯</button>`)}${report}<div class="center" style="padding-top:18px">${state.hatched ? `<img class="hero-art" src="${petImage("celebrating")}" alt="${escapeHTML(petDisplayName())} celebrating">` : `<img class="egg-art" style="height:210px" src="${IMAGE.egg}" alt="Unhatched companion egg">`}<div class="eyebrow">Today complete</div><h1>You completed all ${required.length} main ${required.length === 1 ? "task" : "tasks"}.</h1><p class="body-copy" style="margin-top:7px">Current streak: ${state.streak} ${state.streak === 1 ? "day" : "days"}</p></div><div class="stats" style="margin-top:16px"><div class="stat"><strong>${state.streak}</strong><span>Day streak</span></div><div class="stat"><strong>${state.journey.progress}%</strong><span>Companion growth</span></div><div class="stat"><strong>+${required.length * 10}</strong><span>Effort earned</span></div></div><div style="margin-top:14px">${tomorrowCard}</div><button class="plain-row" data-action="side-log" style="margin-top:12px"><span><strong>Add a note or extra activity</strong><span class="small-copy" style="display:block;margin-top:3px">Optional · does not affect your streak</span></span><span class="chevron">›</span></button>`, { nav: true });
+      }
+      const hero = state.hatched ? `<div class="card row"><img class="avatar" src="${petImage("neutral")}" alt="${escapeHTML(petDisplayName())}"><div><h3>${escapeHTML(petDisplayName())} is resting</h3><p class="small-copy">Ready when you are. One action at a time.</p></div></div>` : `<div class="card row"><img class="avatar" src="${IMAGE.egg}" alt="Unhatched companion egg"><div><h3>Your companion is waiting</h3><p class="small-copy">Complete your first action to hatch it.</p></div></div>`;
+      return page(`${navHeader("Today", "", `<button class="icon-button soft" data-action="settings" aria-label="Settings">⋯</button>`)}<div class="row between"><div><h1>Good morning</h1><p class="small-copy" style="margin-top:4px">${escapeHTML(todayLabel())}</p></div>${pill(`${state.streak} ${state.streak === 1 ? "day" : "days"}`, "sage")}</div><div style="margin:14px 0">${report}${report ? '<div style="height:10px"></div>' : ""}${hero}</div><div class="label">Today's target</div><p class="body-copy" style="margin-top:4px">${done} of ${required.length} main tasks completed</p><div class="card coral-border" style="margin-top:10px"><div class="row between"><div class="grow"><h3>${escapeHTML(currentTask.title)}</h3><div class="small-copy" style="margin-top:3px">${currentTask.duration} min</div></div>${pill("Next action")}</div><button class="button" data-action="start-task" data-id="${currentTask.id}" style="margin-top:14px">Start Action</button></div>${pendingTasks().length > 1 ? `<button class="plain-row" data-action="tab" data-value="tasks" style="margin-top:12px"><span>View all ${pendingTasks().length} remaining tasks</span><span class="chevron">›</span></button>` : ""}<button class="plain-row" data-action="side-log" style="margin-top:10px"><span><strong>Log something extra</strong><span class="small-copy" style="display:block;margin-top:3px">Optional · does not affect today's target</span></span><span class="chevron">›</span></button>`, { nav: true });
+    }
+    function tasksScreen() {
+      const segment = `<div class="segment"><button class="${state.taskView === "active" ? "active" : ""}" data-action="task-view" data-value="active">Active & Upcoming</button><button class="${state.taskView === "history" ? "active" : ""}" data-action="task-view" data-value="history">History</button></div>`;
+      if (state.taskView === "history") {
+        const history = state.logs.filter(log => ["action", "task-status", "potion"].includes(log.type)).slice().reverse();
+        const rows = history.length ? history.map(log => { const item = state.tasks.find(entry => entry.id === log.task) || state.tomorrowTasks.find(entry => entry.id === log.task); const title = item?.title || log.title || (log.type === "potion" ? "Effort Potion" : "Task record"); const status = log.type === "potion" ? "12-hour extension used" : log.result === "completed" || log.type === "action" ? "Completed" : log.result === "skipped" ? "Skipped" : "Incomplete"; return `<div class="task-row"><span class="task-status ${status === "Completed" ? "done" : ""}">${status === "Completed" ? "✓" : ""}</span><div class="grow"><h3>${escapeHTML(title)}</h3><div class="small-copy">${escapeHTML(status)} · ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(log.at))}</div></div></div>`; }).join("") : `<div class="empty-state"><div><h2>No history yet</h2><p class="body-copy" style="margin-top:7px">Complete or update your first task to see its record here.</p><button class="button secondary" data-action="task-view" data-value="active" style="margin-top:16px">View Active Tasks</button></div></div>`;
+        return page(`${navHeader("Tasks", "", `<button class="text-button" data-action="adjust-plan">Adjust Plan</button>`)}${segment}<div class="stack" style="margin-top:16px">${rows}</div>`, { nav: true });
+      }
+      const current = nextPendingTask(); const remaining = pendingTasks(); const upcoming = state.tomorrowTasks;
+      return page(`${navHeader("Tasks", "", `<button class="text-button" data-action="adjust-plan">Adjust Plan</button>`)}${segment}<div class="row between section-label"><span>Today's progress</span><strong>${completedCount()} of ${requiredTasks().length}</strong></div><div class="stack">${requiredTasks().map(item => taskRow(item, item.id === current?.id)).join("")}</div>${upcoming.length ? `<div class="section-label">Upcoming</div><div class="stack">${upcoming.map(item => taskRow(item, false, true)).join("")}</div>` : ""}<div class="section-label">Optional side activities</div><button class="plain-row" data-action="side-log"><span><strong>Log something extra</strong><span class="small-copy" style="display:block;margin-top:3px">Earn 5 Effort without changing your streak</span></span><span class="chevron">›</span></button>${remaining.length ? `<div class="notice sage" style="margin-top:16px">Your streak increases after all ${requiredTasks().length} required main tasks are complete.</div>` : ""}`, { nav: true });
+    }
+    function focusScreen() { const currentTask = task(); return page(`${navHeader("Focus Mode", "task-detail")}<div class="center"><div class="eyebrow">${state.running ? "Focus in progress" : state.timer === 0 ? "Focus time complete" : "Focus paused"}</div><h2>${escapeHTML(currentTask.title)}</h2></div><div class="timer"><div><strong>${state.timer}</strong><span>seconds remaining</span></div></div><div class="minimum center"><span class="label">Smallest version</span>${escapeHTML(minimumCopy(currentTask))}</div>`, { footer: `<footer class="footer"><button class="button" data-action="timer">${state.running ? "Pause" : state.timer === 0 ? "Restart" : "Resume"}</button><button class="button secondary" data-action="end-focus">End Focus</button><button class="button ghost" data-action="adjust-action">Make this action smaller</button>${homeIndicator()}</footer>` }); }
+    function taskDetailScreen() {
+      const currentTask = task(); const status = taskStatus(currentTask);
+      return page(`${navHeader("Task Detail", "tasks")}<div class="row between"><div><div class="eyebrow">${escapeHTML(state.aiPlan?.goalClassification || "Main task")}</div><h1>${escapeHTML(currentTask.title)}</h1></div>${pill(status === "completed" ? "Completed" : status === "incomplete" ? "Incomplete" : status === "skipped" ? "Skipped" : "Ready", status === "completed" ? "sage" : "outline")}</div>${currentTask.description ? `<p class="body-copy" style="margin-top:9px">${escapeHTML(currentTask.description)}</p>` : ""}<div class="minimum" style="margin-top:16px"><span class="label">Smallest version</span>${escapeHTML(minimumCopy(currentTask))}</div><div class="card row" style="margin-top:14px"><img class="avatar" src="${state.hatched ? petImage("neutral") : IMAGE.egg}" alt=""><div><h3>${escapeHTML(petDisplayName())} is here</h3><p class="small-copy">Start when it feels right.</p></div></div>${status === "completed" ? `<div class="notice sage" style="margin-top:14px">This task has been completed and saved in History.</div>` : ""}`, { footer: status === "completed" ? footer("Back to Tasks", "tasks") : `<footer class="footer"><button class="button" data-action="focus">Start Focus</button><button class="button secondary" data-action="record-result" data-value="completed">✓ Mark Complete</button><div class="two-buttons"><button class="button ghost" data-action="record-result" data-value="incomplete">Mark Incomplete</button><button class="button ghost" data-action="skip-task">Skip for Now</button></div>${homeIndicator()}</footer>` });
+    }
+    function recordProgressScreen() {
+      const currentTask = task(); const result = state.completionResult;
+      const moods = [["Energized", "⚡"], ["Satisfied", "😊"], ["Neutral", "😐"], ["Frustrated", "😣"], ["Drained", "😴"]];
+      return page(`${navHeader("Record Progress", "task-detail")}<div class="label">Selected result</div><div class="stack" style="margin-top:8px"><button class="result-choice ${result === "completed" ? "selected" : ""}" data-action="record-result" data-value="completed"><span class="result-dot">✓</span><span><strong>Completed</strong><span class="small-copy" style="display:block">Self-confirmation · no proof required</span></span></button><button class="result-choice ${result === "incomplete" ? "selected" : ""}" data-action="record-result" data-value="incomplete"><span class="result-dot">✓</span><span><strong>Incomplete</strong><span class="small-copy" style="display:block">Save what happened without losing the record</span></span></button></div><div class="section-label">Optional metadata</div><div class="form-group"><label>Mood · Optional</label><div class="mood-grid">${moods.map(([mood, emoji]) => `<button class="mood-choice ${state.reflection.mood === mood ? "selected" : ""}" data-action="mood" data-value="${mood}"><span>${emoji}</span>${mood}</button>`).join("")}</div></div><div class="form-group"><label>Short note · Optional</label><textarea class="field" style="min-height:78px" data-bind="reflection-note" maxlength="280" placeholder="How did it go?">${escapeHTML(state.reflection.note)}</textarea></div><div class="form-group"><label>What I learned · Optional</label><textarea class="field" style="min-height:78px" data-bind="reflection-learning" maxlength="280" placeholder="Anything you want to remember?">${escapeHTML(state.reflection.learning)}</textarea></div><div class="notice sage">${escapeHTML(currentTask.title)} will be saved as ${result}.</div>`, { footer: footer("Save Record", "save-record", { secondaryLabel: "Done Without a Note", secondaryAction: "save-record-empty" }) });
+    }
+    function skipConfirmationScreen() {
+      const currentTask = task();
+      return page(`${navHeader("Skip for Now", "task-detail")}<div class="center" style="padding-top:28px"><div class="category-mark" style="margin:0 auto 14px">›</div><h1>Leave this task for later?</h1><p class="body-copy" style="margin-top:8px">Skipping leaves a record, but the task can still be completed before today's deadline.</p></div><div class="card" style="margin-top:20px"><h3>${escapeHTML(currentTask.title)}</h3><p class="small-copy" style="margin-top:5px">Your streak continues only after every required main task is completed.</p></div>`, { footer: footer("Skip for Now", "confirm-skip", { secondaryLabel: "Keep Working", secondaryAction: "task-detail" }) });
+    }
+    function taskStatusScreen() {
+      const currentTask = task(); const status = taskStatus(currentTask); const isSkipped = status === "skipped";
+      return page(`${navHeader("Task Status", "tasks")}<div class="center" style="padding-top:20px"><div class="task-status" style="margin:0 auto 16px">${status === "completed" ? "✓" : ""}</div><div class="eyebrow">${escapeHTML(status)}</div><h1>${escapeHTML(currentTask.title)}</h1><p class="body-copy" style="margin-top:8px">${isSkipped ? "This task remains due today. You can complete it later." : "This event remains in History. You can still mark the task complete later today."}</p></div><div class="notice amber" style="margin-top:18px">Need more time? An Effort Potion extends today's deadline by 12 hours. It never completes the task for you.</div>`, { footer: `<footer class="footer"><button class="button" data-action="task-detail">Return to Task</button><button class="button secondary" data-action="potion">Use Effort Potion</button>${homeIndicator()}</footer>` });
+    }
+    function adjustPlanScreen() {
+      return page(`${navHeader("Adjust Plan", "tasks")}<div class="form-group"><label>Weekly frequency</label><select class="field" data-bind="weekly-days">${Array.from({ length: 7 }, (_, index) => `<option value="${index + 1}" ${state.planSettings.weeklyDays === index + 1 ? "selected" : ""}>${index + 1} ${index ? "days" : "day"} / week</option>`).join("")}</select></div><div class="form-group"><label>Daily commitment</label><div class="chips">${[15, 30, 45, 60].map(minutes => `<button class="chip ${state.planSettings.dailyMinutes === minutes ? "selected" : ""}" data-action="daily-minutes" data-value="${minutes}">${minutes}m</button>`).join("")}</div></div><div class="section-label">Edit daily main tasks</div><div class="stack">${requiredTasks().map((item, index) => `<div class="card compact-card"><div class="row"><input class="field grow" data-bind="task-title" data-id="${item.id}" value="${escapeHTML(item.title)}" aria-label="Task ${index + 1} title"><button class="icon-button soft" data-action="remove-task" data-id="${item.id}" aria-label="Remove task">×</button></div><div class="small-copy" style="margin-top:6px">${item.duration} min commitment</div></div>`).join("")}</div>${requiredTasks().length < 3 ? `<div class="form-group" style="margin-top:14px"><label>Add a main task</label><div class="row"><input class="field grow" data-bind="task-draft" value="${escapeHTML(state.taskDraft)}" placeholder="New task title"><button class="button small" data-action="add-task">Add</button></div></div>` : `<div class="notice" style="margin-top:14px">Keep at most three main tasks in the daily plan.</div>`}`, { footer: footer("Save Plan Changes", "save-plan-changes") });
+    }
     function standardCheckScreen() { const currentTask = task(); return page(`${navHeader("Completion Check", "focus")}${header("Action integrity", "Did you meet the minimum?")}<div class="card"><h2>${escapeHTML(currentTask.title)}</h2><div class="minimum" style="margin-top:14px"><span class="label">Minimum complete</span>${escapeHTML(minimumCopy(currentTask))}</div></div><div class="notice sage" style="margin-top:16px">Progress is added only after evidence and reflection are reviewed.</div>`, { footer: footer("Yes, I Met the Standard", "evidence-method", { secondaryLabel: "Not Yet — Return to Action", secondaryAction: "focus" }) }); }
     function evidenceMethodScreen() {
       const methods = [["photo", "Photo", "Take or upload a photo", "▣"], ["link", "Link", "Attach a URL to your output", "↗"], ["note", "Written Note", "Describe what changed", "✎"], ["self", "Self-confirmation", "Use only when no stronger proof exists", "✓"]];
@@ -512,23 +722,37 @@
     function reflectionScreen() { const moods = [["Energized", "⚡"], ["Satisfied", "😊"], ["Neutral", "😐"], ["Frustrated", "😣"], ["Drained", "😴"]]; return page(`${navHeader("Reflection", "evidence-method")}${header("After the action", "How did this feel?")}<div class="mood-grid">${moods.map(([mood, emoji]) => `<button class="mood-choice ${state.reflection.mood === mood ? "selected" : ""}" data-action="mood" data-value="${mood}"><span>${emoji}</span>${mood}</button>`).join("")}</div><div class="form-group" style="margin-top:20px"><label>Outcome or learning · Required</label><textarea class="field ${state.reflection.error ? "error" : ""}" data-bind="reflection-learning" placeholder="What changed, surprised you, or felt difficult?">${escapeHTML(state.reflection.learning)}</textarea>${state.reflection.error ? `<div class="error-copy">${escapeHTML(state.reflection.error)}</div>` : ""}</div><div class="form-group"><label>Next smallest step · Optional</label><textarea class="field" data-bind="reflection-next" placeholder="The next step could be…">${escapeHTML(state.reflection.next)}</textarea></div>`, { footer: footer("Save Reflection", "save-reflection", { secondaryLabel: "Skip and Record as Skipped", secondaryAction: "skip-reflection" }) }); }
     function commitCompletion(skipped = false) {
       const currentTask = task(); if (state.completionCommitted && state.lastCompletion?.taskId === currentTask.id) return;
-      state.lastCompletion = { taskId: currentTask.id, previousDone: currentTask.done, previousTokens: state.tokens, previousStreak: state.streak, previousProgress: state.journey.progress, previousEvidence: state.journey.evidence, previousDays: state.journey.days, wasFirst: !state.firstCompletion };
-      currentTask.done = true; state.tokens += 10; state.streak = Math.max(1, state.streak + 1); state.journey.progress = Math.min(100, state.journey.progress + 12); state.journey.evidence += state.evidence.items.length; state.journey.days = Math.min(7, state.journey.days + 1);
-      state.logs.push({ type: "action", task: currentTask.id, evidence: clone(state.evidence.items), mood: skipped ? "" : state.reflection.mood, learning: skipped ? "" : state.reflection.learning, reflectionSkipped: skipped, at: new Date().toISOString() });
+      state.lastCompletion = { taskId: currentTask.id, previousTask: clone(currentTask), previousTokens: state.tokens, previousStreak: state.streak, previousProgress: state.journey.progress, previousDays: state.journey.days, previousAwardedFor: state.dailyStreakAwardedFor, previousLogsLength: state.logs.length, wasFirst: !state.firstCompletion };
+      currentTask.done = true; currentTask.status = "completed"; currentTask.completedAt = new Date().toISOString(); state.tokens += 10; state.journey.progress = Math.min(100, state.journey.progress + 8);
+      state.logs.push({ type: "action", result: "completed", task: currentTask.id, title: currentTask.title, mood: skipped ? "" : state.reflection.mood, note: skipped ? "" : state.reflection.note, learning: skipped ? "" : state.reflection.learning, noteSkipped: skipped, at: currentTask.completedAt });
+      if (allRequiredDone() && state.dailyStreakAwardedFor !== state.activeDate) {
+        state.streak += 1; state.dailyStreakAwardedFor = state.activeDate; state.journey.days += 1;
+        state.logs.push({ type: "day-complete", dateKey: state.activeDate, requiredTaskCount: requiredTasks().length, at: new Date().toISOString() });
+      }
       state.reflection.skipped = skipped; state.completionCommitted = true; state.firstCompletion = true; state.pet.status = "celebrating"; state.view = "completion-summary";
     }
-    function completionSummaryScreen() { const streakCopy = state.streak === 1 ? "1 day streak started" : `${state.streak} day streak maintained`; return page(`${navHeader("Action Complete")}<div class="success-banner"><span>✓ Evidence logged successfully</span><button class="undo" data-action="undo-completion">Undo</button></div><div class="reward-banner" style="margin-top:14px"><span>${escapeHTML(streakCopy)}</span><span>+10 tokens</span></div><div class="card center" style="margin-top:14px"><img class="hero-art small" src="${state.hatched ? petImage("celebrating") : IMAGE.egg}" alt=""><h2>${escapeHTML(task().title)}</h2><p class="body-copy" style="margin-top:6px">${state.reflection.skipped ? "Reflection was skipped and recorded." : `You felt ${escapeHTML(state.reflection.mood.toLowerCase())}: “${escapeHTML(state.reflection.learning)}”`}</p></div><div class="card" style="margin-top:14px"><div class="row between"><span class="label">Journey progress</span><strong class="safe-copy">${state.journey.progress}%</strong></div><div style="margin-top:10px">${progress(state.journey.progress)}</div><div class="small-copy" style="margin-top:8px">${state.evidence.items.length} evidence item${state.evidence.items.length === 1 ? "" : "s"} added</div></div>`, { footer: footer("Continue", "completion-done") }); }
+    function commitIncomplete(skipped = false) {
+      const currentTask = task(); currentTask.done = false; currentTask.status = skipped ? "skipped" : "incomplete";
+      state.logs.push({ type: "task-status", result: currentTask.status, task: currentTask.id, title: currentTask.title, mood: state.reflection.mood, note: state.reflection.note, learning: state.reflection.learning, at: new Date().toISOString() });
+      state.completionCommitted = false; state.pet.status = "neutral"; state.view = "task-status";
+    }
+    function completionSummaryScreen() {
+      const complete = allRequiredDone(); const next = nextPendingTask();
+      const dayMessage = complete ? `Current streak: ${state.streak} ${state.streak === 1 ? "day" : "days"}` : `No streak increase yet · ${pendingTasks().length} main ${pendingTasks().length === 1 ? "task" : "tasks"} remaining`;
+      const tomorrow = state.nextActionStatus === "loading" ? `<div class="card center" role="status"><strong>Preparing tomorrow's action…</strong></div>` : state.nextAction ? `<div class="card"><div class="label">Tomorrow preview</div><h3 style="margin-top:6px">${escapeHTML(state.nextAction.title)}</h3><div class="small-copy" style="margin-top:4px">${state.nextAction.durationMinutes} min${state.nextAction.actions?.length > 1 ? ` · ${state.nextAction.actions.length} required tasks total` : ""}</div></div>` : state.nextActionError ? `<div class="notice danger">${escapeHTML(state.nextActionError)} <button class="text-button" data-action="retry-next-action">Try again</button></div>` : "";
+      return page(`${navHeader(complete ? "Today Complete" : "Task Complete")}<div class="success-banner"><span>✓ Task record saved</span><button class="undo" data-action="undo-completion">Undo</button></div><div class="reward-banner" style="margin-top:14px"><span>${escapeHTML(dayMessage)}</span><span>+10 Effort</span></div><div class="card center" style="margin-top:14px"><img class="hero-art small" src="${state.hatched ? petImage("celebrating") : IMAGE.egg}" alt=""><h2>${escapeHTML(task().title)}</h2><p class="body-copy" style="margin-top:6px">${state.reflection.note ? escapeHTML(state.reflection.note) : "Completed and recorded."}</p></div><div class="card" style="margin-top:14px"><div class="row between"><span class="label">Companion growth</span><strong class="safe-copy">${state.journey.progress}%</strong></div><div style="margin-top:10px">${progress(state.journey.progress)}</div></div>${complete ? `<div style="margin-top:14px">${tomorrow}</div>` : `<div class="section-label">Next required task</div>${taskRow(next, true)}`}`, { footer: footer("Continue", "completion-done") });
+    }
     function hatchScreen() {
       const pet = ensurePet(); const step = state.hatchStep;
       if (step === 0) return page(`${navHeader("")}<div class="center"><div class="task-status done" style="margin:30px auto 18px">✓</div><h1>First Action Complete!</h1><p class="body-copy" style="margin-top:8px">Something special is about to happen…</p><img class="egg-art" src="${IMAGE.egg}" alt="Opaque companion egg"></div>`, { footer: footer("Continue", "hatch-next") });
       if (step === 1) return page(`${navHeader("")}<div class="center" style="padding-top:62px"><div class="egg-crack-stage"><img class="egg-art" src="${IMAGE.egg}" alt="The same companion egg, now cracking"><svg class="egg-crack" viewBox="0 0 136 70" aria-hidden="true"><path d="M4 37 L20 29 L36 41 L55 25 L72 35 L90 18 L108 30 L132 16" fill="none" stroke="var(--coral-dark)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 41 L34 57 L28 68 M90 18 L97 3" fill="none" stroke="var(--coral-dark)" stroke-width="2" stroke-linecap="round"/></svg></div><h2>Your egg is hatching…</h2><p class="body-copy" style="margin-top:7px">The same egg is beginning to crack.</p><div class="step-dots" style="margin-top:20px"><i></i><i class="active"></i><i></i></div></div>`, { footer: footer("Reveal My Companion", "hatch-next") });
-      if (step === 2) return page(`${navHeader("")}<div class="center"><div class="pet-orbit"><img src="${pet.image}" alt="${escapeHTML(pet.name)}"></div><div class="eyebrow">New companion unlocked</div><h1>You got ${/^[AEIOU]/.test(pet.name) ? "an" : "a"} ${escapeHTML(pet.name)}!</h1><p class="body-copy" style="margin-top:9px">${escapeHTML(pet.copy)}</p><div class="chips" style="justify-content:center;margin-top:14px">${pet.traits.map(trait => `<span class="chip">${escapeHTML(trait)}</span>`).join("")}</div></div>`, { footer: footer("Meet Your Companion", "hatch-next") });
+      if (step === 2) return page(`${navHeader("")}<div class="center"><div class="pet-orbit"><img src="${pet.hatchImage}" alt="${escapeHTML(pet.name)} hatching from its egg"></div><div class="eyebrow">New companion unlocked</div><h1>You got ${/^[AEIOU]/.test(pet.name) ? "an" : "a"} ${escapeHTML(pet.name)}!</h1><p class="body-copy" style="margin-top:9px">${escapeHTML(pet.copy)}</p><div class="chips" style="justify-content:center;margin-top:14px">${pet.traits.map(trait => `<span class="chip">${escapeHTML(trait)}</span>`).join("")}</div></div>`, { footer: footer("Meet Your Companion", "hatch-next") });
       if (step === 3) return page(`${navHeader("Give a Name", "hatch-back")}<div class="center" style="padding-top:70px"><img class="hero-art small" src="${pet.image}" alt="${escapeHTML(pet.name)}"><h2>Name Your Companion</h2><p class="body-copy" style="margin-top:5px">Give your new friend an identity.</p></div><div class="form-group" style="margin-top:24px"><input class="field ${state.pet.nameError ? "error" : ""}" data-bind="pet-name" maxlength="20" value="${escapeHTML(state.pet.nameDraft)}" placeholder="Enter a name…"><div class="row between" style="margin-top:5px"><span class="error-copy">${escapeHTML(state.pet.nameError || "")}</span><span id="pet-name-count" class="small-copy" aria-live="polite">${state.pet.nameDraft.length}/20</span></div></div>`, { footer: footer("Confirm Name", "pet-name-confirm") });
       if (step === 4) return page(`${navHeader("Confirm Name", "hatch-back")}<div class="center" style="padding-top:80px"><img class="hero-art small" src="${pet.image}" alt=""><div class="eyebrow">Confirm name</div><h1>Name your companion ${escapeHTML(state.pet.nameDraft)}?</h1><p class="body-copy" style="margin-top:8px">You can change this later in Settings.</p></div>`, { footer: footer("Confirm", "pet-name-save", { secondaryLabel: "Go Back", secondaryAction: "hatch-back" }) });
       return page(`${navHeader("")}<div class="center" style="padding-top:35px"><div class="pet-orbit"><img src="${pet.image}" alt="${escapeHTML(state.pet.name)}"></div><h1>Welcome, ${escapeHTML(state.pet.name)}!</h1><div class="eyebrow" style="margin-top:8px">Your official 86400 companion</div><div class="quote" style="margin-top:18px">Ready for the journey. Together, we'll make every second count.</div></div>`, { footer: footer("Start Your Journey", "enter-room") });
     }
-    function sideActivityScreen() { const draft = state.sideDraft; const moods = [["Energized", "⚡"], ["Satisfied", "😊"], ["Neutral", "😐"], ["Frustrated", "😣"], ["Drained", "😴"]]; return page(`${navHeader("Log Side Activity", "today")}<div class="form-group"><label>What did you do? · Required</label><input class="field ${draft.error ? "error" : ""}" data-bind="side-title" value="${escapeHTML(draft.title)}" placeholder="Describe the activity">${draft.error ? `<div class="error-copy">${escapeHTML(draft.error)}</div>` : ""}</div><div class="two-buttons"><div class="form-group"><label>Category</label><select class="field" data-bind="side-category"><option>Learning</option><option ${draft.category === "Health" ? "selected" : ""}>Health</option><option ${draft.category === "Career" ? "selected" : ""}>Career</option><option ${draft.category === "Personal" ? "selected" : ""}>Personal</option></select></div><div class="form-group"><label>Duration</label><input class="field" data-bind="side-duration" type="number" min="5" step="5" value="${draft.duration}"></div></div><div class="form-group"><label>How did it feel?</label><div class="mood-grid">${moods.map(([mood, emoji]) => `<button class="mood-choice ${draft.mood === mood ? "selected" : ""}" data-action="side-mood" data-value="${mood}"><span>${emoji}</span>${mood}</button>`).join("")}</div></div><div class="form-group"><label>Outcome or learning</label><textarea class="field" data-bind="side-outcome" placeholder="What changed because of this activity?">${escapeHTML(draft.outcome)}</textarea></div><div class="form-group"><label>Private note · Optional</label><textarea class="field" data-bind="side-note" placeholder="Anything else you want to remember?">${escapeHTML(draft.note)}</textarea></div><div class="form-group"><label>Evidence · Optional</label><input class="field" data-bind="side-evidence" value="${escapeHTML(draft.evidence)}" placeholder="Link or file name"></div><div class="notice">A side activity earns a record only after this form is saved. It does not change the main action contract.</div>`, { footer: footer("Record Activity", "save-side-activity") }); }
-    function sideSavedScreen() { const saved = state.sideSaved || state.sideDraft; return page(`${navHeader("Side Activity Logged")}<div class="success-banner">✓ Activity recorded successfully</div><div class="card" style="margin-top:16px"><div class="row between"><div><div class="label">Activity</div><h2 style="margin-top:4px">${escapeHTML(saved.title)}</h2></div>${pill(saved.mood, "sage")}</div><div class="divider"></div><div class="row between"><span class="body-copy">${escapeHTML(saved.category)}</span><strong>${saved.duration} min</strong></div>${saved.outcome ? `<div class="divider"></div><div class="label">Outcome</div><p class="body-copy" style="margin-top:5px">${escapeHTML(saved.outcome)}</p>` : ""}${saved.note ? `<div class="divider"></div><div class="label">Private note</div><p class="body-copy" style="margin-top:5px">${escapeHTML(saved.note)}</p>` : ""}${saved.evidence ? `<div class="divider"></div><div class="label">Evidence</div><p class="body-copy" style="margin-top:5px">${escapeHTML(saved.evidence)}</p>` : ""}</div>`, { footer: footer("Back to Today", "today") }); }
+    function sideActivityScreen() { const draft = state.sideDraft; const moods = [["Energized", "⚡"], ["Satisfied", "😊"], ["Neutral", "😐"], ["Frustrated", "😣"], ["Drained", "😴"]]; return page(`${navHeader("Log Side Activity", "today")}<div class="form-group"><label>What did you do? · Required</label><input class="field ${draft.error ? "error" : ""}" data-bind="side-title" value="${escapeHTML(draft.title)}" placeholder="Describe the activity">${draft.error ? `<div class="error-copy">${escapeHTML(draft.error)}</div>` : ""}</div><div class="two-buttons"><div class="form-group"><label>Category</label><select class="field" data-bind="side-category"><option>Learning</option><option ${draft.category === "Health" ? "selected" : ""}>Health</option><option ${draft.category === "Career" ? "selected" : ""}>Career</option><option ${draft.category === "Personal" ? "selected" : ""}>Personal</option></select></div><div class="form-group"><label>Duration</label><input class="field" data-bind="side-duration" type="number" min="5" step="5" value="${draft.duration}"></div></div><div class="form-group"><label>How did it feel?</label><div class="mood-grid">${moods.map(([mood, emoji]) => `<button class="mood-choice ${draft.mood === mood ? "selected" : ""}" data-action="side-mood" data-value="${mood}"><span>${emoji}</span>${mood}</button>`).join("")}</div></div><div class="form-group"><label>Outcome or learning · Optional</label><textarea class="field" data-bind="side-outcome" placeholder="What changed because of this activity?">${escapeHTML(draft.outcome)}</textarea></div><div class="form-group"><label>Private note · Optional</label><textarea class="field" data-bind="side-note" placeholder="Anything else you want to remember?">${escapeHTML(draft.note)}</textarea></div><div class="notice">Saving adds this optional activity to History and earns 5 Effort. It never changes today's required tasks or streak.</div>`, { footer: footer("Record Activity", "save-side-activity") }); }
+    function sideSavedScreen() { const saved = state.sideSaved || state.sideDraft; return page(`${navHeader("Side Activity Logged")}<div class="success-banner">✓ Activity recorded successfully</div><div class="card" style="margin-top:16px"><div class="row between"><div><div class="label">Activity</div><h2 style="margin-top:4px">${escapeHTML(saved.title)}</h2></div>${pill(saved.mood, "sage")}</div><div class="divider"></div><div class="row between"><span class="body-copy">${escapeHTML(saved.category)}</span><strong>${saved.duration} min</strong></div>${saved.outcome ? `<div class="divider"></div><div class="label">Outcome</div><p class="body-copy" style="margin-top:5px">${escapeHTML(saved.outcome)}</p>` : ""}${saved.note ? `<div class="divider"></div><div class="label">Private note</div><p class="body-copy" style="margin-top:5px">${escapeHTML(saved.note)}</p>` : ""}</div>`, { footer: footer("Back to Today", "today") }); }
     function endOfDayScreen() {
       const step = state.eod.step;
       if (step === 0) return page(`${navHeader("End-of-Day Check-in", "today")}<div class="center"><img class="hero-art" src="${state.hatched ? petImage("neutral") : IMAGE.egg}" alt=""><h1>How was your day?</h1><p class="body-copy" style="margin-top:8px">A quick check-in helps your companion understand your rhythm.</p></div><div class="card" style="margin-top:18px"><div class="row between"><span class="label">Today's progress</span><strong>${completedCount()} of ${state.tasks.length}</strong></div><div style="margin-top:10px">${progress(state.tasks.length ? completedCount() / state.tasks.length * 100 : 0)}</div></div>`, { footer: footer("Start Check-in", "eod-next", { secondaryLabel: "Skip Check-in", secondaryAction: "eod-skip-all" }) });
@@ -555,18 +779,19 @@
       return page(`<div class="night-complete"><img class="continuity-hero" src="${state.hatched ? petSpecies().image : IMAGE.egg}" alt="${escapeHTML(petDisplayName())} resting at the end of the day"><h1>Your day is complete.</h1><p class="body-copy" style="margin-top:10px">Rest now. Your progress and ${state.eod.skipped ? "skipped" : "saved"} reflection are recorded.</p></div>`, { night: true, footer: footer("Close", "eod-finish") });
     }
     function weeklyReviewScreen() {
-      const step = state.weeklyFlow.step;
-      if (step === 0) return page(`${navHeader("Weekly Review", "tasks")}<div class="center"><img class="hero-art" src="${state.hatched ? petImage("neutral") : IMAGE.egg}" alt=""><div class="eyebrow">Week 1 Review</div><h1>Look back before moving forward</h1><p class="body-copy" style="margin-top:8px">Aug 18 – Aug 24</p></div><div class="stats" style="margin-top:18px"><div class="stat"><strong>${state.journey.days}/7</strong><span>Days Active</span></div><div class="stat"><strong>${completedCount()}</strong><span>Actions</span></div><div class="stat"><strong>${state.journey.evidence}</strong><span>Evidence</span></div></div>`, { footer: footer("Start Review", "weekly-next") });
-      if (step === 1) return page(`${navHeader("By the Numbers", "weekly-back")}${header("Weekly stats", "Your week at a glance")}<div class="stats"><div class="stat"><strong>${state.journey.days}/7</strong><span>Active days</span></div><div class="stat"><strong>${state.journey.evidence}</strong><span>Uploads</span></div><div class="stat"><strong>${Math.round(state.journey.progress)}%</strong><span>Goal</span></div></div><div class="card" style="margin-top:16px"><div class="row between"><span>Calm</span><strong>4 days</strong></div><div class="divider"></div><div class="row between"><span>Focused</span><strong>2 days</strong></div><div class="divider"></div><div class="row between"><span>Tired</span><strong>1 day</strong></div></div>`, { footer: footer("Continue", "weekly-next") });
-      if (step === 2) return page(`${navHeader("Companion Growth", "weekly-back")}<div class="center"><img class="hero-art" src="${state.hatched ? petImage("celebrating") : IMAGE.egg}" alt=""><h1>${escapeHTML(petDisplayName())} grew with you</h1><p class="body-copy" style="margin-top:8px">Every state reflects a real day, not a random decoration.</p></div><div class="section-label">State log</div><div class="mood-grid">${["M", "T", "W", "T", "F", "S", "S"].map((day, index) => `<div class="mood-choice ${index < state.journey.days ? "selected" : ""}"><span>${index < state.journey.days ? "●" : "○"}</span>${day}</div>`).join("")}</div>`, { footer: footer("Continue", "weekly-next") });
-      if (step === 3) return page(`${navHeader("Goal Progress", "weekly-back")}${header("On track", state.journey.goal, pill("On track", "sage"))}<div class="card"><div class="row between"><span class="label">Weekly progress</span><strong>${state.journey.progress}%</strong></div><div style="margin-top:12px">${progress(state.journey.progress)}</div></div><div class="section-label">Success criteria</div><div class="stack">${(state.aiPlan?.successCriteria || []).map((criterion, index) => `<div class="task-row"><span class="task-status ${index < 2 ? "done" : ""}">${index < 2 ? "✓" : ""}</span><p class="body-copy" style="color:var(--ink)">${escapeHTML(criterion)}</p></div>`).join("")}</div>`, { footer: footer("Continue", "weekly-next") });
-      if (step === 4) return page(`${navHeader("Next Sprint", "weekly-back")}${header("Keep the rhythm realistic", "Choose the next focus")}<div class="card coral-border"><div class="label">Proposed Week 2 sprint</div><h2 style="margin-top:7px">Repeat the strongest action on five days and improve one weak point.</h2></div><div class="notice sage" style="margin-top:16px">This is an editable frontend preview. Live AI adjustment will be added with the backend.</div>`, { footer: footer("Continue", "weekly-next") });
-      if (step === 5) { const moods = [["Proud", "🌟"], ["Motivated", "🔥"], ["Tired", "🌙"], ["Grateful", "💚"]]; return page(`${navHeader("Weekly Reflection", "weekly-back")}${header("One honest feeling", "How do you feel about this week overall?")}<div class="choice-grid">${moods.map(([mood, emoji]) => `<button class="choice ${state.weeklyFlow.mood === mood ? "selected" : ""}" data-action="weekly-mood" data-value="${mood}">${emoji} ${mood}</button>`).join("")}</div><div class="form-group" style="margin-top:18px"><label>What should you remember?</label><textarea class="field" data-bind="weekly-reflection" placeholder="A short reflection…">${escapeHTML(state.weeklyFlow.reflection)}</textarea></div>`, { footer: footer("Finish Review", "weekly-next") }); }
-      return page(`${navHeader("")}<div class="center" style="padding-top:24px"><img class="continuity-hero" src="${state.hatched ? petSpecies().image : IMAGE.egg}" alt="${escapeHTML(petDisplayName())} celebrating the completed week"><div class="eyebrow">Week 1 complete</div><h1>You kept moving.</h1><p class="body-copy" style="margin-top:8px">Feeling ${escapeHTML(state.weeklyFlow.mood.toLowerCase())}. Your next sprint is ready.</p></div><div class="card amber-card" style="margin-top:16px"><div class="row between"><span>Weekly review badge</span><strong class="token">Unlocked</strong></div></div>`, { footer: footer("Start Week 2", "weekly-finish") });
+      const step = state.weeklyFlow.step; const stats = weeklyStats();
+      if (step === 0) return page(`${navHeader("Weekly Report", "today")}<div class="center"><div class="eyebrow">System generated</div><h1>Your weekly report</h1><p class="body-copy" style="margin-top:7px">${escapeHTML(stats.dateLabel)}</p>${state.hatched ? `<img class="hero-art small" src="${petImage("neutral")}" alt="${escapeHTML(petDisplayName())}">` : ""}</div><div class="card" style="margin-top:16px"><div class="metric-row"><span>Days completed</span><strong>${stats.daysCompleted} of 7</strong></div><div class="metric-row"><span>Main tasks completed</span><strong>${stats.actionsCompleted}</strong></div><div class="metric-row"><span>Current streak</span><strong>${state.streak} days</strong></div><div class="metric-row"><span>Optional side activities</span><strong>${stats.sideActivities}</strong></div><div class="metric-row"><span>Companion growth</span><strong>${state.journey.progress}%</strong></div></div>`, { footer: footer("Next: Goal Progress", "weekly-next") });
+      if (step === 1) return page(`${navHeader("Goal Progress", "weekly-back")}<div class="eyebrow">Current journey</div><h1>${escapeHTML(state.journey.goal)}</h1><div class="card" style="margin-top:16px"><div class="row between"><span class="label">Companion growth</span><strong>${state.journey.progress}%</strong></div><div style="margin-top:12px">${progress(state.journey.progress)}</div></div><div class="section-label">Milestones in view</div><div class="stack">${(state.aiPlan?.successCriteria || ["Keep completing the main tasks that matter."]).slice(0, 3).map(criterion => `<div class="task-row"><span class="task-status done">✓</span><p class="body-copy" style="color:var(--ink)">${escapeHTML(criterion)}</p></div>`).join("")}</div><div class="notice sage" style="margin-top:16px">Next week's pace remains ${state.planSettings.weeklyDays} days/week at about ${state.planSettings.dailyMinutes} minutes per day.</div>`, { footer: footer("Finish Report", "weekly-next") });
+      return page(`${navHeader("")}<div class="center" style="padding-top:52px">${state.hatched ? `<img class="hero-art" src="${petImage("celebrating")}" alt="${escapeHTML(petDisplayName())} celebrating">` : ""}<div class="eyebrow">Report complete</div><h1>Your weekly report is saved.</h1><p class="body-copy" style="margin-top:8px">No response was required. You can return whenever you want to review it.</p></div>`, { footer: footer("Back to Today", "weekly-finish", { secondaryLabel: "View Tasks", secondaryAction: "tasks" }) });
     }
-    function journeyRoomScreen() { const settings = `<button class="icon-button soft" data-action="settings" aria-label="Settings">⋯</button>`; const visual = state.hatched ? petScene() : `<div class="pet-scene"><img class="pet-scene-pet" src="${IMAGE.egg}" alt="Unhatched companion egg"></div>`; const ending = state.journey.progress >= 100 ? `<button class="button" data-action="journey-complete" style="margin-top:14px">Complete Journey</button>` : ""; return page(`${navHeader(`${petDisplayName()}'s Room`, "", settings)}<div class="card center">${visual}<h2>${state.hatched ? escapeHTML(petDisplayName()) : "Your companion egg is waiting"}</h2><div style="margin-top:8px">${pill(state.hatched ? "Neutral State" : "Unhatched Egg", "outline")}</div></div><div class="stats" style="margin-top:14px"><div class="stat"><strong>${state.streak}</strong><span>Streak</span></div><div class="stat"><strong>${state.journey.days}</strong><span>Days</span></div><div class="stat"><strong>${state.journey.progress}%</strong><span>Progress</span></div></div><div class="card" style="margin-top:14px"><div class="row between"><span class="label">Current weekly direction</span>${pill("This week", "sage")}</div><h3 style="margin-top:7px">${escapeHTML(state.journey.goal)}</h3><div style="margin-top:12px">${progress(state.journey.progress)}</div></div><div class="two-buttons" style="margin-top:14px"><button class="button secondary" data-action="weekly-review">Weekly Check-in</button><button class="button secondary" data-action="journey-archive">Past Journeys</button></div>${ending}`, { nav: true }); }
-    function journeyCompleteScreen() { return page(`${navHeader("Journey Complete", "journey")}<div class="center"><img class="continuity-hero" src="${state.hatched ? petSpecies().image : IMAGE.egg}" alt="${escapeHTML(petDisplayName())} at journey completion"><div class="eyebrow">Goal achieved</div><h1>30 Days of Growth</h1><p class="body-copy" style="margin-top:7px">You built something that can continue beyond this journey.</p></div><div class="stats" style="margin-top:18px"><div class="stat"><strong>30</strong><span>Total Days</span></div><div class="stat"><strong>14</strong><span>Focus Days</span></div><div class="stat"><strong>89</strong><span>Proofs</span></div></div>`, { footer: footer("View Summary Story", "journey-summary") }); }
-    function journeySummaryScreen() { return page(`${navHeader("Journey Story", "journey-complete")}${header("30 days of growth", "What you built remains")}<div class="timeline"><div class="timeline-item"><h3>Week 1 · Begin</h3><p class="body-copy">You completed the smallest repeatable action.</p></div><div class="timeline-item"><h3>Week 2 · Deep Focus</h3><p class="body-copy">Your evidence became more consistent.</p></div><div class="timeline-item"><h3>Week 3 · Recovery</h3><p class="body-copy">You made the plan smaller instead of abandoning it.</p></div><div class="timeline-item"><h3>Week 4 · Complete</h3><p class="body-copy">The routine became something you can carry forward.</p></div></div><div class="notice sage">${escapeHTML(petDisplayName())} and every completed action stay in your archive.</div>`, { footer: footer("Archive Journey", "archive-journey") }); }
+    function potionScreen(active = false) {
+      const currentTask = task();
+      if (active) return page(`${navHeader("Effort Potion")}<div class="center" style="padding-top:34px"><div class="category-mark" style="margin:0 auto 14px">+12</div><div class="eyebrow">Extension active</div><h1>12 hours added</h1><p class="body-copy" style="margin-top:8px">Your task is still incomplete. The new time only gives you another chance to finish it.</p></div><div class="card" style="margin-top:18px"><div class="label">Remaining task</div><h3 style="margin-top:6px">${escapeHTML(currentTask.title)}</h3><div class="small-copy" style="margin-top:6px">Effort Potion use was saved in History.</div></div>`, { footer: footer("Continue", "tasks") });
+      return page(`${navHeader("Confirm Effort Potion", "task-status")}<div class="center" style="padding-top:24px"><div class="category-mark" style="margin:0 auto 14px">+12</div><h1>Extend today's deadline?</h1><p class="body-copy" style="margin-top:8px">This keeps the streak available for 12 more hours. It does not complete any task.</p></div><div class="card" style="margin-top:18px"><div class="metric-row"><span>Cost</span><strong>50 Effort</strong></div><div class="metric-row"><span>Extension</span><strong>+12 hours</strong></div><div class="metric-row"><span>Your balance</span><strong>${state.tokens} Effort</strong></div></div>${state.tokens < 50 ? `<div class="notice danger" style="margin-top:14px">You do not have enough Effort yet.</div>` : ""}`, { footer: footer("Use 50 Effort", "use-potion", { disabled: state.tokens < 50, secondaryLabel: "Keep Today Incomplete", secondaryAction: "tasks" }) });
+    }
+    function journeyRoomScreen() { const settings = `<button class="icon-button soft" data-action="settings" aria-label="Settings">⋯</button>`; const visual = state.hatched ? petScene() : `<div class="pet-scene"><img class="pet-scene-pet" src="${IMAGE.egg}" alt="Unhatched companion egg"></div>`; const ending = state.journey.progress >= 100 ? `<button class="button" data-action="journey-complete" style="margin-top:14px">Complete Journey</button>` : ""; return page(`${navHeader(`${petDisplayName()}'s Room`, "", settings)}<div class="card center">${visual}<h2>${state.hatched ? escapeHTML(petDisplayName()) : "Your companion egg is waiting"}</h2><div style="margin-top:8px">${pill(state.hatched ? "Resting" : "Unhatched", "outline")}</div></div><div class="stats" style="margin-top:14px"><div class="stat"><strong>${state.streak}</strong><span>Day streak</span></div><div class="stat"><strong>${state.journey.days}</strong><span>Completed days</span></div><div class="stat"><strong>${state.journey.progress}%</strong><span>Companion growth</span></div></div><div class="card" style="margin-top:14px"><div class="row between"><span class="label">Current weekly direction</span>${pill("This week", "sage")}</div><h3 style="margin-top:7px">${escapeHTML(state.journey.goal)}</h3><div style="margin-top:12px">${progress(state.journey.progress)}</div></div><button class="button secondary" data-action="journey-archive" style="margin-top:14px">Past Journeys</button>${ending}`, { nav: true }); }
+    function journeyCompleteScreen() { const stats = weeklyStats(); return page(`${navHeader("Journey Complete", "journey")}<div class="center"><img class="continuity-hero" src="${state.hatched ? petSpecies().image : IMAGE.egg}" alt="${escapeHTML(petDisplayName())} at journey completion"><div class="eyebrow">Goal achieved</div><h1>Your journey reached its endpoint</h1><p class="body-copy" style="margin-top:7px">You built something that can continue beyond this journey.</p></div><div class="stats" style="margin-top:18px"><div class="stat"><strong>${state.journey.days}</strong><span>Completed days</span></div><div class="stat"><strong>${stats.actionsCompleted}</strong><span>Main tasks</span></div><div class="stat"><strong>${state.journey.progress}%</strong><span>Growth</span></div></div>`, { footer: footer("View Summary Story", "journey-summary") }); }
+    function journeySummaryScreen() { return page(`${navHeader("Journey Story", "journey-complete")}${header("30 days of growth", "What you built remains")}<div class="timeline"><div class="timeline-item"><h3>Week 1 · Begin</h3><p class="body-copy">You completed the smallest repeatable action.</p></div><div class="timeline-item"><h3>Week 2 · Deep Focus</h3><p class="body-copy">Your completion record became more consistent.</p></div><div class="timeline-item"><h3>Week 3 · Recovery</h3><p class="body-copy">You made the plan smaller instead of abandoning it.</p></div><div class="timeline-item"><h3>Week 4 · Complete</h3><p class="body-copy">The routine became something you can carry forward.</p></div></div><div class="notice sage">${escapeHTML(petDisplayName())} and every completed action stay in your archive.</div>`, { footer: footer("Archive Journey", "archive-journey") }); }
     function journeyArchiveScreen() { return page(`${navHeader("Past Journeys", "journey")}<div class="stack"><div class="card"><div class="row between"><h3>Read daily</h3>${pill("100% Done", "sage")}</div><p class="body-copy" style="margin-top:8px">Dec 1 – Dec 30 · Companion: ${escapeHTML(petDisplayName())} (${escapeHTML(petSpecies().name)})</p></div><div class="card"><div class="row between"><h3>Morning stretches</h3>${pill("100% Done", "sage")}</div><p class="body-copy" style="margin-top:8px">Nov 1 – Nov 30 · Companion: ${escapeHTML(petDisplayName())} (${escapeHTML(petSpecies().name)})</p></div><div class="card"><div class="row between"><h3>Limit screen time</h3>${pill("Paused")}</div><p class="body-copy" style="margin-top:8px">Started Oct 15 · Companion: ${escapeHTML(petDisplayName())} (${escapeHTML(petSpecies().name)})</p></div></div>`, { footer: footer("Back to Room", "journey") }); }
     const PRODUCTS = { "cozy-forest": { id: "cozy-forest", name: "Cozy Forest", type: "Room Theme", cost: 150, image: IMAGE.cozyForest, description: "A warm woodland room that makes focused progress feel calm and lived-in." }, "tiny-hat": { id: "tiny-hat", name: "Tiny Hat", type: "Accessory", cost: 50, image: IMAGE.tinyHat, description: "A charming miniature red felt top hat designed to sit atop your companion's head." } };
     function shopScreen() { return page(`${navHeader("Shop", "", `<button class="icon-button soft" data-action="collection" aria-label="My collection">▣</button>`)}<div class="row between"><div class="label">Categories</div><span class="token">◉ ${state.tokens}</span></div><div class="two-buttons" style="margin-top:10px"><button class="button secondary" data-action="shop-category" data-value="themes">Room Themes</button><button class="button secondary" data-action="shop-category" data-value="accessories">Accessories</button></div><div class="row between section-label"><span>Featured</span><button class="text-button" data-action="collection">My Collection</button></div><div class="shop-grid">${Object.values(PRODUCTS).map(item => `<button class="card shop-item" data-action="shop-item" data-id="${item.id}"><img src="${item.image}" alt="${escapeHTML(item.name)}"><h3 style="margin-top:9px">${escapeHTML(item.name)}</h3><div class="small-copy">${escapeHTML(item.type)}</div><div class="token" style="margin-top:5px">◉ ${item.cost}</div></button>`).join("")}</div><div class="notice sage" style="margin-top:16px">Earn more tokens by completing daily actions. Tokens unlock cosmetics only.</div>`, { nav: true }); }
@@ -581,9 +806,9 @@
       const visual = state.hatched ? petScene() : `<div class="pet-scene"><img class="pet-scene-pet" src="${IMAGE.egg}" alt="Unhatched companion egg"></div>`;
       return page(`${navHeader("Equipped Items", "collection")}${visual}<p class="body-copy center" style="margin-top:10px">${escapeHTML(petDisplayName())}'s current style</p><div class="section-label">Active cosmetics</div><div class="stack">${rows}</div>`, { footer: footer("Done", "collection") });
     }
-    function settingsScreen() { return page(`${navHeader("Settings", "settings-back")}<div class="section-label">Companion</div><button class="plain-row" data-action="rename-pet"><span><strong>Rename companion</strong><span class="small-copy" style="display:block;margin-top:3px">Current name: ${escapeHTML(petDisplayName())}</span></span><span class="chevron">›</span></button><div class="section-label">Prototype</div><button class="plain-row" data-action="replay-onboarding"><span><strong>Replay onboarding</strong><span class="small-copy" style="display:block;margin-top:3px">Test the complete goal setup again.</span></span><span class="chevron">›</span></button><button class="plain-row" data-action="weekly-review" style="margin-top:10px"><span>Open weekly check-in</span><span class="chevron">›</span></button><div class="section-label">About</div><div class="plain-row"><span>Design source</span><strong>Figma V2.5.7</strong></div><div class="plain-row" style="margin-top:10px"><span>App mode</span>${pill("Vercel AI prototype", "sage")}</div><button class="button ghost danger-copy" data-action="reset-prototype" style="margin-top:20px">Reset Prototype Data</button>`); }
+    function settingsScreen() { return page(`${navHeader("Settings", "settings-back")}<div class="section-label">Companion</div><button class="plain-row" data-action="rename-pet"><span><strong>Rename companion</strong><span class="small-copy" style="display:block;margin-top:3px">Current name: ${escapeHTML(petDisplayName())}</span></span><span class="chevron">›</span></button><div class="section-label">Prototype</div><button class="plain-row" data-action="replay-onboarding"><span><strong>Replay onboarding</strong><span class="small-copy" style="display:block;margin-top:3px">Current test variant: ${state.onboardingVariant.toUpperCase()}</span></span><span class="chevron">›</span></button><div class="section-label">About</div><div class="plain-row"><span>Design source</span><strong>Figma V2.6.7</strong></div><div class="plain-row" style="margin-top:10px"><span>App mode</span>${pill("Vercel AI prototype", "sage")}</div><button class="button ghost danger-copy" data-action="reset-prototype" style="margin-top:20px">Reset Prototype Data</button>`); }
     function mainScreen() { if (state.tab === "today") return todayScreen(); if (state.tab === "tasks") return tasksScreen(); if (state.tab === "journey") return journeyRoomScreen(); return shopScreen(); }
-    function activeView() { switch (state.view) { case "focus": return focusScreen(); case "standard-check": return standardCheckScreen(); case "evidence-method": return evidenceMethodScreen(); case "evidence-detail": return evidenceDetailScreen(); case "reflection": return reflectionScreen(); case "completion-summary": return completionSummaryScreen(); case "hatch": return hatchScreen(); case "side-log": return sideActivityScreen(); case "side-saved": return sideSavedScreen(); case "end-day": return endOfDayScreen(); case "weekly-review": return weeklyReviewScreen(); case "journey-complete": return journeyCompleteScreen(); case "journey-summary": return journeySummaryScreen(); case "journey-archive": return journeyArchiveScreen(); case "shop-category": return shopCategoryScreen(state.shopSection); case "item-detail": return itemDetailScreen(); case "purchase-confirm": return purchaseConfirmScreen(); case "purchase-success": return purchaseSuccessScreen(); case "collection": return collectionScreen(); case "equipped": return equippedScreen(); case "settings": return settingsScreen(); default: return mainScreen(); } }
+    function activeView() { switch (state.view) { case "task-detail": return taskDetailScreen(); case "focus": return focusScreen(); case "record-progress": return recordProgressScreen(); case "skip-confirmation": return skipConfirmationScreen(); case "task-status": return taskStatusScreen(); case "completion-summary": return completionSummaryScreen(); case "adjust-plan": return adjustPlanScreen(); case "potion": return potionScreen(false); case "potion-active": return potionScreen(true); case "hatch": return hatchScreen(); case "side-log": return sideActivityScreen(); case "side-saved": return sideSavedScreen(); case "weekly-report": return weeklyReviewScreen(); case "journey-complete": return journeyCompleteScreen(); case "journey-summary": return journeySummaryScreen(); case "journey-archive": return journeyArchiveScreen(); case "shop-category": return shopCategoryScreen(state.shopSection); case "item-detail": return itemDetailScreen(); case "purchase-confirm": return purchaseConfirmScreen(); case "purchase-success": return purchaseSuccessScreen(); case "collection": return collectionScreen(); case "equipped": return equippedScreen(); case "settings": return settingsScreen(); default: return mainScreen(); } }
     function resetCompletionDraft() { state.evidence = clone(DEFAULT_STATE.evidence); state.reflection = clone(DEFAULT_STATE.reflection); state.completionCommitted = false; state.lastCompletion = null; photoPreviewUrl = ""; }
     function render() { document.getElementById("app").innerHTML = state.onboarded ? activeView() : onboarding(); }
     document.addEventListener("click", event => {
@@ -592,18 +817,42 @@
         case "onboarding-begin": mutate(() => { state.onboardingStep = 0; state.goalError = ""; }); break;
         case "onboarding-welcome": mutate(() => { state.onboardingStep = -1; }); break;
         case "onboarding-edit": mutate(() => { state.onboardingStep = 0; }); break;
-        case "onboarding-next": if (state.onboardingStep === 0) requestAiPlan(); else mutate(() => { state.onboardingStep = Math.min(4, state.onboardingStep + 1); }); break;
+        case "onboarding-next": if (state.onboardingStep === 0) requestAiPlan(); else mutate(() => { state.onboardingStep = Math.min(2, state.onboardingStep + 1); }); break;
         case "onboarding-back": mutate(() => { state.onboardingStep = Math.max(0, state.onboardingStep - 1); }); break;
+        case "conversation-review": mutate(() => { state.onboardingStep = 2; }); break;
+        case "chat-adjust": if (state.chatDraft.trim()) requestAiPlan(state.chatDraft); break;
+        case "add-plan-task": mutate(() => { if (state.aiPlan?.dailyActionPlan.length < 3) { state.aiPlan.dailyActionPlan.push({ day: 1, title: "New main task", description: "Describe the result you want from this task.", minimumCompletion: "Complete one small useful step.", durationMinutes: 15, difficulty: "gentle" }); markPlanEdited(); } }); break;
+        case "review-plan-edits": if (state.aiPlan && state.planEdited) requestAiPlan(editedPlanAdjustment(), 2); break;
         case "goal-template": { const templates = { habits: "I want to build a consistent morning routine with exercise, meditation, and a healthy breakfast.", productivity: "I want to finish one meaningful work priority before distractions take over my day.", sleep: "I want to improve deep sleep by creating a calm evening routine five nights each week." }; mutate(() => { state.brief = templates[value]; state.goalError = ""; state.aiPlan = null; }); break; }
         case "toggle-side": mutate(() => { if (state.selectedSideTasks.includes(value)) state.selectedSideTasks = state.selectedSideTasks.filter(item => item !== value); else state.selectedSideTasks.push(value); }); break;
-        case "onboarding-complete": mutate(() => { applyPlanToProduct(); state.view = "onboarding-complete"; }); break;
+        case "onboarding-start": mutate(() => { applyPlanToProduct(); state.view = "onboarding-complete"; }); break;
         case "enter-app": mutate(() => { state.onboarded = true; state.view = ""; state.tab = "today"; }); break;
         case "tab": go("", value); break; case "today": go("", "today"); break; case "tasks": go("", "tasks"); break; case "journey": go("", "journey"); break; case "shop": go("", "shop"); break;
-        case "select-task": mutate(() => { state.current = id; state.timer = task(id).duration * 60; }); break;
-        case "focus": if (task().done && state.completionCommitted) go("completion-summary"); else { if (!state.timer || state.timer > task().duration * 60) state.timer = task().duration * 60; go("focus"); } break;
-        case "timer": mutate(() => { state.running = !state.running; }); break;
+        case "task-view": mutate(() => { state.taskView = value === "history" ? "history" : "active"; }); break;
+        case "open-task": mutate(() => { setCurrentTask(task(id)); state.view = "task-detail"; }); break;
+        case "start-task": mutate(() => { setCurrentTask(task(id)); state.running = true; state.view = "focus"; }); break;
+        case "task-detail": go("task-detail"); break;
+        case "select-task": mutate(() => { setCurrentTask(task(id)); }); break;
+        case "focus": if (task().done) go("task-detail"); else mutate(() => { if (!state.timer || state.timer > task().duration * 60) state.timer = task().duration * 60; state.running = true; state.view = "focus"; }); break;
+        case "timer": mutate(() => { if (state.timer === 0) state.timer = task().duration * 60; state.running = !state.running; }); break;
         case "adjust-action": mutate(() => { state.timer = Math.max(300, Math.min(state.timer, 600)); }, "Action reduced to 600 seconds"); break;
-        case "start-completion": go("standard-check"); break; case "standard-check": go("standard-check"); break; case "evidence-method": go("evidence-method"); break;
+        case "end-focus": mutate(() => { state.running = false; state.view = "task-detail"; }); break;
+        case "record-result": mutate(() => { state.completionResult = value === "incomplete" ? "incomplete" : "completed"; state.view = "record-progress"; }); break;
+        case "skip-task": go("skip-confirmation"); break;
+        case "confirm-skip": mutate(() => { commitIncomplete(true); }); break;
+        case "save-record": {
+          const completed = state.completionResult === "completed";
+          mutate(() => { if (completed) commitCompletion(false); else commitIncomplete(false); });
+          if (completed && allRequiredDone()) requestNextAction();
+          break;
+        }
+        case "save-record-empty": {
+          const completed = state.completionResult === "completed";
+          mutate(() => { state.reflection.mood = ""; state.reflection.note = ""; state.reflection.learning = ""; if (completed) commitCompletion(true); else commitIncomplete(false); });
+          if (completed && allRequiredDone()) requestNextAction();
+          break;
+        }
+        case "start-completion": go("record-progress"); break; case "standard-check": go("record-progress"); break; case "evidence-method": go("record-progress"); break;
         case "choose-evidence": mutate(() => { state.evidence.method = value; state.evidence.error = ""; state.view = "evidence-detail"; }); break;
         case "remove-evidence": mutate(() => { state.evidence.items.splice(Number(id), 1); }); break;
         case "evidence-add": {
@@ -619,8 +868,8 @@
         case "mood": mutate(() => { state.reflection.mood = value; state.reflection.error = ""; }); break;
         case "save-reflection": mutate(() => { if (state.reflection.learning.trim().length < 8) state.reflection.error = "Add a short outcome or learning before saving."; else { state.reflection.error = ""; commitCompletion(false); } }); break;
         case "skip-reflection": mutate(() => { commitCompletion(true); }); break;
-        case "undo-completion": mutate(() => { const last = state.lastCompletion; if (!last) return; task(last.taskId).done = last.previousDone; state.tokens = last.previousTokens; state.streak = Number.isFinite(last.previousStreak) ? last.previousStreak : Math.max(0, state.streak - 1); state.journey.progress = last.previousProgress; state.journey.evidence = last.previousEvidence; state.journey.days = Number.isFinite(last.previousDays) ? last.previousDays : Math.max(0, state.journey.days - 1); state.logs.pop(); state.firstCompletion = !last.wasFirst; state.completionCommitted = false; state.lastCompletion = null; state.pet.status = "neutral"; state.view = "standard-check"; }, "Completion undone"); break;
-        case "completion-done": if (state.lastCompletion?.wasFirst && !state.hatched) mutate(() => { ensurePet(); state.hatchStep = 0; state.view = "hatch"; }); else mutate(() => { const next = state.tasks.find(item => !item.done); if (next) state.current = next.id; resetCompletionDraft(); state.view = ""; state.tab = "today"; }); break;
+        case "undo-completion": mutate(() => { const last = state.lastCompletion; if (!last) return; Object.assign(task(last.taskId), last.previousTask); state.tokens = last.previousTokens; state.streak = last.previousStreak; state.journey.progress = last.previousProgress; state.journey.days = last.previousDays; state.dailyStreakAwardedFor = last.previousAwardedFor; state.logs = state.logs.slice(0, last.previousLogsLength); state.firstCompletion = !last.wasFirst; state.completionCommitted = false; state.lastCompletion = null; state.pet.status = "neutral"; state.nextAction = null; state.tomorrowTasks = []; state.nextActionStatus = "idle"; state.nextActionError = ""; nextActionRequestId += 1; state.view = "task-detail"; }, "Completion undone"); break;
+        case "completion-done": if (state.lastCompletion?.wasFirst && !state.hatched) mutate(() => { ensurePet(); state.hatchStep = 0; state.view = "hatch"; }); else mutate(() => { const next = nextPendingTask(); if (next) setCurrentTask(next); resetCompletionDraft(); state.view = ""; state.tab = "today"; }); break;
         case "hatch-next": mutate(() => { ensurePet(); state.hatchStep = Math.min(5, state.hatchStep + 1); }); break;
         case "hatch-back": mutate(() => { state.hatchStep = Math.max(2, state.hatchStep - 1); }); break;
         case "pet-name-confirm": mutate(() => { const name = state.pet.nameDraft.trim(); if (name.length < 1) state.pet.nameError = "Enter a name for your companion."; else if (name.length > 20) state.pet.nameError = "Name must be 20 characters or fewer."; else { state.pet.nameError = ""; state.hatchStep = 4; } }); break;
@@ -629,6 +878,19 @@
         case "side-log": mutate(() => { state.sideDraft = clone(DEFAULT_STATE.sideDraft); state.view = "side-log"; }); break;
         case "side-mood": mutate(() => { state.sideDraft.mood = value; }); break;
         case "save-side-activity": mutate(() => { if (state.sideDraft.title.trim().length < 3) state.sideDraft.error = "Describe the activity before recording it."; else { state.sideDraft.error = ""; state.sideSaved = clone(state.sideDraft); state.tokens += 5; state.logs.push({ type: "side", activity: clone(state.sideDraft), at: new Date().toISOString() }); state.view = "side-saved"; } }); break;
+        case "adjust-plan": go("adjust-plan"); break;
+        case "daily-minutes": mutate(() => { state.planSettings.dailyMinutes = Number(value) || 30; }); break;
+        case "add-task": mutate(() => { const title = state.taskDraft.trim(); if (!title || requiredTasks().length >= 3) return; const item = { id: `day-${Math.max(1, Number(task()?.day) || 1)}-task-${Date.now()}`, day: Math.max(1, Number(task()?.day) || 1), title, description: "", duration: state.planSettings.dailyMinutes, min: `Work on this task for ${Math.min(10, state.planSettings.dailyMinutes)} minutes.`, done: false, status: "active", optional: false }; state.tasks.push(item); state.taskDraft = ""; }); break;
+        case "remove-task": if (requiredTasks().length <= 1) showToast("Keep at least one main task"); else mutate(() => { state.tasks = state.tasks.filter(item => item.id !== id); if (!state.tasks.some(item => item.id === state.current)) setCurrentTask(nextPendingTask() || state.tasks[0]); }); break;
+        case "save-plan-changes": mutate(() => {
+          const items = requiredTasks(); const total = Math.max(items.length * 5, state.planSettings.dailyMinutes); const base = Math.floor(total / items.length); const remainder = total % items.length;
+          items.forEach((item, index) => { item.duration = base + (index < remainder ? 1 : 0); });
+          if (items.some(item => item.id === state.current)) state.timer = task().duration * 60;
+          state.view = ""; state.tab = "tasks"; state.taskView = "active";
+        }, "Plan updated"); break;
+        case "potion": go("potion"); break;
+        case "use-potion": if (state.tokens >= 50) mutate(() => { const now = new Date(); const expires = new Date(now.getTime() + 12 * 60 * 60 * 1000); state.tokens -= 50; state.potion = { active: true, usedAt: now.toISOString(), expiresAt: expires.toISOString() }; state.logs.push({ type: "potion", task: task().id, title: task().title, at: now.toISOString(), expiresAt: expires.toISOString() }); state.view = "potion-active"; }); break;
+        case "retry-next-action": mutate(() => { state.nextActionError = ""; }); requestNextAction(); break;
         case "end-day": mutate(() => { state.eod.step = 0; state.eod.skipped = false; state.nextAction = null; state.nextActionStatus = "idle"; state.nextActionError = ""; state.view = "end-day"; }); break;
         case "eod-next": mutate(() => { state.eod.step = Math.min(6, state.eod.step + 1); }); break;
         case "eod-back": mutate(() => { state.eod.step = Math.max(0, state.eod.step - 1); }); break;
@@ -648,11 +910,11 @@
           });
           break;
         }
-        case "weekly-review": mutate(() => { state.weeklyFlow.step = 0; state.view = "weekly-review"; }); break;
-        case "weekly-next": mutate(() => { state.weeklyFlow.step = Math.min(6, state.weeklyFlow.step + 1); }); break;
+        case "weekly-report": case "weekly-review": mutate(() => { state.weeklyFlow.step = 0; state.view = "weekly-report"; }); break;
+        case "weekly-next": mutate(() => { state.weeklyFlow.step = Math.min(2, state.weeklyFlow.step + 1); }); break;
         case "weekly-back": mutate(() => { state.weeklyFlow.step = Math.max(0, state.weeklyFlow.step - 1); }); break;
         case "weekly-mood": mutate(() => { state.weeklyFlow.mood = value; }); break;
-        case "weekly-finish": mutate(() => { state.logs.push({ type: "weekly-review", mood: state.weeklyFlow.mood, reflection: state.weeklyFlow.reflection, at: new Date().toISOString() }); state.weeklyFlow.step = 0; state.view = ""; state.tab = "today"; }); break;
+        case "weekly-finish": mutate(() => { state.weeklyReportViewedFor = weeklyStats().dateLabel; state.weeklyFlow.step = 0; state.view = ""; state.tab = "today"; }); break;
         case "journey-complete": go("journey-complete"); break; case "journey-summary": go("journey-summary"); break; case "journey-archive": go("journey-archive"); break;
         case "archive-journey": mutate(() => { state.view = "journey-archive"; }, "Journey archived"); break;
         case "shop-category": mutate(() => { state.shopSection = value; state.view = "shop-category"; }); break;
@@ -672,11 +934,20 @@
     document.addEventListener("input", event => {
       const input = event.target; const binding = input.dataset.bind; if (!binding) return; const value = input.type === "checkbox" ? input.checked : input.value;
       if (binding === "brief") { state.brief = value; state.goalError = ""; state.planError = ""; state.aiPlan = null; const count = document.getElementById("goal-count"); const error = document.getElementById("goal-error"); if (count) count.textContent = `${value.length} / 800`; if (error) error.textContent = ""; }
+      if (binding === "chat-draft") { state.chatDraft = value; state.planError = ""; }
+      if (binding === "plan-weekly-goal" && state.aiPlan) { state.aiPlan.weeklySprintGoal = value; state.journey.goal = value; markPlanEdited(); }
+      if (binding === "plan-task-title" && state.aiPlan?.dailyActionPlan?.[Number(input.dataset.index)]) { state.aiPlan.dailyActionPlan[Number(input.dataset.index)].title = value; markPlanEdited(); }
+      if (binding === "plan-task-description" && state.aiPlan?.dailyActionPlan?.[Number(input.dataset.index)]) { state.aiPlan.dailyActionPlan[Number(input.dataset.index)].description = value; markPlanEdited(); }
+      if (binding === "plan-task-minimum" && state.aiPlan?.dailyActionPlan?.[Number(input.dataset.index)]) { state.aiPlan.dailyActionPlan[Number(input.dataset.index)].minimumCompletion = value; markPlanEdited(); }
+      if (binding === "weekly-days") state.planSettings.weeklyDays = Math.max(1, Math.min(7, Number(value) || 5));
+      if (binding === "task-title") { const item = task(input.dataset.id); if (item) item.title = value; }
+      if (binding === "task-draft") state.taskDraft = value;
       if (binding === "pet-name") { state.pet.nameDraft = value; state.pet.nameError = ""; const count = document.getElementById("pet-name-count"); if (count) count.textContent = `${value.length}/20`; }
       if (binding === "evidence-link") { state.evidence.link = value; state.evidence.error = ""; }
       if (binding === "evidence-note") { state.evidence.note = value; state.evidence.error = ""; const count = document.getElementById("evidence-note-count"); const add = document.querySelector('[data-action="evidence-add"]'); const length = value.trim().length; if (count) count.textContent = `${length} characters`; if (add) { add.disabled = length < 10; add.setAttribute("aria-disabled", length < 10 ? "true" : "false"); } }
       if (binding === "evidence-self") { state.evidence.self = value; state.evidence.error = ""; }
       if (binding === "reflection-learning") { state.reflection.learning = value; state.reflection.error = ""; }
+      if (binding === "reflection-note") state.reflection.note = value;
       if (binding === "reflection-next") state.reflection.next = value;
       if (binding === "side-title") { state.sideDraft.title = value; state.sideDraft.error = ""; }
       if (binding === "side-category") state.sideDraft.category = value;
@@ -691,11 +962,12 @@
     document.addEventListener("change", event => {
       if (event.target.id !== "evidence-file") return; const file = event.target.files?.[0]; if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl); photoPreviewUrl = file ? URL.createObjectURL(file) : ""; state.evidence.photo = file ? file.name : ""; state.evidence.error = ""; saveState(); render();
     });
-    window.setInterval(() => { if (state.view === "focus" && state.running && state.timer > 0) { state.timer -= 1; saveState(); render(); } }, 1000);
+    window.setInterval(() => { if (state.view === "focus" && state.running && state.timer > 0) { state.timer -= 1; if (state.timer === 0) state.running = false; saveState(); render(); } }, 1000);
     window.setInterval(refreshStatusTime, 30_000);
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshStatusTime(); });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) { refreshStatusTime(); if (rollOverDayIfNeeded()) { saveState(); render(); } } });
+    if (rollOverDayIfNeeded()) saveState();
     render();
-    if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("./sw.js?v=66", { updateViaCache: "none" }).catch(error => console.warn("Offline support could not be registered.", error));
+    if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("./sw.js?v=69", { updateViaCache: "none" }).catch(error => console.warn("Offline support could not be registered.", error));
   </script>
 </body>
 </html>
