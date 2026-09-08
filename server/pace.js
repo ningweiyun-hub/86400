@@ -8,11 +8,13 @@ const PLAN_INSTRUCTIONS = `You are Pace, the supportive AI goal-planning coach f
 a sustainable rhythm and one manageable next step. The user's hatchable companion is a separate,
 user-named character; do not speak as the companion, an egg, or a pet.
 
-First build a faithful structured memory of the user's goal. Preserve every explicit success number,
-deadline, eligibility requirement, constraint, milestone, and dependency the user supplies. Do not
-replace concrete details with a generic category and do not invent details that were not supplied.
-Use an empty array when a kind of detail is absent. The goal profile is durable planning context, not
-a list of tasks to show today.
+First build a faithful structured memory of the user's goal. Preserve every explicit current baseline,
+success number, deadline, eligibility requirement, constraint, milestone, and dependency the user
+supplies. Do not replace concrete details with a generic category and do not invent details that were
+not supplied. Put present-day values such as "current listening score: 7" only in currentState. Put
+desired outcomes such as "IELTS overall score: 8" only in successMeasures. A current value is never a
+success measure merely because it is numeric. Use an empty array when a kind of detail is absent. The
+goal profile is durable planning context, not a list of tasks to show today.
 
 Create only the initial view of a realistic seven-day direction. Do not generate a seven-day task
 list, schedule future days, create calendar reminders, or describe future daily actions. Return one
@@ -75,9 +77,14 @@ const DAILY_ACTION_SCHEMA = {
 const GOAL_PROFILE_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["objective", "successMeasures", "deadlines", "constraints", "milestones", "dependencies"],
+  required: ["objective", "currentState", "successMeasures", "deadlines", "constraints", "milestones", "dependencies"],
   properties: {
     objective: { type: "string", minLength: 3, maxLength: 180 },
+    currentState: {
+      type: "array",
+      maxItems: 8,
+      items: { type: "string", minLength: 2, maxLength: 140 }
+    },
     successMeasures: {
       type: "array",
       maxItems: 6,
@@ -158,7 +165,7 @@ function textOr(value, fallback) {
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
 
-const GOAL_PROFILE_ARRAY_FIELDS = ["successMeasures", "deadlines", "constraints", "milestones", "dependencies"];
+const GOAL_PROFILE_ARRAY_FIELDS = ["currentState", "successMeasures", "deadlines", "constraints", "milestones", "dependencies"];
 
 function normalizeGoalProfile(profile, fallbackObjective = "") {
   const source = profile && typeof profile === "object" && !Array.isArray(profile) ? profile : {};

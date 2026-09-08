@@ -18,6 +18,7 @@ const {
 
 const CAREER_GOAL_PROFILE = {
   objective: "Land a qualifying career role in Germany",
+  currentState: ["Current German level is B2"],
   successMeasures: ["Salary above €75,000", "Receive a job offer"],
   deadlines: ["Reach C1 by the end of November", "Apply by the end of December"],
   constraints: ["Role must qualify for an EU Blue Card"],
@@ -103,6 +104,8 @@ test("plan payload preserves the frontend contract", () => {
   assert.equal(payload.dailyActionPlan[0].day, 1);
   assert.deepEqual(payload.sideTasks, []);
   assert.deepEqual(payload.goalProfile, CAREER_GOAL_PROFILE);
+  assert.deepEqual(payload.goalProfile.currentState, ["Current German level is B2"]);
+  assert.equal(payload.goalProfile.successMeasures.includes("Current German level is B2"), false);
 });
 
 test("plan schema keeps every visible planning field concise", () => {
@@ -111,7 +114,8 @@ test("plan schema keeps every visible planning field concise", () => {
   assert.equal(PLAN_SCHEMA.properties.todayAction.properties.description.maxLength, 120);
   assert.equal(PLAN_SCHEMA.properties.todayAction.properties.minimumCompletion.maxLength, 64);
   assert.equal(PLAN_SCHEMA.properties.additionalTodayActions.maxItems, 2);
-  assert.deepEqual(GOAL_PROFILE_SCHEMA.required, ["objective", "successMeasures", "deadlines", "constraints", "milestones", "dependencies"]);
+  assert.deepEqual(GOAL_PROFILE_SCHEMA.required, ["objective", "currentState", "successMeasures", "deadlines", "constraints", "milestones", "dependencies"]);
+  assert.equal(GOAL_PROFILE_SCHEMA.properties.currentState.maxItems, 8);
   assert.equal(GOAL_PROFILE_SCHEMA.properties.milestones.maxItems, 8);
 });
 
